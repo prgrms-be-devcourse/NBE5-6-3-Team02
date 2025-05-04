@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Movie Platform</title>
+  <th:block th:fragment="frg_static">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+      body {
+        background-color: #121212;
+        color: white;
+      }
+      .highlight {
+        color: #e53935; /* Red accent */
+      }
+      nav {
+        background-color: #1e1e1e;
+      }
+      footer {
+        background-color: #1e1e1e;
+        padding: 20px 0;
+      }
+    </style>
+  </th:block>
+</head>
+<body>
+
+<th:block th:fragment="frg_header">
+  <header>
+    <nav>
+      <div class="nav-wrapper container">
+        <a href="/" class="brand-logo highlight">🎬 SmartMovie</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a href="#" class="white-text">Home</a></li>
+          <li><a href="#" class="white-text">Search</a></li>
+          <li><a href="#" class="white-text">My Page</a></li>
+          <li><a href="#" class="highlight">Login</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <form th:action="@{/logout}" method="post" id="logoutForm"></form>
+  <script>
+
+    (() => {
+
+      const logout = document.querySelector('#logout');
+      if (!logout) {
+        return;
+      }
+
+      logout.addEventListener('click', ev => {
+        ev.preventDefault();
+        logoutForm.submit();
+      });
+
+    })();
+  </script>
+</th:block>
+
+
+
+<!-- footer -->
+<th:block th:fragment="frg_footer">
+  <footer class="page-footer">
+    <div class="container center-align white-text">
+      © 2025 SmartMovie Project | Made with ❤️ and LLM
+    </div>
+  </footer>
+</th:block>
+
+
+</body>
+</html>
