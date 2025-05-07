@@ -1,12 +1,17 @@
 package com.grepp.smartwatcha.infra.jpa.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDate;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "movie")
+@Table(name = "movies")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,15 +19,14 @@ import java.time.LocalDate;
 @Builder
 public class MovieEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
-    private String posterUrl;
+    private int year;
     private String country;
-    private String genre;
-    private LocalDate releaseDate;
-    private String synopsis;
-    private Boolean released; // 공개 여부
+    private LocalDateTime createdAt;
+    private boolean activated;
+    private String poster;
+    private Boolean isReleased; // 공개 여부
     private String certification; // 관람등급
 }
