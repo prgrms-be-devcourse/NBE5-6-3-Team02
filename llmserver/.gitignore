@@ -177,4 +177,7 @@ pyrightconfig.json
 
 /data
 
-/*.ipynb
+*.ipynb
+
+*.csv
+*.zip
