@@ -1,5 +1,6 @@
 package com.grepp.smartwatcha.infra.jpa.entity;
 
+import com.grepp.smartwatcha.infra.jpa.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -17,15 +18,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MovieEntity {
+public class MovieEntity extends BaseEntity {
     @Id
     private Long id;
 
     private String title;
     private int year;
     private String country;
-    private LocalDateTime createdAt;
-    private boolean activated;
     private String poster;
     private Boolean isReleased; // 공개 여부
     private String certification; // 관람등급
