@@ -23,5 +23,6 @@ public class MovieEntity {
     private String genre;
     private LocalDate releaseDate;
     private String synopsis;
-    private Boolean released;
+    private Boolean released; // 공개 여부
+    private String certification; // 관람등급
 }
