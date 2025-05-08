@@ -5,8 +5,6 @@ import com.grepp.smartwatcha.infra.jpa.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "users")
 @Getter
@@ -15,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class UserEntity extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,12 +21,13 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String email;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, length = 50)
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false) // Role 이 반드시 부여되도록 수정
     private Role role;
 }
