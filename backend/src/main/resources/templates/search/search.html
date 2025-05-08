@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<main layout:fragment="content">
+  <div class="row">
+    <div class="col s12">
+      <h4 class="highlight">Search Movies</h4>
+
+      <!-- 라디오 버튼: 일반 vs 스마트 -->
+      <p>
+        <label>
+          <input name="searchMode" type="radio" value="normal" checked />
+          <span class="white-text">General Search</span>
+        </label>
+      </p>
+      <p>
+        <label>
+          <input name="searchMode" type="radio" value="smart" />
+          <span class="white-text">Smart Search (LLM)</span>
+        </label>
+      </p>
+
+      <!-- 검색 입력창 -->
+      <div class="input-field">
+        <input id="searchInput" type="text" class="white-text" placeholder="e.g. thriller movie starring Brad Pitt">
+        <label for="searchInput" class="active white-text">Movie Search</label>
+      </div>
+      <div class="right-align">
+        <button class="btn red accent-3" id="searchBtn">
+          <i class="material-icons left">search</i>Search
+        </button>
+      </div>
+
+      <!-- 검색 도움말 -->
+      <div class="card black z-depth-2" style="margin-top: 30px;">
+        <div class="card-content white-text">
+          <span class="card-title">Search Help</span>
+          <ul class="browser-default">
+            <li>🎯 <b>General:</b> <i>"Inception"</i>, <i>"romantic comedy 2020"</i></li>
+            <li>🧠 <b>Smart:</b> <i>"A movie where robots gain consciousness"</i>, <i>"like Interstellar but more emotional"</i></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로딩 화면 -->
+  <div class="row" id="loadingSection" style="display: none;">
+    <div class="col s12 center-align">
+      <div class="preloader-wrapper active">
+        <div class="spinner-layer spinner-red-only">
+          <div class="circle-clipper left"><div class="circle"></div></div>
+          <div class="gap-patch"><div class="circle"></div></div>
+          <div class="circle-clipper right"><div class="circle"></div></div>
+        </div>
+      </div>
+      <p>Searching for your movies...</p>
+    </div>
+  </div>
+
+  <!-- 검색 결과 -->
+  <div class="row" id="resultSection" style="display: none;">
+    <div class="col s12">
+      <ul class="collection" id="resultList"></ul>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const loadingSection = document.getElementById('loadingSection');
+    const resultSection = document.getElementById('resultSection');
+    const resultList = document.getElementById('resultList');
+
+    searchBtn.addEventListener('click', async () => {
+      const query = searchInput.value.trim();
+      if (!query) return;
+
+      const mode = document.querySelector('input[name="searchMode"]:checked').value;
+      const url = mode === 'smart' ? '/api/smartsearch' : '/api/search';
+
+      resultList.innerHTML = '';
+      loadingSection.style.display = 'block';
+      resultSection.style.display = 'none';
+
+      try {
+        const res = await fetch(`${url}?query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+          resultList.innerHTML = `<li class="collection-item red-text">No results found.</li>`;
+        } else {
+          data.forEach(movie => {
+            const item = `
+              <li class="collection-item black">
+                <span class="highlight">${movie.title}</span>
+                <br><small>${movie.year} | ${movie.genre}</small>
+              </li>`;
+            resultList.insertAdjacentHTML('beforeend', item);
+          });
+        }
+      } catch (err) {
+        resultList.innerHTML = `<li class="collection-item red-text">Error during search.</li>`;
+        console.error(err);
+      } finally {
+        loadingSection.style.display = 'none';
+        resultSection.style.display = 'block';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
