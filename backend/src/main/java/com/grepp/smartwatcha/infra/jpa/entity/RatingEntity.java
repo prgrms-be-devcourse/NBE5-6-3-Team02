@@ -1,5 +1,6 @@
 package com.grepp.smartwatcha.infra.jpa.entity;
 
+import com.grepp.smartwatcha.infra.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RatingEntity {
+public class RatingEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

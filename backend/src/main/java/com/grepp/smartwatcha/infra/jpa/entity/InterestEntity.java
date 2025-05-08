@@ -1,5 +1,6 @@
 package com.grepp.smartwatcha.infra.jpa.entity;
 
+import com.grepp.smartwatcha.infra.jpa.BaseEntity;
 import com.grepp.smartwatcha.infra.jpa.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InterestEntity {
+public class InterestEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,6 +29,4 @@ public class InterestEntity {
 
     @Enumerated(EnumType.STRING)
     private Status status;
-
-    private LocalDateTime createdAt = LocalDateTime.now();
 }
