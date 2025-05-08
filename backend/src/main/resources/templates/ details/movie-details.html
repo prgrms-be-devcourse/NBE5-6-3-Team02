@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${movie.title}">영화 상세 페이지</title>
+</head>
+<body>
+<h1 th:text="${movie.title}">영화 제목</h1>
+<p><strong>감독:</strong> <span th:text="${movie.director}"></span></p>
+<p><strong>장르:</strong> <span th:text="${movie.genre}"></span></p>
+<p><strong>평점:</strong> <span th:text="${movie.averageRating}"></span></p>
+<p><strong>설명:</strong> <span th:text="${movie.description}"></span></p>
+
+<a href="/">메인으로 돌아가기</a>
+</body>
+</html>

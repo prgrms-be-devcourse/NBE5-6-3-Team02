@@ -1,10 +1,12 @@
 package com.grepp.smartwatcha.infra.jpa.entity;
 
 import com.grepp.smartwatcha.infra.jpa.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,4 +30,11 @@ public class MovieEntity extends BaseEntity {
     private String poster;
     private Boolean isReleased; // 공개 여부
     private String certification; // 관람등급
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL)
+    private List<RatingEntity> ratings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL)
+    private List<InterestEntity> interests = new ArrayList<>();
+
 }
