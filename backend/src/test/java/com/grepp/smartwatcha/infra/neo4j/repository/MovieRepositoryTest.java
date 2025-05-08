@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 class MovieRepositoryTest {
 
     @Autowired
-    private MovieRepository movieRepository;
+    private MovieNeo4jRepository movieRepository;
 
     @Test
     @Transactional(transactionManager = "neo4jTransactionManager")
