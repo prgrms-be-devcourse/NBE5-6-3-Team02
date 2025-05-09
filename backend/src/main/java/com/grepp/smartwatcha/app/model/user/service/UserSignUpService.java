@@ -17,7 +17,7 @@ public class UserSignUpService {
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationJpaRepository emailVerificationRepository;
 
-    @Transactional
+    @Transactional(transactionManager = "jpaTransactionManager")
     public Long signUp(SignUpRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
