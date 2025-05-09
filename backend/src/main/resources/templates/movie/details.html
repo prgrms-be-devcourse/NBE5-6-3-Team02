@@ -165,7 +165,7 @@
     <div class="banner-info">
         <h1 th:text="${movie.title}">영화 제목</h1>
         <p>
-            <span th:text="'연도: ' + ${movie.year}"></span> |
+            <span th:text="'개봉일: ' + ${#temporals.format(movie.releaseDate, 'yyyy년 MM월 dd일')}"></span> |
             <span th:text="'국가: ' + ${movie.country}"></span> |
             <span th:text="'관람등급: ' + ${movie.certification}"></span> |
             <span th:text="'공개 여부: ' + (${movie.isReleased} ? '공개됨' : '미공개')"></span>

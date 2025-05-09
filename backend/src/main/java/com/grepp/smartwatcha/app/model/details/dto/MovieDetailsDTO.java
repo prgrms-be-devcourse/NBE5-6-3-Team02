@@ -4,13 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovieDetailsDTO {
     private Long id;
     private String title;
-    private int year;
+    private LocalDateTime releaseDate;
     private String country;
     private String poster;
     private String certification;

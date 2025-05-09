@@ -21,7 +21,7 @@ public class MovieJpaService {
         return new MovieDetailsDTO(
                 movie.getId(),
                 movie.getTitle(),
-                movie.getYear(),
+                movie.getReleaseDate(),
                 movie.getCountry(),
                 movie.getPoster(),
                 movie.getCertification(),
