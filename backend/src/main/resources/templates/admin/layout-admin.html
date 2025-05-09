@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 대시보드</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #bdbdbd;
+        }
+        .dashboard-flex {
+            display: flex;
+            background-color: #121212;
+            color: #bdbdbd;
+            margin: 0;
+        }
+        aside.dashboard-aside {
+            width: 250px;
+            background-color: #1e1e1e;
+            height: 86vh;
+            padding: 2rem;
+        }
+        .collapsible,
+        .collapsible > li,
+        .collapsible-header,
+        .collapsible-body,
+        .collapsible > li.active,
+        .collapsible > li.active .collapsible-body {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .collapsible-header, .collapsible-body {
+            padding-left: 0rem !important;
+            background-color: #1e1e1e !important;
+            color: #fafafa !important;
+        }
+        .collapsible-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding-left: 0.2rem !important;
+            padding-right: 1rem !important;
+        }
+        .collapsible-header i.material-icons {
+            margin-left: 0.5rem;
+            margin-right: 0 !important;
+        }
+        .collapsible-body {
+            padding-top: 0.3rem !important;
+            padding-bottom: 0.5rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            border-top: none !important;
+            box-shadow: none !important;
+        }
+        .collapsible-body ul {
+            margin: 0;
+            padding: 0 0 0 1.2rem;
+            list-style: none;
+        }
+        .collapsible-body ul li {
+            margin-bottom: 1rem;
+        }
+        .collapsible-body ul li:last-child {
+            margin-bottom: 0;
+        }
+        section.dashboard-section {
+            flex-grow: 1;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+<main layout:fragment="content" style="margin: 0; padding: 0;">
+    <div class="dashboard-flex">
+        <!-- 사이드바 -->
+        <aside class="dashboard-aside">
+            <h5 style="color: lightcoral;">Admin Menu</h5>
+            <ul class="collapsible">
+                <li>
+                    <a class="collapsible-header" href="/admin">Dashboard<i class="material-icons">bookmark</i></a>
+                </li>
+                <li>
+                    <div class="collapsible-header">User Management<i class="material-icons">expand_more</i></div>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li><a href="/admin/users" style="color:white;">User List</a></li>
+                            <li><a href="/admin/users/detail" style="color:white;">User Details</a></li>
+                            <li><a href="/admin/users/delete" style="color:white;">Delete User</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <div class="collapsible-header">Movie Management<i class="material-icons">expand_more</i></div>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li><a href="/admin/movies" style="color:white;">All Movies</a></li>
+                            <li><a href="/admin/movies/manual" style="color:white;">Manual Movie Registration</a></li>
+                            <li><a href="/admin/movies/edit" style="color:white;">Edit Movie Info</a></li>
+                            <li><a href="/admin/coming-soon" style="color:white;">Upcoming Releases</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <div class="collapsible-header">Tag Management<i class="material-icons">expand_more</i></div>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li><a href="/admin/tags" style="color:white;">View Tags</a></li>
+                            <li><a href="/admin/tags/manual" style="color:white;">Manual Tag Registration</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </aside>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var elems = document.querySelectorAll('.collapsible');
+                M.Collapsible.init(elems);
+            });
+        </script>
+
+        <!-- 메인 콘텐츠 영역만 비워둠 -->
+        <section class="dashboard-section" layout:fragment="main-content"></section>
+    </div>
+</main>
+</body>
+</html>
+
