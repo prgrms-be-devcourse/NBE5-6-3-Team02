@@ -8,6 +8,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 @RequiredArgsConstructor
 public class MovieDetailsController {
@@ -19,8 +22,11 @@ public class MovieDetailsController {
         MovieDetailsDTO movie = movieJpaService.getMovieDetail(id);
         Double averageScore = movieJpaService.getAverageScore(id);
 
+        Map<Integer, Integer> ratingDistribution = new HashMap<>();
+
         model.addAttribute("movie", movie);
         model.addAttribute("averageScore", averageScore);
+        model.addAttribute("ratingDistribution", ratingDistribution);
 
         return "movie/details";
     }
