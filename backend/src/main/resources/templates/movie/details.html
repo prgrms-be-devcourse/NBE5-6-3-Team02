@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${movie.title}">영화 상세 페이지</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+            z-index: 10;
+        }
+        .banner {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            padding: 50px;
+            box-sizing: border-box;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+        }
+        .banner-info {
+            z-index: 2;
+        }
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            display: flex;
+            gap: 30px;
+            background: #f7f7f7;  /* ✅ 전체 회색 영역 */
+            border-bottom: 1px solid #ddd;  /* ✅ 밑에 구분선 */
+        }
+        .poster {
+            width: 300px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .poster img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        .graph {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 150px;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            position: relative;
+        }
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+        .bar-vertical {
+            width: 20px;
+            background-color: #ff2f6e;
+            border-radius: 5px 5px 0 0;
+            margin-bottom: 5px;
+            transition: height 0.3s;
+            min-height: 5px; /* ⭐ 최소 높이 추가 */
+        }
+        .bar-label {
+            font-size: 12px;
+            color: #999;
+        }
+        .details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .movie-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .info {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .rating-section {
+            margin: 20px 0;
+        }
+        .stars {
+            font-size: 28px;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .stars:hover, .stars.active {
+            color: #f5c518;
+        }
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .icon-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #ff2f6e;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .icon-button:hover {
+            background-color: #e0265c;
+        }
+        .tags {
+            margin-top: 20px;
+        }
+        .tag-button {
+            margin: 5px 5px 0 0;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 20px;
+            background-color: #eee;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .tag-button:hover {
+            background-color: #ff2f6e;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<!-- SmartWatcha 로고 -->
+<a href="/" class="header">SmartWatcha</a>
+
+<!-- 상단 배너 -->
+<div class="banner" th:style="'background-image: url(https://image.tmdb.org/t/p/w780' + ${movie.poster} + ');'">
+    <div class="banner-info">
+        <h1 th:text="${movie.title}">영화 제목</h1>
+        <p>
+            <span th:text="'연도: ' + ${movie.year}"></span> |
+            <span th:text="'국가: ' + ${movie.country}"></span> |
+            <span th:text="'관람등급: ' + ${movie.certification}"></span> |
+            <span th:text="'공개 여부: ' + (${movie.isReleased} ? '공개됨' : '미공개')"></span>
+        </p>
+    </div>
+</div>
+
+<!-- 회색 전체 영역 (틀 없이 자연스럽게) -->
+<div class="content-section">
+    <!-- 왼쪽: 포스터 + 그래프 -->
+    <div class="poster">
+        <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="포스터">
+
+        <!-- 세로 막대 그래프 -->
+        <div class="graph">
+            <div class="bar-group" th:each="star : ${#numbers.sequence(1,5)}">
+                <div class="bar-vertical"
+                     th:style="'height:' + (${ratingDistribution[star]} != null ? ${ratingDistribution[star]} : 0) + '%'"></div>
+                <div class="bar-label" th:text="${star} + '점'"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 오른쪽: 영화 세부 정보 -->
+    <div class="details">
+
+        <div class="movie-title" th:text="${movie.title}">영화 제목</div>
+
+        <div class="info">
+            <strong>평균 평점:</strong> <span th:text="${averageScore}">0.0</span> ⭐
+        </div>
+
+        <!-- 별점 평가 -->
+        <div class="rating-section">
+            <strong>평가하기:</strong>
+            <span th:each="i : ${#numbers.sequence(1,5)}">
+                <i class="fa-regular fa-star stars"
+                   th:attr="data-score=${i}"
+                   onclick="rateMovie([[${movie.id}]], [[${i}]])"></i>
+            </span>
+        </div>
+
+        <!-- 보고싶어요 / 관심없어요 -->
+        <div class="actions">
+            <button class="icon-button"><i class="fa-regular fa-bookmark"></i> 보고싶어요</button>
+            <button class="icon-button"><i class="fa-regular fa-eye-slash"></i> 관심없어요</button>
+        </div>
+
+        <!-- 태그 -->
+        <div class="tags">
+            <strong>태그:</strong>
+            <span th:each="tag : ${tags}">
+                <button class="tag-button"
+                        th:text="${tag.name}"
+                        th:attr="data-tag-id=${tag.id}"
+                        onclick="selectTag([[${movie.id}]], [[${tag.id}]])">
+                    #태그
+                </button>
+            </span>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function rateMovie(movieId, score) {
+        fetch('/ratings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ movieId: movieId, score: score })
+        }).then(response => {
+            if(response.ok) {
+                alert('평가가 저장되었습니다!');
+                location.reload();
+            } else {
+                alert('오류 발생!');
+            }
+        });
+    }
+
+    function selectTag(movieId, tagId) {
+        fetch('/tags/select', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ movieId: movieId, tagId: tagId })
+        }).then(response => {
+            if(response.ok) {
+                alert('태그가 저장되었습니다!');
+            } else {
+                alert('오류 발생!');
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

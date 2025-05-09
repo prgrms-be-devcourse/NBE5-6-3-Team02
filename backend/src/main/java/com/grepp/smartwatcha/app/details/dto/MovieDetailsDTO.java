@@ -10,8 +10,9 @@ import lombok.NoArgsConstructor;
 public class MovieDetailsDTO {
     private Long id;
     private String title;
+    private int year;
     private String country;
-    private String posterUrl;
+    private String poster;
     private String certification;
     private Boolean isReleased;
 }

@@ -10,13 +10,13 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@EnableTransactionManagement
+//@EnableTransactionManagement
 public class TransactionManagerConfig {
 
-    @Bean(name = "jpaTransactionManager")
-    public PlatformTransactionManager jpaTransactionManager(EntityManagerFactory emf) {
-        return new JpaTransactionManager(emf);
-    }
+//    @Bean(name = "jpaTransactionManager")
+//    public PlatformTransactionManager jpaTransactionManager(EntityManagerFactory emf) {
+//        return new JpaTransactionManager(emf);
+//    }
 
     @Bean(name = "neo4jTransactionManager")
     public PlatformTransactionManager neo4jTransactionManager(Driver driver) {
