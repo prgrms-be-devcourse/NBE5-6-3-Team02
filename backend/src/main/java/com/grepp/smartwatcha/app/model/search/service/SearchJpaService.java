@@ -22,13 +22,10 @@ public class SearchJpaService {
     public List<SearchResultDto> findByIds(List<Long> ids) {
         List<SearchResultDto> searchResultDtos = new ArrayList<>();
         for (Long id : ids) {
-            Optional<MovieEntity> movieEntities = searchJpaRepository.findById(id);
+            Optional<MovieEntity> movieEntity = searchJpaRepository.findById(id);
 
-            if (movieEntities.isPresent()) {
-                SearchResultDto searchResultDto = new SearchResultDto();
-                MovieEntity movieEntity = movieEntities.get();
-                searchResultDto.setTitle(movieEntity.getTitle());
-                searchResultDto.setPoster(movieEntity.getPoster());
+            if (movieEntity.isPresent()) {
+                SearchResultDto searchResultDto = SearchResultDto.fromEntity(movieEntity.get());
                 searchResultDtos.add(searchResultDto);
             }
         }
@@ -40,9 +37,7 @@ public class SearchJpaService {
         List<SearchResultDto> searchResultDtos = new ArrayList<>();
 
         for (MovieEntity movieEntity : movieEntities) {
-            SearchResultDto searchResultDto = new SearchResultDto();
-            searchResultDto.setTitle(movieEntity.getTitle());
-            searchResultDto.setPoster(movieEntity.getPoster());
+            SearchResultDto searchResultDto = SearchResultDto.fromEntity(movieEntity);
             searchResultDtos.add(searchResultDto);
         }
 
@@ -54,9 +49,7 @@ public class SearchJpaService {
         List<SearchResultDto> searchResultDtos = new ArrayList<>();
 
         for (MovieEntity movieEntity : movieEntities) {
-            SearchResultDto searchResultDto = new SearchResultDto();
-            searchResultDto.setTitle(movieEntity.getTitle());
-            searchResultDto.setPoster(movieEntity.getPoster());
+            SearchResultDto searchResultDto = SearchResultDto.fromEntity(movieEntity);
             searchResultDtos.add(searchResultDto);
         }
 
@@ -68,9 +61,7 @@ public class SearchJpaService {
         List<SearchResultDto> searchResultDtos = new ArrayList<>();
 
         for (MovieEntity movieEntity : movieEntities) {
-            SearchResultDto searchResultDto = new SearchResultDto();
-            searchResultDto.setTitle(movieEntity.getTitle());
-            searchResultDto.setPoster(movieEntity.getPoster());
+            SearchResultDto searchResultDto = SearchResultDto.fromEntity(movieEntity);
             searchResultDtos.add(searchResultDto);
         }
 

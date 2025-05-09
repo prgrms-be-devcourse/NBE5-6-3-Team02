@@ -18,15 +18,17 @@
 
         <!-- 카드 반복 -->
         <div class="col s12 m6 l4" th:each="movie : ${searchResult}">
-          <div class="card black z-depth-2 hoverable">
-            <div class="card-image">
-              <img th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="poster" style="height: 400px; object-fit: cover;">
-              <span class="card-title" th:text="${movie.title}" style="background-color: rgba(0,0,0,0.6); padding: 5px;"></span>
+          <a th:href="@{/movies/{id}(id=${movie.id})}">
+            <div class="card black z-depth-2 hoverable">
+              <div class="card-image">
+                <img th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="poster" style="height: 400px; object-fit: cover;">
+                <span class="card-title" th:text="${movie.title}" style="background-color: rgba(0,0,0,0.6); padding: 5px;"></span>
+              </div>
+              <div class="card-content white-text">
+                <p th:text="${movie.title}"></p>
+              </div>
             </div>
-            <div class="card-content white-text">
-              <p th:text="${movie.title}"></p>
-            </div>
-          </div>
+          </a>
         </div>
 
       </div>
