@@ -33,6 +33,6 @@ public class MovieNode {
     private List<GenreNode> genres = new ArrayList<>();
 
     @Relationship(type="HAS_TAG", direction = Direction.OUTGOING)
-    private List<TagNode> tags = new ArrayList<>();
+    private List<TagRelationship> tags = new ArrayList<>();
 
 }

@@ -51,7 +51,7 @@ public class SearchController {
         List<SearchResultDto> searchResultDtos = new ArrayList<>();
 
         if (type.equals("generalSearch")) {
-            switch (intent.toLowerCase()){
+            switch (intent.toLowerCase()) {
                 case "title":
                     searchResultDtos = searchService.findByTitle(query);
                     break;
@@ -60,6 +60,18 @@ public class SearchController {
                     break;
                 case "country":
                     searchResultDtos = searchService.findByCountry(query);
+                    break;
+                case "genre":
+                    searchResultDtos = searchService.findByGenre(query);
+                    break;
+                case "director":
+                    searchResultDtos = searchService.findByDirector(query);
+                    break;
+                case "writer":
+                    searchResultDtos = searchService.findByWriter(query);
+                    break;
+                case "actor":
+                    searchResultDtos = searchService.findByActor(query);
                     break;
             }
         } else if (type.equals("smartSearch")) {

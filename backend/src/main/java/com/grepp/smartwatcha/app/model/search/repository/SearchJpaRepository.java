@@ -9,12 +9,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SearchJpaRepository extends JpaRepository<MovieEntity, Long> {
 
-    @Override
-    Optional<MovieEntity> findById(Long id);
-
     List<MovieEntity> findByTitle(String title);
 
     List<MovieEntity> findByYear(int year);
 
     List<MovieEntity> findByCountry(String country);
+
 }
