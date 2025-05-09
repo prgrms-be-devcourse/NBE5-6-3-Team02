@@ -11,10 +11,10 @@ import java.util.List;
 public class MovieRecommendLatestJpaRepository {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager em;
 
     public List<MovieEntity> findTop10ByOrderByCreatedAtDesc() {
-        return entityManager.createQuery(
+        return em.createQuery(
                         "SELECT m FROM MovieEntity m ORDER BY m.createdAt DESC",
                         MovieEntity.class)
                 .setMaxResults(10)

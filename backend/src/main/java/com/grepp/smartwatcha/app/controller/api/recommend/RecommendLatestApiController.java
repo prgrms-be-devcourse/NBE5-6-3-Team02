@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.controller.api.recommend;
 
-import com.grepp.smartwatcha.app.service.recommend.RecommendLatestMovieService;
+import com.grepp.smartwatcha.app.service.RecommendLatestMovieService;
 import com.grepp.smartwatcha.infra.response.recommend.MovieRecommendLatestResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +14,10 @@ import java.util.List;
 @RequestMapping("/api/recommend")
 public class RecommendLatestApiController {
 
-    private final RecommendLatestMovieService recommendLatestMovieService;
+    private final RecommendLatestMovieService recommendService;
 
     @GetMapping("/latest-movies")
-    public List<MovieRecommendLatestResponse> getLatestMovieRecommendations() {
-        return recommendLatestMovieService.getLatestMovieList();
+    public List<MovieRecommendLatestResponse> getLatestMovies() {
+        return recommendService.getTop10LatestMovies();
     }
 }

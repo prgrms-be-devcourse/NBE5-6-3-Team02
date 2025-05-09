@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.api.recommend;
 
 
-import com.grepp.smartwatcha.app.service.recommend.RecommendHighestRatedMovieService;
+import com.grepp.smartwatcha.app.service.RecommendHighestRatedMovieService;
 import com.grepp.smartwatcha.infra.response.recommend.MovieRecommendHighestRatedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +19,7 @@ public class RecommendHighestRatedApiController {
 
     @GetMapping("/highest-rated")
     public List<MovieRecommendHighestRatedResponse> getTopRated() {
-        return recommendService.getTop10RatedMovies();
+        return recommendService.getTop10HighestRatedMovies();
     }
 
 }

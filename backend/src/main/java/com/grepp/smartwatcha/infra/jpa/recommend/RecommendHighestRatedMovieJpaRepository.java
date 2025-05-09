@@ -10,10 +10,10 @@ import java.util.List;
 public class RecommendHighestRatedMovieJpaRepository {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager em;
 
     public List<Object[]> findTop10ByAverageRating() {
-        return entityManager.createQuery(
+        return em.createQuery(
                         "SELECT r.movie.id, AVG(r.score) as avgScore " +
                                 "FROM RatingEntity r " +
                                 "GROUP BY r.movie.id " +

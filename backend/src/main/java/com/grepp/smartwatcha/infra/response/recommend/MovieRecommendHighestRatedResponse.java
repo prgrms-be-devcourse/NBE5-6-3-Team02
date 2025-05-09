@@ -10,6 +10,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class MovieRecommendHighestRatedResponse {
+
     private Long id;
     private String title;
     private int year;
