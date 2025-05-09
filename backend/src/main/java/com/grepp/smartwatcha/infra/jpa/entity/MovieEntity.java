@@ -40,10 +40,4 @@ public class MovieEntity extends BaseEntity {
     @Length(max=256)
     private String overview;
 
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL)
-    private List<RatingEntity> ratings = new ArrayList<>();
-
-    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL)
-    private List<InterestEntity> interests = new ArrayList<>();
-
 }
