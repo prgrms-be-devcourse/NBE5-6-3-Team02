@@ -30,7 +30,7 @@ public class MovieEntity extends BaseEntity {
     private Long id;
 
     private String title;
-    private int year;
+    private LocalDateTime releaseDate;
     private String country;
     private String poster;
     private Boolean isReleased; // 공개 여부
