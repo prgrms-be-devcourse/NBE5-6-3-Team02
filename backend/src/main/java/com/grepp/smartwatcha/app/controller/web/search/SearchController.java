@@ -6,10 +6,15 @@ import com.grepp.smartwatcha.app.controller.api.search.payload.SmartSearchRespon
 import com.grepp.smartwatcha.app.model.search.SearchService;
 import com.grepp.smartwatcha.app.model.search.service.SearchJpaService;
 import com.grepp.smartwatcha.app.model.search.dto.SearchResultDto;
+import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
+import com.grepp.smartwatcha.infra.response.ResponseCode;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +40,7 @@ public class SearchController {
             @RequestParam(required = true) String type,
             @RequestParam(required = true) String intent,
             @RequestParam(required = true) String query,
+            @AuthenticationPrincipal UserDetails user,
             Model model
     ){
 
@@ -57,17 +63,25 @@ public class SearchController {
                     break;
             }
         } else if (type.equals("smartSearch")) {
+            if (user == null) {
+                throw new AccessDeniedException("Smart search requires login.");
+            }
+            String token = "123qwe!@#";
+
             SmartSearchApiRequest request = new SmartSearchApiRequest();
             request.setIntent(intent);
             request.setQuery(query);
-            SmartSearchResponse response = smartSearchApi.call("123qwe!@#", request);
+            try{
+                SmartSearchResponse response = smartSearchApi.call(token, request);
+                log.info("smartSearch response: {}", response);
+                List<Long> movieIdList = response.getMovieIds().stream()
+                        .map(SmartSearchResponse.MovieWrapper::getMovie)
+                        .toList();
 
-            log.info("smartSearch response: {}", response);
-            List<Long> movieIdList = response.getMovieIds().stream()
-                    .map(SmartSearchResponse.MovieWrapper::getMovie)
-                    .toList();
-
-            searchResultDtos = searchService.findByIds(movieIdList);
+                searchResultDtos = searchService.findByIds(movieIdList);
+            } catch (Exception e){
+                throw new CommonException(ResponseCode.BAD_REQUEST, e);
+            }
         }
         log.info("searchResultDtos: {}", searchResultDtos);
 

@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout}">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+  <title>Movie Search</title>
 </head>
+
 <body>
-<main layout:fragment="content">
+<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
   <div class="row">
     <div class="col s12">
       <h4 class="highlight">Search Movies</h4>
@@ -14,24 +17,29 @@
       <!-- 라디오 버튼: 일반 vs 스마트 -->
       <p>
         <label>
-          <input name="searchMode" type="radio" value="normal" checked />
+          <input name="searchMode" type="radio" value="generalSearch" checked />
           <span class="white-text">General Search</span>
         </label>
       </p>
       <p>
         <label>
-          <input name="searchMode" type="radio" value="smart" />
+          <input name="searchMode" type="radio" value="smartSearch"
+                 sec:authorize="isAuthenticated()"/>
           <span class="white-text">Smart Search (LLM)</span>
         </label>
+        <span sec:authorize="!isAuthenticated()" class="grey-text text-lighten-1" style="font-size: 0.9em;">
+          (Login required)
+        </span>
       </p>
 
       <!-- 검색 입력창 -->
       <div class="input-field">
-        <input id="searchInput" type="text" class="white-text" placeholder="e.g. thriller movie starring Brad Pitt">
+        <input id="searchInput" type="text" class="white-text" placeholder="e.g. genre:thriller">
         <label for="searchInput" class="active white-text">Movie Search</label>
       </div>
+
       <div class="right-align">
-        <button class="btn red accent-3" id="searchBtn">
+        <button class="btn red accent-3" id="searchBtn" type="button">
           <i class="material-icons left">search</i>Search
         </button>
       </div>
@@ -41,8 +49,13 @@
         <div class="card-content white-text">
           <span class="card-title">Search Help</span>
           <ul class="browser-default">
-            <li>🎯 <b>General:</b> <i>"Inception"</i>, <i>"romantic comedy 2020"</i></li>
-            <li>🧠 <b>Smart:</b> <i>"A movie where robots gain consciousness"</i>, <i>"like Interstellar but more emotional"</i></li>
+            <li>📌 <b>Note:</b> All searches must begin with a <b>search tag</b>.</li>
+            <li>🎯 <b>General Search:</b> <i>"genre:thriller"</i>, <i>"actor:Brad Pitt"</i><br>
+              Available tags: <code>title</code>, <code>year</code>, <code>country</code>, <code>actor</code>, <code>director</code>, <code>writer</code>, <code>genre</code>
+            </li>
+            <li>🧠 <b>Smart Search:</b> <i>"search:What is the movie where robots gain consciousness?"</i>, <i>"recommend:Recommend some movie like Interstellar"</i><br>
+              Available tags: <code>search</code>, <code>recommend</code>
+            </li>
           </ul>
         </div>
       </div>
@@ -59,63 +72,60 @@
           <div class="circle-clipper right"><div class="circle"></div></div>
         </div>
       </div>
-      <p>Searching for your movies...</p>
+      <p class="white-text">Searching for your movies...</p>
     </div>
   </div>
 
-  <!-- 검색 결과 -->
-  <div class="row" id="resultSection" style="display: none;">
-    <div class="col s12">
-      <ul class="collection" id="resultList"></ul>
-    </div>
-  </div>
-</main>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchBtn = document.getElementById('searchBtn');
+      const searchInput = document.getElementById('searchInput');
+      const loadingSection = document.getElementById('loadingSection');
 
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const searchBtn = document.getElementById('searchBtn');
-    const searchInput = document.getElementById('searchInput');
-    const loadingSection = document.getElementById('loadingSection');
-    const resultSection = document.getElementById('resultSection');
-    const resultList = document.getElementById('resultList');
+      loadingSection.style.display = 'none';
 
-    searchBtn.addEventListener('click', async () => {
-      const query = searchInput.value.trim();
-      if (!query) return;
+      searchBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        searchHandler();
+      });
 
-      const mode = document.querySelector('input[name="searchMode"]:checked').value;
-      const url = mode === 'smart' ? '/api/smartsearch' : '/api/search';
-
-      resultList.innerHTML = '';
-      loadingSection.style.display = 'block';
-      resultSection.style.display = 'none';
-
-      try {
-        const res = await fetch(`${url}?query=${encodeURIComponent(query)}`);
-        const data = await res.json();
-
-        if (!data || data.length === 0) {
-          resultList.innerHTML = `<li class="collection-item red-text">No results found.</li>`;
-        } else {
-          data.forEach(movie => {
-            const item = `
-              <li class="collection-item black">
-                <span class="highlight">${movie.title}</span>
-                <br><small>${movie.year} | ${movie.genre}</small>
-              </li>`;
-            resultList.insertAdjacentHTML('beforeend', item);
-          });
+      searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          searchHandler();
         }
-      } catch (err) {
-        resultList.innerHTML = `<li class="collection-item red-text">Error during search.</li>`;
-        console.error(err);
-      } finally {
-        loadingSection.style.display = 'none';
-        resultSection.style.display = 'block';
-      }
-    });
-  });
-</script>
+      });
 
+      function searchHandler(){
+        const queryRaw = searchInput.value.trim();
+        const mode = document.querySelector('input[name="searchMode"]:checked').value;
+
+        if (!queryRaw.includes(":")) {
+          M.toast({ html: 'Please enter search in intent:query format', classes: 'red' });
+          return;
+        }
+
+        const [intent, query] = queryRaw.split(":", 2);
+        if (!intent || !query) {
+          M.toast({ html: 'Invalid format. Use intent:query', classes: 'red' });
+          return;
+        }
+
+        loadingSection.style.display = 'block';
+
+        const params = new URLSearchParams({
+          type: mode,
+          intent: intent.trim(),
+          query: query.trim()
+        });
+
+        setTimeout(() => {
+          window.location.href = `/search/result?${params.toString()}`;
+        }, 500);
+      }
+
+    });
+  </script>
+</main>
 </body>
 </html>
