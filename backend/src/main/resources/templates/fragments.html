@@ -38,7 +38,13 @@
           <li><a href="/" class="white-text">Home</a></li>
           <li><a href="/search" class="white-text">Search</a></li>
           <li><a href="#" class="white-text">My Page</a></li>
-          <li><a href="/login" class="highlight">Login</a></li>
+          <!-- 로그인 여부에 따라 다른 메뉴 출력 -->
+          <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+            <li><a href="#" id="logout" class="highlight">Logout</a></li>
+          </th:block>
+          <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
+            <li><a th:href="@{/login}" class="highlight">Login</a></li>
+          </th:block>
         </ul>
       </div>
     </nav>
@@ -56,14 +62,12 @@
 
       logout.addEventListener('click', ev => {
         ev.preventDefault();
-        logoutForm.submit();
+        document.getElementById('logoutForm').submit();
       });
 
     })();
   </script>
 </th:block>
-
-
 
 <!-- footer -->
 <th:block th:fragment="frg_footer">
@@ -74,6 +78,6 @@
   </footer>
 </th:block>
 
-
 </body>
 </html>
+
