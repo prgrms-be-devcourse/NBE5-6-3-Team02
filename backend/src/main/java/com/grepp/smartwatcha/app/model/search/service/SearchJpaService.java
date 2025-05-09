@@ -3,6 +3,8 @@ package com.grepp.smartwatcha.app.model.search.service;
 import com.grepp.smartwatcha.app.model.search.dto.SearchResultDto;
 import com.grepp.smartwatcha.app.model.search.repository.SearchJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +47,9 @@ public class SearchJpaService {
     }
 
     public List<SearchResultDto> findByYear(int year) {
-        List<MovieEntity> movieEntities = searchJpaRepository.findByYear(year);
+        LocalDateTime start = LocalDateTime.of(year, 1, 1, 0, 0, 0);
+        LocalDateTime end = LocalDateTime.of(year + 1, 1, 1, 0, 0, 0);
+        List<MovieEntity> movieEntities = searchJpaRepository.findByYear(start, end);
         List<SearchResultDto> searchResultDtos = new ArrayList<>();
 
         for (MovieEntity movieEntity : movieEntities) {
