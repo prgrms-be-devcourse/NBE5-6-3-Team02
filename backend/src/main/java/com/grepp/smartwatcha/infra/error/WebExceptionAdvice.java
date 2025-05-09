@@ -6,7 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@ControllerAdvice(basePackages = "com.grepp.spring.app.controller.web")
+@ControllerAdvice(basePackages = "com.grepp.smartwatcha.app.controller.web")
 public class WebExceptionAdvice {
     
     @ExceptionHandler(CommonException.class)
