@@ -30,5 +30,6 @@ public class MovieDetailsController {
 
         return "movie/details";
     }
+
 }
 
