@@ -5,6 +5,7 @@ import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -13,7 +14,7 @@ public class MovieRecommendHighestRatedResponse {
 
     private Long id;
     private String title;
-    private int year;
+    private LocalDateTime ReleaseDate;
     private String country;
     private String poster;
     private Double avgScore;
@@ -23,7 +24,7 @@ public class MovieRecommendHighestRatedResponse {
         return new MovieRecommendHighestRatedResponse(
                 movie.getId(),
                 movie.getTitle(),
-                movie.getYear(),
+                movie.getReleaseDate(),
                 movie.getCountry(),
                 movie.getPoster(),
                 avgScore,

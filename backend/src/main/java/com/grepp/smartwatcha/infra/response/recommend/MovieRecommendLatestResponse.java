@@ -4,6 +4,7 @@ import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -12,7 +13,7 @@ public class MovieRecommendLatestResponse {
 
     private Long id;
     private String title;
-    private int year;
+    private LocalDateTime ReleaseDate;
     private String country;
     private String poster;
     private Double avgScore;
@@ -22,7 +23,7 @@ public class MovieRecommendLatestResponse {
         return new MovieRecommendLatestResponse(
                 movie.getId(),
                 movie.getTitle(),
-                movie.getYear(),
+                movie.getReleaseDate(),
                 movie.getCountry(),
                 movie.getPoster(),
                 avgScore,
