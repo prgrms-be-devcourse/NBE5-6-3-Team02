@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - SmartMovie</title>
+</head>
+<body>
+<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m6 offset-m3">
+                <div class="card" style="background-color: #1e1e1e; padding: 20px;">
+                    <div class="card-content white-text">
+                        <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;">회원가입</span>
+                        <form th:action="@{/user/signup}" method="post" id="signupForm">
+                            <div class="input-field">
+                                <input type="text" id="name" name="name" required>
+                                <label for="name">이름</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="email" id="email" name="email" required>
+                                <label for="email">이메일</label>
+                            </div>
+                            <div class="center-align" style="margin-bottom: 20px;">
+                                <button type="button" id="sendVerificationBtn" class="btn-flat waves-effect waves-light" style="color: #e53935;">
+                                    인증 코드 전송
+                                </button>
+                            </div>
+                            <div class="input-field" id="verificationCodeField" style="display: none;">
+                                <input type="text" id="verificationCode" required>
+                                <label for="verificationCode">인증 코드</label>
+                                <div class="center-align" style="margin-top: 10px;">
+                                    <button type="button" id="verifyCodeBtn" class="btn-flat waves-effect waves-light" style="color: #e53935;">
+                                        인증하기
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="input-field">
+                                <input type="password" id="password" name="password" required>
+                                <label for="password">비밀번호</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                                <label for="confirmPassword">비밀번호 확인</label>
+                            </div>
+                            <div class="center-align">
+                                <button type="submit" class="btn waves-effect waves-light" style="background-color: #e53935;">
+                                    회원가입
+                                    <i class="material-icons right">send</i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-action center-align">
+                        <a th:href="@{/login}" style="color: #e53935;">이미 계정이 있으신가요? 로그인</a>
+                    </div>
+                    <div class="center-align red-text" th:if="${error}" th:text="${error}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('email');
+    const sendVerificationBtn = document.getElementById('sendVerificationBtn');
+    const verificationCodeField = document.getElementById('verificationCodeField');
+    const verifyCodeBtn = document.getElementById('verifyCodeBtn');
+    const signupForm = document.getElementById('signupForm');
+    let isEmailVerified = false;
+
+    sendVerificationBtn.addEventListener('click', function() {
+        const email = emailInput.value;
+        if (!email) {
+            M.toast({html: '이메일을 입력해주세요.', classes: 'red'});
+            return;
+        }
+
+        fetch('/user/email/verification/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `email=${encodeURIComponent(email)}`
+        })
+        .then(response => response.text())
+        .then(message => {
+            M.toast({html: message, classes: 'green'});
+            verificationCodeField.style.display = 'block';
+        })
+        .catch(error => {
+            M.toast({html: '인증 코드 전송에 실패했습니다.', classes: 'red'});
+        });
+    });
+
+    verifyCodeBtn.addEventListener('click', function() {
+        const email = emailInput.value;
+        const code = document.getElementById('verificationCode').value;
+        if (!code) {
+            M.toast({html: '인증 코드를 입력해주세요.', classes: 'red'});
+            return;
+        }
+
+        fetch('/user/email/verification/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`
+        })
+        .then(response => response.text())
+        .then(message => {
+            M.toast({html: message, classes: 'green'});
+            if (message.includes('완료')) {
+                isEmailVerified = true;
+                verificationCodeField.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            M.toast({html: '인증에 실패했습니다.', classes: 'red'});
+        });
+    });
+
+    signupForm.addEventListener('submit', function(e) {
+        if (!isEmailVerified) {
+            e.preventDefault();
+            M.toast({html: '이메일 인증이 필요합니다.', classes: 'red'});
+        }
+    });
+});
+</script>
+</body>
+</html> 
