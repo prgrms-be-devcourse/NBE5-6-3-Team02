@@ -9,6 +9,7 @@
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
         }
+
         .header {
             position: absolute;
             top: 20px;
@@ -19,6 +20,7 @@
             text-decoration: none;
             z-index: 10;
         }
+
         .banner {
             position: relative;
             width: 100%;
@@ -30,20 +32,23 @@
             padding: 50px;
             box-sizing: border-box;
             color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
         }
+
         .banner-info {
             z-index: 2;
         }
+
         .content-section {
             max-width: 1200px;
             margin: 0 auto;
             padding: 30px;
             display: flex;
             gap: 30px;
-            background: #f7f7f7;  /* ✅ 전체 회색 영역 */
-            border-bottom: 1px solid #ddd;  /* ✅ 밑에 구분선 */
+            background: #f7f7f7; /* ✅ 전체 회색 영역 */
+            border-bottom: 1px solid #ddd; /* ✅ 밑에 구분선 */
         }
+
         .poster {
             width: 300px;
             flex-shrink: 0;
@@ -51,12 +56,14 @@
             flex-direction: column;
             align-items: center;
         }
+
         .poster img {
             width: 100%;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             margin-bottom: 20px;
         }
+
         .graph {
             width: 100%;
             display: flex;
@@ -68,12 +75,14 @@
             border-top: 1px solid #ddd;
             position: relative;
         }
+
         .bar-group {
             display: flex;
             flex-direction: column;
             align-items: center;
             flex: 1;
         }
+
         .bar-vertical {
             width: 20px;
             background-color: #ff2f6e;
@@ -82,44 +91,53 @@
             transition: height 0.3s;
             min-height: 5px; /* ⭐ 최소 높이 추가 */
         }
+
         .bar-label {
             font-size: 12px;
             color: #999;
         }
+
         .details {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
         }
+
         .movie-title {
             font-size: 28px;
             font-weight: bold;
             margin-bottom: 10px;
             color: #333;
         }
+
         .info {
             font-size: 14px;
             margin-bottom: 10px;
             color: #666;
         }
+
         .rating-section {
             margin: 20px 0;
         }
+
         .stars {
             font-size: 28px;
             color: #ccc;
             cursor: pointer;
             transition: color 0.3s;
         }
+
         .stars:hover, .stars.active {
             color: #f5c518;
         }
+
         .actions {
             display: flex;
             gap: 15px;
             margin-top: 20px;
         }
+
         .icon-button {
             display: flex;
             align-items: center;
@@ -134,12 +152,15 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         .icon-button:hover {
             background-color: #e0265c;
         }
+
         .tags {
             margin-top: 20px;
         }
+
         .tag-button {
             margin: 5px 5px 0 0;
             padding: 5px 10px;
@@ -149,6 +170,7 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
+
         .tag-button:hover {
             background-color: #ff2f6e;
             color: white;
@@ -195,7 +217,9 @@
         <div class="movie-title" th:text="${movie.title}">영화 제목</div>
 
         <div class="info">
-            <strong>평균 평점:</strong> <span th:text="${averageScore}">0.0</span> ⭐
+            <strong>평균 평점:</strong>
+            <span th:with="score=${averageScore != null ? averageScore : 0.0}"
+                  th:text="${#numbers.formatDecimal(score, 1, 1)}">0.0</span>
         </div>
 
         <!-- 별점 평가 -->
@@ -203,8 +227,8 @@
             <strong>평가하기:</strong>
             <span th:each="i : ${#numbers.sequence(1,5)}">
                 <i class="fa-regular fa-star stars"
-                   th:attr="data-score=${i}"
-                   onclick="rateMovie([[${movie.id}]], [[${i}]])"></i>
+                   th:attr="data-score=${i}
+                   ,onclick=|rateMovie(${movie.id},${i})|"></i>
             </span>
         </div>
 
@@ -232,12 +256,12 @@
 
 <script>
     function rateMovie(movieId, score) {
-        fetch('/ratings', {
+        fetch(`/movies/${movieId}/ratings`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ movieId: movieId, score: score })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({movieId: movieId, score: score})
         }).then(response => {
-            if(response.ok) {
+            if (response.ok) {
                 alert('평가가 저장되었습니다!');
                 location.reload();
             } else {
@@ -249,11 +273,12 @@
     function selectTag(movieId, tagId) {
         fetch('/tags/select', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ movieId: movieId, tagId: tagId })
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({movieId: movieId, tagId: tagId})
         }).then(response => {
-            if(response.ok) {
+            if (response.ok) {
                 alert('태그가 저장되었습니다!');
+                location.reload();
             } else {
                 alert('오류 발생!');
             }
