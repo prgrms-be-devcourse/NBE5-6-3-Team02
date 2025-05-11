@@ -1,6 +1,8 @@
 package com.grepp.smartwatcha.app.controller.web.details;
 
 import com.grepp.smartwatcha.app.model.details.dto.MovieDetailsDTO;
+import com.grepp.smartwatcha.app.model.details.dto.RatingRequestDto;
+import com.grepp.smartwatcha.app.model.details.repository.RatingJpaRepository;
 import com.grepp.smartwatcha.app.model.details.service.MovieJpaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
