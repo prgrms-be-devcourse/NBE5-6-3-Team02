@@ -1,8 +1,8 @@
 package com.grepp.smartwatcha.app.controller.api.recommend;
 
 
-import com.grepp.smartwatcha.app.service.RecommendHighestRatedMovieService;
-import com.grepp.smartwatcha.infra.response.recommend.MovieRecommendHighestRatedResponse;
+import com.grepp.smartwatcha.app.model.recommend.RecommendHighestRatedMovieService;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

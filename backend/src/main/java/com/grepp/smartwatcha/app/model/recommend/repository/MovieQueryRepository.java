@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.infra.jpa.recommend;
+package com.grepp.smartwatcha.app.model.recommend.repository;
 
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import jakarta.persistence.EntityManager;

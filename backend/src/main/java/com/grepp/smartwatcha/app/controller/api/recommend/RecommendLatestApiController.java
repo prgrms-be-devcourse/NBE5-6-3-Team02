@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.api.recommend;
 
-import com.grepp.smartwatcha.app.service.RecommendLatestMovieService;
-import com.grepp.smartwatcha.infra.response.recommend.MovieRecommendLatestResponse;
+import com.grepp.smartwatcha.app.model.recommend.RecommendLatestMovieService;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendLatestResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,9 +1,9 @@
-package com.grepp.smartwatcha.app.service.recommend;
+package com.grepp.smartwatcha.app.model.recommend.service;
 
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
-import com.grepp.smartwatcha.infra.jpa.recommend.MovieQueryRepository;
-import com.grepp.smartwatcha.infra.jpa.recommend.RecommendHighestRatedMovieJpaRepository;
-import com.grepp.smartwatcha.infra.response.recommend.MovieRecommendHighestRatedResponse;
+import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryRepository;
+import com.grepp.smartwatcha.app.model.recommend.repository.RecommendHighestRatedMovieJpaRepository;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

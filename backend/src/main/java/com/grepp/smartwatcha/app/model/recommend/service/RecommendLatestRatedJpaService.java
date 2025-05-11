@@ -1,6 +1,6 @@
-package com.grepp.smartwatcha.app.service.recommend;
-import com.grepp.smartwatcha.infra.jpa.recommend.MovieRecommendLatestJpaRepository;
-import com.grepp.smartwatcha.infra.response.recommend.MovieRecommendLatestResponse;
+package com.grepp.smartwatcha.app.model.recommend.service;
+import com.grepp.smartwatcha.app.model.recommend.repository.MovieRecommendLatestJpaRepository;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendLatestResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,5 @@
-package com.grepp.smartwatcha.infra.response.recommend;
+package com.grepp.smartwatcha.app.controller.api.recommend.payload;
+
 
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class MovieRecommendLatestResponse {
+public class MovieRecommendHighestRatedResponse {
 
     private Long id;
     private String title;
@@ -17,10 +18,10 @@ public class MovieRecommendLatestResponse {
     private String country;
     private String poster;
     private Double avgScore;
-    private List<String> genre;
+    private List<String> genres;
 
-    public static MovieRecommendLatestResponse from(MovieEntity movie, Double avgScore, List<String> genres) {
-        return new MovieRecommendLatestResponse(
+    public static MovieRecommendHighestRatedResponse from(MovieEntity movie, Double avgScore, List<String> genres) {
+        return new MovieRecommendHighestRatedResponse(
                 movie.getId(),
                 movie.getTitle(),
                 movie.getReleaseDate(),
