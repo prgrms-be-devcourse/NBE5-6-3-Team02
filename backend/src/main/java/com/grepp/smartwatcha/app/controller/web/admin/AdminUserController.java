@@ -56,7 +56,7 @@ public class AdminUserController {
   }
 
   @PostMapping("/admin/users/{id}/update-status")
-  public String updateStatus(@RequestParam Long id,
+  public String updateStatus(@PathVariable Long id,
                              @RequestParam(name = "activated", defaultValue = "false") boolean activated,
                              RedirectAttributes redirectAttributes) {
     adminUserJpaService.updateActivationStatus(id, activated);
