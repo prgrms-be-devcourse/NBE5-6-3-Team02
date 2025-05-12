@@ -81,7 +81,10 @@ public class AdminUserJpaService {
     UserEntity user = userJpaRepository.findById(id)
         .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
 
-    boolean before = user.getActivated();
+    if (user.getActivated() == null) {
+      user.setActivated(false);
+    }
+
     user.setActivated(activated);
     userJpaRepository.save(user);
   }
