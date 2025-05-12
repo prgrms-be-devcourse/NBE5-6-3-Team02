@@ -203,10 +203,11 @@
 
         <!-- 세로 막대 그래프 -->
         <div class="graph">
-            <div class="bar-group" th:each="star : ${#numbers.sequence(1,5)}">
+            <div th:each="bar : ${ratingBars}" class="bar-group">
                 <div class="bar-vertical"
-                     th:style="'height:' + (${ratingDistribution[star]} != null ? ${ratingDistribution[star]} : 0) + '%'"></div>
-                <div class="bar-label" th:text="${star} + '점'"></div>
+                     th:style="|height: ${bar.percent}%;|">
+                </div>
+                <div class="bar-label" th:text="${bar.score} + '점'">0점</div>
             </div>
         </div>
     </div>
