@@ -1,10 +1,10 @@
 package com.grepp.smartwatcha.app.controller.web.admin;
 
-import com.grepp.smartwatcha.app.model.admin.user.AdminRatingDto;
-import com.grepp.smartwatcha.app.model.admin.user.AdminUserJpaService;
-import com.grepp.smartwatcha.app.model.admin.user.AdminUserListResponse;
-import com.grepp.smartwatcha.app.model.admin.user.AdminUserRatingJpaRepository;
-import com.grepp.smartwatcha.app.model.admin.user.AdminUserRatingJpaService;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminRatingDto;
+import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserJpaService;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
+import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserRatingJpaService;
 import com.grepp.smartwatcha.infra.response.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

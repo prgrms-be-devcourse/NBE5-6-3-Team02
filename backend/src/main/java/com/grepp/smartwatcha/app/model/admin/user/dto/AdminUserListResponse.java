@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.user;
+package com.grepp.smartwatcha.app.model.admin.user.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;

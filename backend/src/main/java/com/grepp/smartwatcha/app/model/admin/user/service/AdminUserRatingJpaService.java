@@ -1,7 +1,8 @@
-package com.grepp.smartwatcha.app.model.admin.user;
+package com.grepp.smartwatcha.app.model.admin.user.service;
 
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminRatingDto;
+import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.user;
+package com.grepp.smartwatcha.app.model.admin.user.repository;
 
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import java.util.List;

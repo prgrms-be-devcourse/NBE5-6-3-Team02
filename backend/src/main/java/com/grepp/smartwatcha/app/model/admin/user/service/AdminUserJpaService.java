@@ -1,5 +1,11 @@
-package com.grepp.smartwatcha.app.model.admin.user;
+package com.grepp.smartwatcha.app.model.admin.user.service;
 
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminSimpleRatingDto;
+import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
+import com.grepp.smartwatcha.app.model.admin.user.mapper.AdminUserMapper;
+import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.user.spec.AdminUserSpecifications;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import java.util.List;
