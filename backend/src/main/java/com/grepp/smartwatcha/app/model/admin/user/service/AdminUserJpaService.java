@@ -94,8 +94,4 @@ public class AdminUserJpaService {
     user.setActivated(activated);
     userJpaRepository.save(user);
   }
-
-  public void deleteById(Long id) {
-    userJpaRepository.deleteById(id);
-  }
 }

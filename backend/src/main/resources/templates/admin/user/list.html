@@ -231,18 +231,14 @@
               </div>
 
               <!-- modal-footer -->
-              <div class="modal-footer" style="display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; gap: 1rem; background-color: #424242">
-                <form th:action="@{'/admin/users/' + ${user.id} + '/delete'}" method="post" style="margin: 0;">
-                  <!--                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />-->
-                  <button type="submit" class="btn red">Delete</button>
-                </form>
+              <div class="modal-footer" style="display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; gap: 1rem; background-color: #424242; margin-bottom: 10px">
                 <form th:action="@{'/admin/users/' + ${user.id} + '/update-status'}" method="post"
                       style="display: flex; align-items: center; gap: 1rem; margin: 0;">
                   <label style="margin: 0; display: flex; align-items: center;">
                     <input type="checkbox" name="activated" th:checked="${user.activated}" />
                     <span style="margin-left: 0.5rem; color: white">Activated</span>
                   </label>
-                  <button type="submit" class="btn blue" style="margin-left: 15px">Save</button>
+                  <button type="submit" class="btn blue" style="margin-left: 500px">Save</button>
                   <a href="#!" class="modal-close btn-flat" style="color: white">Cancel</a>
                 </form>
               </div>

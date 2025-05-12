@@ -16,10 +16,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
+@RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminUserController {
 
@@ -27,7 +29,7 @@ public class AdminUserController {
   private final AdminUserRatingJpaRepository adminUserRatingJpaRepository;
   private final AdminUserRatingJpaService adminUserRatingJpaService;
 
-  @GetMapping("/admin/users")
+  @GetMapping("/users")
   public String getUserList(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "6") int size,
       @RequestParam(required = false) Long id,
@@ -55,7 +57,7 @@ public class AdminUserController {
     return "admin/user/list";
   }
 
-  @PostMapping("/admin/users/{id}/update-status")
+  @PostMapping("/users/{id}/update-status")
   public String updateStatus(@PathVariable Long id,
                              @RequestParam(name = "activated", defaultValue = "false") boolean activated,
                              RedirectAttributes redirectAttributes) {
@@ -63,13 +65,7 @@ public class AdminUserController {
     return "redirect:/admin/users";
   }
 
-  @PostMapping("/admin/users/{id}/delete")
-  public String deleteUser(@PathVariable Long id) {
-    adminUserJpaService.deleteById(id);
-    return "redirect:/admin/users";
-  }
-
-  @GetMapping("/admin/users/ratings")
+  @GetMapping("/users/ratings")
   public String viewAllRatings(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "8") int size,
       @RequestParam(required = false) Long id,
