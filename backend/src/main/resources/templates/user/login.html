@@ -37,6 +37,12 @@
       <div class="center-align" style="margin-top: 1rem;" th:if="${param.error}">
         <span class="red-text text-lighten-2">이메일 또는 비밀번호가 잘못되었습니다.</span>
       </div>
+
+      <div class="center-align" style="margin-top: 1rem;">
+        <a th:href="@{/user/signup}" class="btn-flat waves-effect waves-light" style="color: #e53935;">
+          회원가입
+        </a>
+      </div>
     </div>
   </div>
 </main>

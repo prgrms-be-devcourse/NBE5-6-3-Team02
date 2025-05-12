@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.user;
+package com.grepp.smartwatcha.app.model.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +11,7 @@ import lombok.Builder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EmailCodeVerifyRequest {
+public class EmailCodeVerifyRequestDto {
     private String email;
     private String code;
 } 

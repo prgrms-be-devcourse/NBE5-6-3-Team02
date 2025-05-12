@@ -25,5 +25,5 @@ public class RatingEntity extends BaseEntity {
     private MovieEntity movie;
 
     @Column(nullable = false)
-    private double score;
+    private Double score;
 }
