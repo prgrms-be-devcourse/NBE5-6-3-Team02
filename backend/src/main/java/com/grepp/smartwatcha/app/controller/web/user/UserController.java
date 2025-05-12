@@ -3,6 +3,8 @@ package com.grepp.smartwatcha.app.controller.web.user;
 import com.grepp.smartwatcha.app.model.user.dto.SignupRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.EmailVerificationRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.EmailCodeVerifyRequestDto;
+import com.grepp.smartwatcha.app.model.user.dto.FindIdRequestDto;
+import com.grepp.smartwatcha.app.model.user.dto.ResetPasswordRequestDto;
 import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import com.grepp.smartwatcha.app.model.user.service.EmailVerificationJpaService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,16 @@ public class UserController {
     @GetMapping("/login")
     public String login() {
         return "user/login";
+    }
+
+    @GetMapping("/user/find-id")
+    public String findIdForm() {
+        return "user/find-id";
+    }
+
+    @GetMapping("/user/find-password")
+    public String findPasswordForm() {
+        return "user/find-password";
     }
 
     @GetMapping("/user/signup")
@@ -76,6 +88,45 @@ public class UserController {
             model.addAttribute("codeSent", true);
             model.addAttribute("error", e.getMessage());
             return "signup";
+        }
+    }
+
+    @PostMapping("/user/find-id")
+    public String findId(@ModelAttribute FindIdRequestDto findIdRequestDto, Model model) {
+        try {
+            String email = userJpaService.findIdByName(findIdRequestDto);
+            model.addAttribute("foundEmail", email);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return "user/find-id";
+    }
+
+    @PostMapping("/user/find-password/send-code")
+    public String sendPasswordResetCode(@RequestParam String email, Model model) {
+        try {
+            userJpaService.sendPasswordResetCode(email);
+            model.addAttribute("codeSent", true);
+            model.addAttribute("email", email);
+            model.addAttribute("message", "인증 코드가 이메일로 전송되었습니다.");
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return "user/find-password";
+    }
+
+    @PostMapping("/user/find-password/verify")
+    public String resetPassword(@ModelAttribute ResetPasswordRequestDto resetPasswordRequestDto,
+                              Model model, RedirectAttributes redirectAttributes) {
+        try {
+            userJpaService.resetPassword(resetPasswordRequestDto);
+            redirectAttributes.addFlashAttribute("message", "비밀번호가 성공적으로 변경되었습니다. 새 비밀번호로 로그인해주세요.");
+            return "redirect:/login";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("codeSent", true);
+            model.addAttribute("email", resetPasswordRequestDto.getEmail());
+            model.addAttribute("error", e.getMessage());
+            return "user/find-password";
         }
     }
 }
