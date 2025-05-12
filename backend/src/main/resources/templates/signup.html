@@ -14,28 +14,17 @@
                 <div class="card" style="background-color: #1e1e1e; padding: 20px;">
                     <div class="card-content white-text">
                         <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;">회원가입</span>
-                        <form th:action="@{/user/signup}" method="post" id="signupForm">
+                        <div th:if="${message}" class="center-align green-text" th:text="${message}"></div>
+                        <div th:if="${error}" class="center-align red-text" th:text="${error}"></div>
+                        <!-- 인증 코드 전송 전 -->
+                        <form th:action="@{/user/signup/send-code}" method="post" th:if="${codeSent == false}">
                             <div class="input-field">
-                                <input type="text" id="name" name="name" required>
+                                <input type="text" id="name" name="name" th:value="${signupRequestDto.name}" required>
                                 <label for="name">이름</label>
                             </div>
                             <div class="input-field">
-                                <input type="email" id="email" name="email" required>
+                                <input type="email" id="email" name="email" th:value="${signupRequestDto.email}" required>
                                 <label for="email">이메일</label>
-                            </div>
-                            <div class="center-align" style="margin-bottom: 20px;">
-                                <button type="button" id="sendVerificationBtn" class="btn-flat waves-effect waves-light" style="color: #e53935;">
-                                    인증 코드 전송
-                                </button>
-                            </div>
-                            <div class="input-field" id="verificationCodeField" style="display: none;">
-                                <input type="text" id="verificationCode" required>
-                                <label for="verificationCode">인증 코드</label>
-                                <div class="center-align" style="margin-top: 10px;">
-                                    <button type="button" id="verifyCodeBtn" class="btn-flat waves-effect waves-light" style="color: #e53935;">
-                                        인증하기
-                                    </button>
-                                </div>
                             </div>
                             <div class="input-field">
                                 <input type="password" id="password" name="password" required>
@@ -47,8 +36,23 @@
                             </div>
                             <div class="center-align">
                                 <button type="submit" class="btn waves-effect waves-light" style="background-color: #e53935;">
-                                    회원가입
-                                    <i class="material-icons right">send</i>
+                                    인증 코드 전송
+                                </button>
+                            </div>
+                        </form>
+                        <!-- 인증 코드 전송 후 -->
+                        <form th:action="@{/user/signup/verify}" method="post" th:if="${codeSent == true}">
+                            <input type="hidden" name="name" th:value="${signupRequestDto.name}">
+                            <input type="hidden" name="email" th:value="${signupRequestDto.email}">
+                            <input type="hidden" name="password" th:value="${signupRequestDto.password}">
+                            <input type="hidden" name="confirmPassword" th:value="${signupRequestDto.confirmPassword}">
+                            <div class="input-field">
+                                <input type="text" id="verificationCode" name="verificationCode" required>
+                                <label for="verificationCode">인증 코드</label>
+                            </div>
+                            <div class="center-align">
+                                <button type="submit" class="btn waves-effect waves-light" style="background-color: #e53935;">
+                                    인증 확인 및 회원가입
                                 </button>
                             </div>
                         </form>
@@ -56,81 +60,10 @@
                     <div class="card-action center-align">
                         <a th:href="@{/login}" style="color: #e53935;">이미 계정이 있으신가요? 로그인</a>
                     </div>
-                    <div class="center-align red-text" th:if="${error}" th:text="${error}"></div>
                 </div>
             </div>
         </div>
     </div>
 </main>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const emailInput = document.getElementById('email');
-    const sendVerificationBtn = document.getElementById('sendVerificationBtn');
-    const verificationCodeField = document.getElementById('verificationCodeField');
-    const verifyCodeBtn = document.getElementById('verifyCodeBtn');
-    const signupForm = document.getElementById('signupForm');
-    let isEmailVerified = false;
-
-    sendVerificationBtn.addEventListener('click', function() {
-        const email = emailInput.value;
-        if (!email) {
-            M.toast({html: '이메일을 입력해주세요.', classes: 'red'});
-            return;
-        }
-
-        fetch('/user/email/verification/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `email=${encodeURIComponent(email)}`
-        })
-        .then(response => response.text())
-        .then(message => {
-            M.toast({html: message, classes: 'green'});
-            verificationCodeField.style.display = 'block';
-        })
-        .catch(error => {
-            M.toast({html: '인증 코드 전송에 실패했습니다.', classes: 'red'});
-        });
-    });
-
-    verifyCodeBtn.addEventListener('click', function() {
-        const email = emailInput.value;
-        const code = document.getElementById('verificationCode').value;
-        if (!code) {
-            M.toast({html: '인증 코드를 입력해주세요.', classes: 'red'});
-            return;
-        }
-
-        fetch('/user/email/verification/verify', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`
-        })
-        .then(response => response.text())
-        .then(message => {
-            M.toast({html: message, classes: 'green'});
-            if (message.includes('완료')) {
-                isEmailVerified = true;
-                verificationCodeField.style.display = 'none';
-            }
-        })
-        .catch(error => {
-            M.toast({html: '인증에 실패했습니다.', classes: 'red'});
-        });
-    });
-
-    signupForm.addEventListener('submit', function(e) {
-        if (!isEmailVerified) {
-            e.preventDefault();
-            M.toast({html: '이메일 인증이 필요합니다.', classes: 'red'});
-        }
-    });
-});
-</script>
 </body>
 </html> 
