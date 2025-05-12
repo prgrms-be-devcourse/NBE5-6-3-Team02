@@ -1,13 +1,136 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout}">
 <head>
   <meta charset="UTF-8">
   <title>Title</title>
+  <style>
+    .horizontal-scroll {
+      display: flex;
+      overflow-x: auto;
+      padding: 1rem 0;
+      gap: 1rem;
+      scroll-behavior: smooth;
+    }
+
+    .horizontal-scroll::-webkit-scrollbar {
+      display: none; /* 스크롤바 숨기기 (선택) */
+    }
+
+    .movie-card {
+      flex: 0 0 auto;
+      width: 180px;     /* 카드 너비 조절 */
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .card-image img {
+      height: 270px;     /* 포스터 비율 유지 */
+      object-fit: cover;
+    }
+    .card-content {
+      padding: 0.5rem;
+    }
+  </style>
 </head>
 <body>
 <main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
-  <h1>Welcome</h1>
+  <!-- Section: 새로 나온 영화 -->
+  <div class="movie-section">
+    <div class="section-title">📽 새로 나온 영화</div>
+    <div class="horizontal-scroll">
+      <div th:each="movie : ${newMovies}" class="movie-card card black">
+        <a th:href="@{/movies/{id}(id=${movie.id})}">
+          <div class="card-image">
+            <img th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster">
+          </div>
+          <div class="card-content">
+            <span th:text="${movie.title}" class="white-text truncate"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: 이건 어때요? -->
+  <div class="movie-section">
+    <div class="section-title">🎲 이건 어때요?</div>
+    <div class="horizontal-scroll">
+      <div th:each="movie : ${randomMovies}" class="movie-card card black">
+        <a th:href="@{/movies/{id}(id=${movie.id})}">
+          <div class="card-image">
+            <img th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster">
+          </div>
+          <div class="card-content">
+            <span th:text="${movie.title}" class="white-text truncate"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: 랭킹 TOP 10 -->
+  <div class="movie-section">
+    <div class="section-title">🏆 랭킹 TOP 10</div>
+    <div class="horizontal-scroll">
+      <div th:each="movie : ${top10Movies}" class="movie-card card black">
+        <a th:href="@{/movies/{id}(id=${movie.id})}">
+          <div class="card-image">
+            <img th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster">
+          </div>
+          <div class="card-content">
+            <span th:text="${movie.title}" class="white-text truncate"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: 예상별점이 높은 콘텐츠 -->
+  <div sec:authorize="isAuthenticated()" class="movie-section">
+    <div class="section-title">🔮 예상별점이 높은 콘텐츠</div>
+    <div class="horizontal-scroll">
+      <div th:each="movie : ${highRatingPrediction}" class="movie-card card black">
+        <a th:href="@{/movies/{id}(id=${movie.id})}">
+          <div class="card-image">
+            <img th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster">
+          </div>
+          <div class="card-content">
+            <span th:text="${movie.title}" class="white-text truncate"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: 가볍게 즐기기 좋은 콘텐츠 -->
+  <div class="movie-section">
+    <div class="section-title">☕ 가볍게 즐기기 좋은 콘텐츠</div>
+    <div class="horizontal-scroll">
+      <div th:each="movie : ${lightMovies}" class="movie-card card black">
+        <a th:href="@{/movies/{id}(id=${movie.id})}">
+          <div class="card-image">
+            <img th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster">
+          </div>
+          <div class="card-content">
+            <span th:text="${movie.title}" class="white-text truncate"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner: 아직 고민 중이신가요 -->
+  <div class="banner-card">
+    <span class="material-icons banner-icon">psychology</span>
+    아직 고민 중이신가요? 취향저격 콘텐츠 랜덤 감상
+  </div>
+
+  <!-- Banner: 보고싶어요한 콘텐츠 랜덤 감상 -->
+  <div class="banner-card">
+    <span class="material-icons banner-icon">favorite_border</span>
+    보고싶어요한 콘텐츠 랜덤 감상
+  </div>
 </main>
 
 </body>

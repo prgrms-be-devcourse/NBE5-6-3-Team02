@@ -2,9 +2,8 @@ package com.grepp.smartwatcha.app.controller.web.search;
 
 import com.grepp.smartwatcha.app.controller.api.search.SmartSearchApi;
 import com.grepp.smartwatcha.app.controller.api.search.payload.SmartSearchApiRequest;
-import com.grepp.smartwatcha.app.controller.api.search.payload.SmartSearchResponse;
+import com.grepp.smartwatcha.app.controller.api.search.payload.SmartSearchApiResponse;
 import com.grepp.smartwatcha.app.model.search.SearchService;
-import com.grepp.smartwatcha.app.model.search.service.SearchJpaService;
 import com.grepp.smartwatcha.app.model.search.dto.SearchResultDto;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
@@ -84,10 +83,10 @@ public class SearchController {
             request.setIntent(intent);
             request.setQuery(query);
             try{
-                SmartSearchResponse response = smartSearchApi.call(token, request);
+                SmartSearchApiResponse response = smartSearchApi.call(token, request);
                 log.info("smartSearch response: {}", response);
                 List<Long> movieIdList = response.getMovieIds().stream()
-                        .map(SmartSearchResponse.MovieWrapper::getMovie)
+                        .map(SmartSearchApiResponse.MovieWrapper::getMovie)
                         .toList();
 
                 searchResultDtos = searchService.findByIds(movieIdList);

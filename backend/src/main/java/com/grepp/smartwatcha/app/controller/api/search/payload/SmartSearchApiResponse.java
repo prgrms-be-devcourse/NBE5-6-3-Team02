@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class SmartSearchResponse {
+public class SmartSearchApiResponse {
     @JsonProperty("movie_ids")
     List<MovieWrapper> movieIds;
 
