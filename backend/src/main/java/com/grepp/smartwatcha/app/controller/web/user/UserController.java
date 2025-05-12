@@ -16,14 +16,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
-@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final EmailVerificationJpaService emailVerificationJpaService;
     private final UserJpaService userJpaService;
 
-    @GetMapping("/signup")
+    @GetMapping("/login")
+    public String login() {
+        return "user/login";
+    }
+
+    @GetMapping("/user/signup")
     public String signupForm(Model model) {
         if (!model.containsAttribute("signupRequestDto")) {
             model.addAttribute("signupRequestDto", new SignupRequestDto());
@@ -34,7 +38,7 @@ public class UserController {
         return "signup";
     }
 
-    @PostMapping("/signup/send-code")
+    @PostMapping("/user/signup/send-code")
     public String sendCode(@ModelAttribute SignupRequestDto signupRequestDto, Model model) {
         try {
             emailVerificationJpaService.sendVerificationCode(
@@ -50,7 +54,7 @@ public class UserController {
         return "signup";
     }
 
-    @PostMapping("/signup/verify")
+    @PostMapping("/user/signup/verify")
     public String verifyAndSignup(@ModelAttribute SignupRequestDto signupRequestDto,
                                   @RequestParam String verificationCode,
                                   Model model, RedirectAttributes redirectAttributes) {
