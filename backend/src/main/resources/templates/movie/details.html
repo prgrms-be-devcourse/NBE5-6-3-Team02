@@ -177,8 +177,7 @@
         }
     </style>
 </head>
-<body>
-
+<body th:attr="data-movie-id=${movie.id}">
 <!-- SmartWatcha 로고 -->
 <a href="/" class="header">SmartWatcha</a>
 
@@ -235,8 +234,12 @@
 
         <!-- 보고싶어요 / 관심없어요 -->
         <div class="actions">
-            <button class="icon-button"><i class="fa-regular fa-bookmark"></i> 보고싶어요</button>
-            <button class="icon-button"><i class="fa-regular fa-eye-slash"></i> 관심없어요</button>
+            <button class="icon-button" onclick="setInterest('WATCH_LATER')">
+                <i class="fa-regular fa-bookmark"></i> 보고싶어요
+            </button>
+            <button class="icon-button" onclick="setInterest('NOT_INTERESTED')">
+                <i class="fa-regular fa-eye-slash"></i> 관심없어요
+            </button>
         </div>
 
         <!-- 태그 -->
@@ -267,6 +270,18 @@
                 location.reload();
             } else {
                 alert('오류 발생!');
+            }
+        });
+    }
+    function setInterest(status) {
+        const movieId = document.body.getAttribute("data-movie-id");
+        fetch(`/movies/${movieId}/interest?status=${status}`, {
+            method: 'POST'
+        }).then(response => {
+            if (response.ok) {
+                alert("상태가 저장되었습니다.");
+            } else {
+                alert("로그인이 필요합니다.");
             }
         });
     }
