@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.user;
 
-import com.grepp.smartwatcha.app.model.user.SignUpRequest;
-import com.grepp.smartwatcha.app.model.user.service.UserSignUpService;
+import com.grepp.smartwatcha.app.model.user.dto.SignupRequestDto;
+import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import com.grepp.smartwatcha.infra.jpa.entity.EmailVerificationEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.app.model.user.repository.EmailVerificationJpaRepository;
@@ -29,13 +29,13 @@ class UserSignUpServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
     @InjectMocks
-    private UserSignUpService userSignUpService;
+    private UserJpaService userJpaService;
 
     @Test
     @DisplayName("정상적으로 회원가입이 된다")
-    void signUp_success() {
+    void signup_success() {
         // given
-        SignUpRequest request = SignUpRequest.builder()
+        SignupRequestDto requestDto = SignupRequestDto.builder()
             .email("test@example.com")
             .password("password123")
             .name("테스터")
@@ -52,7 +52,7 @@ class UserSignUpServiceTest {
         });
 
         // when
-        Long userId = userSignUpService.signUp(request);
+        Long userId = userJpaService.signup(requestDto);
 
         // then
         assertThat(userId).isEqualTo(1L);
@@ -62,7 +62,7 @@ class UserSignUpServiceTest {
     @DisplayName("이메일이 중복되면 예외가 발생한다")
     void signUp_duplicateEmail() {
         // given
-        SignUpRequest request = SignUpRequest.builder()
+        SignupRequestDto requestDto = SignupRequestDto.builder()
             .email("test@example.com")
             .password("password123")
             .name("테스터")
@@ -73,7 +73,7 @@ class UserSignUpServiceTest {
         when(userRepository.existsByEmail("test@example.com")).thenReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> userSignUpService.signUp(request))
+        assertThatThrownBy(() -> userJpaService.signup(requestDto))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("이미 사용 중인 이메일");
     }
