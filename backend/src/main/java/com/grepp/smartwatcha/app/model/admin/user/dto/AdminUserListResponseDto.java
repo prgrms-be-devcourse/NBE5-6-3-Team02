@@ -15,6 +15,7 @@ public class AdminUserListResponseDto {
   private Long id;
   private String name;
   private String email;
+  private String phoneNumber;
   private LocalDateTime createdAt;
   private LocalDateTime modifiedAt;
   private Boolean activated;

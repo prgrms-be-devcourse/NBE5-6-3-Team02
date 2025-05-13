@@ -12,6 +12,7 @@ public class AdminUserMapper {
         .id(user.getId())
         .name(user.getName())
         .email(user.getEmail())
+        .phoneNumber(user.getPhoneNumber())
         .createdAt(user.getCreatedAt())
         .modifiedAt(user.getModifiedAt())
         .activated(user.getActivated())
