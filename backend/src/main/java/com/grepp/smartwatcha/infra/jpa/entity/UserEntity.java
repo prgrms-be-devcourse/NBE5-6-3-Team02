@@ -27,6 +27,9 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
+    @Column(nullable = false, length = 20)
+    private String phoneNumber;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false) // Role 이 반드시 부여되도록 수정
     private Role role;

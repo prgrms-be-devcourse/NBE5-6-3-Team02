@@ -59,8 +59,13 @@ public class UserController {
             model.addAttribute("signupRequestDto", signupRequestDto);
             model.addAttribute("codeSent", true);
             model.addAttribute("message", "인증 코드가 이메일로 전송되었습니다.");
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("signupRequestDto", signupRequestDto);
+            model.addAttribute("codeSent", false);
+            model.addAttribute("error", e.getMessage());
         } catch (Exception e) {
             model.addAttribute("signupRequestDto", signupRequestDto);
+            model.addAttribute("codeSent", false);
             model.addAttribute("error", "인증 코드 전송에 실패했습니다: " + e.getMessage());
         }
         return "signup";
