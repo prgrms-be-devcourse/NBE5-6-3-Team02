@@ -216,8 +216,9 @@
             <div th:id="'userModal__' + ${user.id}" class="modal black-text" style="background-color: #424242;">
               <div class="modal-content">
                 <h5 th:text="'👤 ' + ${user.name}"style="color: white">User Info</h5>
-                <p><strong style="color: white">Email:</strong> <span th:text="${user.email}" style="color: white">email</span></p>
                 <p><strong style="color: white">Role:</strong> <span th:text="${user.role}" style="color: white">USER</span></p>
+                <p><strong style="color: white">Email:</strong> <span th:text="${user.email}" style="color: white">email</span></p>
+                <p><strong style="color: white">Phone Number:</strong> <span th:text="${user.phoneNumber}" style="color: white">email</span></p>
                 <p><strong style="color: white">Activated:</strong>
                   <span th:text="${user.activated == true ? 'Active' : 'Inactive'}"
                         th:classappend="${user.activated == true} ? 'green-text' : 'red-text'">Active</span>
