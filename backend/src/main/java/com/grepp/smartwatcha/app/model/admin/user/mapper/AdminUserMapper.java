@@ -1,14 +1,14 @@
 package com.grepp.smartwatcha.app.model.admin.user.mapper;
 
 import com.grepp.smartwatcha.app.model.admin.user.dto.AdminSimpleRatingDto;
-import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponseDto;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class AdminUserMapper {
-  public static AdminUserListResponse toDto(UserEntity user, List<AdminSimpleRatingDto> recentRatings) {
-    AdminUserListResponse dto = AdminUserListResponse.builder()
+  public static AdminUserListResponseDto toDto(UserEntity user, List<AdminSimpleRatingDto> recentRatings) {
+    AdminUserListResponseDto dto = AdminUserListResponseDto.builder()
         .id(user.getId())
         .name(user.getName())
         .email(user.getEmail())

@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @Builder
-public class AdminUserListResponse {
+public class AdminUserListResponseDto {
   private Long id;
   private String name;
   private String email;

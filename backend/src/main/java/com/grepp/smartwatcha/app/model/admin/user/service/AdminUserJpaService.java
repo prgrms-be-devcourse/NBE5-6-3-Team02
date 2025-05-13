@@ -2,10 +2,10 @@ package com.grepp.smartwatcha.app.model.admin.user.service;
 
 import com.grepp.smartwatcha.app.model.admin.user.dto.AdminSimpleRatingDto;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserJpaRepository;
-import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponseDto;
 import com.grepp.smartwatcha.app.model.admin.user.mapper.AdminUserMapper;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
-import com.grepp.smartwatcha.app.model.admin.user.spec.AdminUserSpecifications;
+import com.grepp.smartwatcha.app.model.admin.user.code.AdminUserSpecifications;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import java.util.List;
@@ -27,7 +27,7 @@ public class AdminUserJpaService {
   private final AdminUserRatingJpaRepository adminUserRatingJpaRepository;
   private final UserJpaRepository userJpaRepository;
 
-  public Page<AdminUserListResponse> findUserByFilter(String keyword, String role, Boolean activated, Pageable pageable) {
+  public Page<AdminUserListResponseDto> findUserByFilter(String keyword, String role, Boolean activated, Pageable pageable) {
     Specification<UserEntity> spec = Specification
         .where(AdminUserSpecifications.hasName(keyword))
         .and(AdminUserSpecifications.hasRole(role))
@@ -48,7 +48,7 @@ public class AdminUserJpaService {
         });
   }
 
-  public AdminUserListResponse findUserByName(String name) {
+  public AdminUserListResponseDto findUserByName(String name) {
     UserEntity user = adminUserJpaRepository.findFirstByNameContainingIgnoreCase(name)
         .orElse(null);
     if (user == null) return null;
@@ -66,7 +66,7 @@ public class AdminUserJpaService {
     return AdminUserMapper.toDto(user, ratings);
   }
 
-  public AdminUserListResponse findUserById(Long id) {
+  public AdminUserListResponseDto findUserById(Long id) {
     return adminUserJpaRepository.findById(id)
          .map(user -> {
           List<AdminSimpleRatingDto> ratings = adminUserRatingJpaRepository

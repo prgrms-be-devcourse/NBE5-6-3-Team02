@@ -2,7 +2,7 @@ package com.grepp.smartwatcha.app.controller.web.admin;
 
 import com.grepp.smartwatcha.app.model.admin.user.dto.AdminRatingDto;
 import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserJpaService;
-import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponseDto;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserRatingJpaService;
 import com.grepp.smartwatcha.infra.response.PageResponse;
@@ -39,14 +39,14 @@ public class AdminUserController {
       Model model) {
 
     Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-    Page<AdminUserListResponse> users = adminUserJpaService.findUserByFilter(keyword, role, activated, pageable);
+    Page<AdminUserListResponseDto> users = adminUserJpaService.findUserByFilter(keyword, role, activated, pageable);
 
-    AdminUserListResponse selectedUser = null;
+    AdminUserListResponseDto selectedUser = null;
     if (id != null) {
       selectedUser = adminUserJpaService.findUserById(id);
     }
 
-    PageResponse<AdminUserListResponse> pageResponse = new PageResponse<>("/admin/users", users, 5);
+    PageResponse<AdminUserListResponseDto> pageResponse = new PageResponse<>("/admin/users", users, 5);
 
     model.addAttribute("pageResponse", pageResponse);
     model.addAttribute("selectedUser", selectedUser);
@@ -80,7 +80,7 @@ public class AdminUserController {
 
     Pageable pageable = PageRequest.of(page, size, sort);
 
-    AdminUserListResponse selectedUser = null;
+    AdminUserListResponseDto selectedUser = null;
     Long userId = null;
 
     if(id != null) {

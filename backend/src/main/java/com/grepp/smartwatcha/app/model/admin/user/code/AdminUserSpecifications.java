@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.user.spec;
+package com.grepp.smartwatcha.app.model.admin.user.code;
 
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import org.springframework.data.jpa.domain.Specification;
