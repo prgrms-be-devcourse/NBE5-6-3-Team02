@@ -35,6 +35,6 @@ public class AdminTagController {
     model.addAttribute("tags", tags.getContent());
     model.addAttribute("keyword", keyword);
 
-    return "tagList";
+    return "admin/tag/list";
   }
 }
