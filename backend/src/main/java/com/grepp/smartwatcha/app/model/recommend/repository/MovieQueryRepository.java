@@ -5,6 +5,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class MovieQueryRepository {
 
@@ -13,5 +15,11 @@ public class MovieQueryRepository {
 
     public MovieEntity findById(Long id) {
         return em.find(MovieEntity.class, id);
+    }
+
+    public List<MovieEntity> findAllReleased() {
+        return em.createQuery(
+                        "SELECT m FROM MovieEntity m WHERE m.isReleased = true", MovieEntity.class)
+                .getResultList();
     }
 }
