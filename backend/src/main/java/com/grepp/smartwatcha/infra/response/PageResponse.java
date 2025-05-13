@@ -43,4 +43,9 @@ public class PageResponse<T> {
         int totalPage = page.getTotalPages();
         return totalPage == 0 ? 1 : totalPage;
     }
+
+    public int totalPages() {
+        return calcTotalPage();
+    }
 }
+
