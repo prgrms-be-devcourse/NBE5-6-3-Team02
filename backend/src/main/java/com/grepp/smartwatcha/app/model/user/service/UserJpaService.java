@@ -37,15 +37,16 @@ public class UserJpaService {
                 .email(requestDto.getEmail())
                 .password(passwordEncoder.encode(requestDto.getPassword()))
                 .name(requestDto.getName())
+                .phoneNumber(requestDto.getPhoneNumber())
                 .role(Role.USER)
                 .build();
         return userJpaRepository.save(user).getId();
     }
 
     public String findIdByName(FindIdRequestDto findIdRequestDto) {
-        return userJpaRepository.findByName(findIdRequestDto.getName())
+        return userJpaRepository.findByNameAndPhoneNumber(findIdRequestDto.getName(), findIdRequestDto.getPhoneNumber())
             .map(UserEntity::getEmail)
-            .orElseThrow(() -> new IllegalArgumentException("해당 이름으로 등록된 사용자가 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("해당 정보로 등록된 사용자가 없습니다."));
     }
 
     public void sendPasswordResetCode(String email) {

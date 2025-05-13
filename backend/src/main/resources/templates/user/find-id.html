@@ -1,38 +1,43 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <title>아이디 찾기</title>
+    <title>Find ID - SmartMovie</title>
 </head>
 <body>
-<main layout:fragment="content" class="container" style="margin-top: 5rem; max-width: 500px;">
-    <div class="card grey darken-4">
-        <div class="card-content">
-            <span class="card-title center-align highlight">아이디 찾기</span>
-
-            <div class="center-align" style="margin-top: 1rem;" th:if="${error}">
-                <span class="red-text text-lighten-2" th:text="${error}"></span>
-            </div>
-
-            <div class="center-align" style="margin-top: 1rem;" th:if="${foundEmail}">
-                <span class="green-text text-lighten-2">찾은 이메일: <span th:text="${foundEmail}"></span></span>
-            </div>
-
-            <form th:action="@{/user/find-id}" method="post">
-                <div class="input-field">
-                    <input type="text" id="name" name="name" required>
-                    <label for="name">이름</label>
+<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m6 offset-m3">
+                <div class="card" style="background-color: #1e1e1e; padding: 20px;">
+                    <div class="card-content white-text">
+                        <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;">아이디 찾기</span>
+                        <div th:if="${error}" class="center-align red-text" th:text="${error}"></div>
+                        <div th:if="${foundEmail}" class="center-align">
+                            <p>찾은 이메일: <span th:text="${foundEmail}" style="color: #e53935;"></span></p>
+                        </div>
+                        <form th:action="@{/user/find-id}" method="post" th:unless="${foundEmail}">
+                            <div class="input-field">
+                                <input type="text" id="name" name="name" required>
+                                <label for="name">이름</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="phoneNumber" name="phoneNumber" required>
+                                <label for="phoneNumber">전화번호</label>
+                            </div>
+                            <div class="center-align">
+                                <button type="submit" class="btn waves-effect waves-light" style="background-color: #e53935;">
+                                    아이디 찾기
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-action center-align">
+                        <a th:href="@{/login}" style="color: #e53935;">로그인 페이지로 돌아가기</a>
+                    </div>
                 </div>
-
-                <div class="center-align" style="margin-top: 2rem;">
-                    <button type="submit" class="btn red accent-2 waves-effect waves-light">아이디 찾기</button>
-                </div>
-            </form>
-
-            <div class="center-align" style="margin-top: 1rem;">
-                <a href="/login" class="btn-flat waves-effect waves-light" style="color: #e53935;">로그인으로 돌아가기</a>
             </div>
         </div>
     </div>

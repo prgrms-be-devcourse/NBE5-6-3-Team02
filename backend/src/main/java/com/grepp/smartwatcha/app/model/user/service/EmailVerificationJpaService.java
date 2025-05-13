@@ -4,6 +4,7 @@ import com.grepp.smartwatcha.app.model.user.dto.EmailVerificationRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.EmailCodeVerifyRequestDto;
 import com.grepp.smartwatcha.infra.jpa.entity.EmailVerificationEntity;
 import com.grepp.smartwatcha.app.model.user.repository.EmailVerificationJpaRepository;
+import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -17,12 +18,17 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class EmailVerificationJpaService {
     private final EmailVerificationJpaRepository emailVerificationRepository;
+    private final UserJpaRepository userJpaRepository;
     private final JavaMailSender mailSender;
 
     @Value("${app.email.verification.expire-minutes:10}")
     private int expireMinutes;
 
     public void sendVerificationCode(EmailVerificationRequestDto requestDto) {
+        if (userJpaRepository.existsByEmail(requestDto.getEmail())) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+
         String code = generateCode();
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiredAt = now.plusMinutes(expireMinutes);

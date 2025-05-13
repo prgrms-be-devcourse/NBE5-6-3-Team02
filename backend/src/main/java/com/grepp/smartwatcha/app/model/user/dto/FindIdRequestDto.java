@@ -13,4 +13,5 @@ import lombok.Builder;
 @Builder
 public class FindIdRequestDto {
     private String name;
+    private String phoneNumber;
 } 
