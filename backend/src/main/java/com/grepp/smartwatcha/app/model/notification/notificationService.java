@@ -12,10 +12,6 @@ public class NotificationService {
 
     private final NotificationJpaService notificationJpaService;
 
-    public void sendNotification(){
-
-    }
-
     public List<NotificationDto> getActiveNotificationsForUser(Long userId) {
         return notificationJpaService.getActiveNotificationsForUser(userId);
     }
