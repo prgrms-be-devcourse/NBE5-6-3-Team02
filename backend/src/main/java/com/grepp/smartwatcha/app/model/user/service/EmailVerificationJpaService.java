@@ -25,7 +25,7 @@ public class EmailVerificationJpaService {
     private int expireMinutes;
 
     public void sendVerificationCode(EmailVerificationRequestDto requestDto) {
-        if (userJpaRepository.existsByEmail(requestDto.getEmail())) {
+        if (userJpaRepository.existsByEmailAndActivatedIsTrue(requestDto.getEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 

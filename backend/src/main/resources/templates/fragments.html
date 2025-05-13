@@ -37,9 +37,9 @@
         <ul id="nav-mobile" class="right hide-on-med-and-down">
           <li><a href="/" class="white-text">Home</a></li>
           <li><a href="/search" class="white-text">Search</a></li>
-          <li><a href="#" class="white-text">My Page</a></li>
           <!-- 로그인 여부에 따라 다른 메뉴 출력 -->
           <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+            <li><a th:href="@{/user/mypage}" class="white-text">My Page</a></li>
             <li><a href="#" id="logout" class="highlight">Logout</a></li>
           </th:block>
           <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
