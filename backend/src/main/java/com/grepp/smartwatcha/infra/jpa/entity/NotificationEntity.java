@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import org.hibernate.validator.constraints.Length;
 
 @Entity
 @Table(name = "notifications")
@@ -22,6 +23,8 @@ public class NotificationEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    @Lob
+    @Length(max=256)
     private String message;
     private Boolean isRead = false;
 }
