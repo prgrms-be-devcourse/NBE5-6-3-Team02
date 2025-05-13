@@ -13,74 +13,72 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  @Value("${remember-me.key}")
-  private String rememberMeKey;
+    @Value("${remember-me.key}")
+    private String rememberMeKey;
 
-  private final CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
-  @Bean
-  public AuthenticationManager authManager(HttpSecurity http, PasswordEncoder passwordEncoder)
-      throws Exception {
-    AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-    builder.userDetailsService(userDetailsService)
-        .passwordEncoder(passwordEncoder);
-    return builder.build();
-  }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable())
+    @Bean
+    public AuthenticationManager authManager(HttpSecurity http, PasswordEncoder passwordEncoder)
+        throws Exception {
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.userDetailsService(userDetailsService)
+            .passwordEncoder(passwordEncoder);
+        return builder.build();
+    }
 
-        .formLogin(form -> form
-            .loginPage("/login")
-            .loginProcessingUrl("/login")
-            .usernameParameter("email")
-            .passwordParameter("password")
-            .successHandler(new CustomLoginSuccessHandler())
-            .failureHandler(new CustomLoginFailureHandler())
-            .permitAll()
-        )
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
 
-        .logout(logout -> logout
-            .logoutUrl("/logout")
-            .logoutSuccessUrl("/")
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID", "remember-me")
-        )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .successHandler(new CustomLoginSuccessHandler())
+                .failureHandler(new CustomLoginFailureHandler())
+                .permitAll()
+            )
 
-        .rememberMe(rm -> rm
-            .key(rememberMeKey)
-            .tokenValiditySeconds(86400 * 30)
-            .userDetailsService(userDetailsService)
-            .rememberMeParameter("remember-me")
-        )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID", "remember-me")
+            )
 
-        .exceptionHandling(ex -> ex
-            .accessDeniedHandler(new CustomAccessDeniedHandler())
-        )
+            .rememberMe(rm -> rm
+                .key(rememberMeKey)
+                .tokenValiditySeconds(86400 * 30)
+                .userDetailsService(userDetailsService)
+                .rememberMeParameter("remember-me")
+            )
 
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/admin/**").hasRole("ADMIN")
-            .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/error").permitAll()
-            .anyRequest().permitAll()
-        );
+            .exceptionHandling(ex -> ex
+                .accessDeniedHandler(new CustomAccessDeniedHandler())
+            )
 
-    return http.build();
-  }
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/error").permitAll()
+                .anyRequest().permitAll()
+            );
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-  }
+        return http.build();
+    }
 }

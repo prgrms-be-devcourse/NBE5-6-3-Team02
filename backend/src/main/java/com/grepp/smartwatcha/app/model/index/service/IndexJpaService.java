@@ -2,7 +2,6 @@ package com.grepp.smartwatcha.app.model.index.service;
 
 import com.grepp.smartwatcha.app.model.index.dto.IndexMovieDto;
 import com.grepp.smartwatcha.app.model.index.repository.IndexJpaRepository;
-import com.grepp.smartwatcha.app.model.search.dto.SearchResultDto;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,6 @@ public class IndexJpaService {
         List<IndexMovieDto> indexMovieDtos = new ArrayList<>();
         for (Long id : ids) {
             Optional<MovieEntity> movieEntity = indexJpaRepository.findById(id);
-
             if (movieEntity.isPresent()) {
                 IndexMovieDto indexMovieDto = IndexMovieDto.fromEntity(movieEntity.get());
                 indexMovieDtos.add(indexMovieDto);

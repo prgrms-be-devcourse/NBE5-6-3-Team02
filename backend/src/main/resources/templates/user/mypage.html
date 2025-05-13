@@ -32,9 +32,9 @@
                         
                         <form th:action="@{/user/mypage/update}" method="post" id="updateForm">
                             <!-- 이메일 (표시만) -->
-                            <div class="email-display">
-                                <strong>이메일: </strong>
-                                <span th:text="${user.email}"></span>
+                            <div class="input-field">
+                                <input type="text" id="email" th:value="${user.email}" readonly>
+                                <label for="email" class="active">이메일(ID)</label>
                             </div>
                             
                             <!-- 이름 -->
