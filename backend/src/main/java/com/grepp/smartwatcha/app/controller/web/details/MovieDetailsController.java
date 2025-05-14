@@ -2,9 +2,11 @@ package com.grepp.smartwatcha.app.controller.web.details;
 
 import com.grepp.smartwatcha.app.model.details.dto.MovieDetailsDTO;
 import com.grepp.smartwatcha.app.model.details.dto.RatingBarDto;
+import com.grepp.smartwatcha.app.model.details.dto.Neo4jTagDto;
 import com.grepp.smartwatcha.app.model.details.service.MovieJpaService;
 import com.grepp.smartwatcha.app.model.details.service.MovieNeo4jService;
 import com.grepp.smartwatcha.app.model.details.service.RatingJpaService;
+import com.grepp.smartwatcha.app.model.details.service.TagNeo4jService;
 import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -22,6 +24,9 @@ public class MovieDetailsController {
     private final MovieJpaService movieJpaService;
     private final RatingJpaService ratingJpaService;
     private final MovieNeo4jService movieNeo4jService;
+    private final TagNeo4jService tagNeo4jService;
+
+
 
     @GetMapping("/movies/{id}")
     public String getMovieDetail(@PathVariable Long id, Model model) {
@@ -30,6 +35,8 @@ public class MovieDetailsController {
         List<RatingBarDto> ratingList = ratingJpaService.getRatingDistributionList(id);
         Map<Integer, Integer> ratingDistribution = ratingJpaService.getRatingDistribution(id);
         MovieNode neo4jMovie = movieNeo4jService.getMovieWithAllRelations(id);
+        List<Neo4jTagDto> topTags = tagNeo4jService.getTop6Tags(id);
+
 
         // mysql db
         model.addAttribute("movie", movie);
@@ -41,6 +48,8 @@ public class MovieDetailsController {
         model.addAttribute("genres", neo4jMovie.getGenres());
         model.addAttribute("actors", neo4jMovie.getActors());
         model.addAttribute("directors", neo4jMovie.getDirectors());
+        System.out.println(">>> topTags = " + topTags);
+        model.addAttribute("topTags", topTags);
         return "movie/details";
     }
 
