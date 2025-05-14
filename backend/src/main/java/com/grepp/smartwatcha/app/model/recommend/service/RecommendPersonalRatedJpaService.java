@@ -20,7 +20,6 @@ public class RecommendPersonalRatedJpaService {
 
     private final RatingRepository ratingRepository;
     private final MovieQueryRepository movieQueryRepository;
-    private final RecommendPersonalRatedNeo4jService graphService;
 
     @PersistenceContext
     private jakarta.persistence.EntityManager em;
@@ -30,16 +29,14 @@ public class RecommendPersonalRatedJpaService {
     }
 
     @Transactional("jpaTransactionManager")
-    public Map<String, Double> calculateGenrePreferences(Long userId) {
+    public Map<String, Double> calculateGenrePreferences(Long userId, Map<Long, List<String>> genreMap) {
         List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
-
         Map<String, List<Double>> genreScores = new HashMap<>();
 
         for (RatingEntity rating : ratings) {
-            double weight = 1.0 / (Duration.between(rating.getCreatedAt(), LocalDateTime.now()).toDays() + 1);
+            double weight = 1.0 / Math.sqrt(Duration.between(rating.getCreatedAt(), LocalDateTime.now()).toDays() + 1);
             double weightedScore = rating.getScore() * weight;
-
-            List<String> genres = graphService.getGenresByMovieId(rating.getMovie().getId());
+            List<String> genres = genreMap.getOrDefault(rating.getMovie().getId(), List.of());
 
             for (String genre : genres) {
                 genreScores.computeIfAbsent(genre, k -> new ArrayList<>()).add(weightedScore);
@@ -54,16 +51,14 @@ public class RecommendPersonalRatedJpaService {
     }
 
     @Transactional("jpaTransactionManager")
-    public Map<String, Double> calculateTagPreferences(Long userId) {
+    public Map<String, Double> calculateTagPreferences(Long userId, Map<Long, List<String>> tagMap) {
         List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
-
         Map<String, List<Double>> tagScores = new HashMap<>();
 
         for (RatingEntity rating : ratings) {
-            double weight = 1.0 / (Duration.between(rating.getCreatedAt(), LocalDateTime.now()).toDays() + 1);
+            double weight = 1.0 / Math.sqrt(Duration.between(rating.getCreatedAt(), LocalDateTime.now()).toDays() + 1);
             double weightedScore = rating.getScore() * weight;
-
-            List<String> tags = graphService.getTagsByMovieId(rating.getMovie().getId());
+            List<String> tags = tagMap.getOrDefault(rating.getMovie().getId(), List.of());
 
             for (String tag : tags) {
                 tagScores.computeIfAbsent(tag, k -> new ArrayList<>()).add(weightedScore);
