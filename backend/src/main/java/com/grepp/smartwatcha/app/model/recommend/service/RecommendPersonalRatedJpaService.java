@@ -21,8 +21,6 @@ public class RecommendPersonalRatedJpaService {
     private final RatingRepository ratingRepository;
     private final MovieQueryRepository movieQueryRepository;
 
-    @PersistenceContext
-    private jakarta.persistence.EntityManager em;
 
     public List<MovieEntity> findAllReleasedMovies() {
         return movieQueryRepository.findAllReleased();
@@ -71,4 +69,13 @@ public class RecommendPersonalRatedJpaService {
                         e -> e.getValue().stream().mapToDouble(Double::doubleValue).average().orElse(0.0)
                 ));
     }
+
+    @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
+    public List<Long> getRatedMovieIdsByUser(Long userId) {
+        return ratingRepository.findByUserId(userId).stream()
+                .map(r -> r.getMovie().getId())
+                .distinct()
+                .toList();
+    }
+
 }
