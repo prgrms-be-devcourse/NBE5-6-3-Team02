@@ -4,7 +4,6 @@ import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryRepository
 import com.grepp.smartwatcha.app.model.recommend.repository.RatingRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

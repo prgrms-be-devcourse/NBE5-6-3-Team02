@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.model.recommend.repository;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
-import org.neo4j.driver.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Repository;
 
@@ -9,13 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class MovieGenreCustomRepositoryImpl implements MovieGenreCustomRepository {
 
     private final Neo4jClient neo4jClient;
-
-    public MovieGenreCustomRepositoryImpl(Neo4jClient neo4jClient) {
-        this.neo4jClient = neo4jClient;
-    }
 
     @Override
     public List<MovieGenreTagResponse> findGenresAndTagsByMovieIdList(List<Long> movieIdList) {
