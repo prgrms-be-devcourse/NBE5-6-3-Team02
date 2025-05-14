@@ -185,6 +185,11 @@
 <div class="banner" th:style="'background-image: url(https://image.tmdb.org/t/p/w780' + ${movie.poster} + ');'">
     <div class="banner-info">
         <h1 th:text="${movie.title}">영화 제목</h1>
+        <!-- 장르 -->
+        <p>
+            <strong>장르:</strong>
+            <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
+        </p>
         <p>
             <span th:text="'개봉일: ' + ${#temporals.format(movie.releaseDate, 'yyyy년 MM월 dd일')}"></span> |
             <span th:text="'국가: ' + ${movie.country}"></span> |
@@ -257,6 +262,23 @@
 
     </div>
 </div>
+<!-- 출연진 및 제작진 정보 -->
+<div class="content-section">
+    <div style="width: 100%;">
+        <!-- 감독 정보 -->
+        <div style="margin-bottom: 15px;">
+            <strong>감독:</strong>
+            <span th:each="director : ${directors}" th:text="${director.name} + ' '"></span>
+        </div>
+
+        <!-- 출연 정보 -->
+        <div>
+            <strong>출연:</strong>
+            <span th:each="actor : ${actors}" th:text="${actor.name} + ' '"></span>
+        </div>
+    </div>
+</div>
+
 
 <script>
     function rateMovie(movieId, score) {

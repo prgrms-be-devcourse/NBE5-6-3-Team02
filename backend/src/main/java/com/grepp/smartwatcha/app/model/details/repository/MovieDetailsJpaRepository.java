@@ -9,5 +9,7 @@ public interface MovieDetailsJpaRepository extends JpaRepository<MovieEntity, Lo
 
     @Query("SELECT AVG(r.score) FROM RatingEntity r WHERE r.movie.id = :movieId")
     Double findAverageScore(@Param("movieId") Long movieId);
+
+
 }
 
