@@ -6,11 +6,16 @@ import com.grepp.smartwatcha.app.controller.api.search.payload.SmartSearchApiRes
 import com.grepp.smartwatcha.app.model.search.SearchService;
 import com.grepp.smartwatcha.app.model.search.dto.SearchResultDto;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
+import com.grepp.smartwatcha.infra.response.PageResponse;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,38 +44,36 @@ public class SearchController {
             @RequestParam(required = true) String type,
             @RequestParam(required = true) String intent,
             @RequestParam(required = true) String query,
+            @RequestParam(required = true, defaultValue = "0") Integer page,
+            @RequestParam(required = true, defaultValue = "9") Integer size,
             @AuthenticationPrincipal UserDetails user,
             Model model
     ){
 
-//        if (bindingResult.hasErrors()) {
-//            throw new CommonException(ResponseCode.BAD_REQUEST);
-//        }
-
-        List<SearchResultDto> searchResultDtos = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
 
         if (type.equals("generalSearch")) {
             switch (intent.toLowerCase()) {
                 case "title":
-                    searchResultDtos = searchService.findByTitle(query);
+                    ids = searchService.findByTitle(query);
                     break;
                 case "year":
-                    searchResultDtos = searchService.findByYear(Integer.parseInt(query));
+                    ids = searchService.findByYear(Integer.parseInt(query));
                     break;
                 case "country":
-                    searchResultDtos = searchService.findByCountry(query);
+                    ids = searchService.findByCountry(query);
                     break;
                 case "genre":
-                    searchResultDtos = searchService.findByGenre(query);
+                    ids = searchService.findByGenre(query);
                     break;
                 case "director":
-                    searchResultDtos = searchService.findByDirector(query);
+                    ids = searchService.findByDirector(query);
                     break;
                 case "writer":
-                    searchResultDtos = searchService.findByWriter(query);
+                    ids = searchService.findByWriter(query);
                     break;
                 case "actor":
-                    searchResultDtos = searchService.findByActor(query);
+                    ids = searchService.findByActor(query);
                     break;
             }
         } else if (type.equals("smartSearch")) {
@@ -85,20 +88,41 @@ public class SearchController {
             try{
                 SmartSearchApiResponse response = smartSearchApi.call(token, request);
                 log.info("smartSearch response: {}", response);
-                List<Long> movieIdList = response.getMovieIds().stream()
+                ids = response.getMovieIds().stream()
                         .map(SmartSearchApiResponse.MovieWrapper::getMovie)
                         .toList();
 
-                searchResultDtos = searchService.findByIds(movieIdList);
             } catch (Exception e){
                 throw new CommonException(ResponseCode.BAD_REQUEST, e);
             }
         }
-        log.info("searchResultDtos: {}", searchResultDtos);
+        String queryKey = searchService.buildQueryKey(type, intent, query);
+        String queryHash = searchService.hash(queryKey);
+        List<SearchResultDto> results = searchService.searchAndCache(queryHash, ids);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        Page<SearchResultDto> pages = searchService.getPaged(queryHash, pageable);
+        PageResponse<SearchResultDto> searchResultDtos = new PageResponse<>("/search/result/paged", pages, 5);
 
         model.addAttribute("searchResult", searchResultDtos);
+        model.addAttribute("queryHash", queryHash);
+        return "search/search-result";
+    }
 
+    @GetMapping("result/paged")
+    public String searchResult(
+            @RequestParam(required = true, defaultValue = "0") Integer page,
+            @RequestParam(required = true, defaultValue = "9") Integer size,
+            @RequestParam String queryHash,
+            Model model
+    ){
 
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        Page<SearchResultDto> pages = searchService.getPaged(queryHash, pageable);
+        PageResponse<SearchResultDto> searchResultDtos = new PageResponse<>("/search/result/paged", pages, 5);
+
+        model.addAttribute("searchResult", searchResultDtos);
+        model.addAttribute("queryHash", queryHash);
         return "search/search-result";
     }
 
