@@ -49,16 +49,24 @@ public class UserJpaService {
         UserEntity user;
         if (inactiveUser != null) {
             // 기존 비활성화 계정 재사용
-            inactiveUser.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+            String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+            if (!encodedPassword.startsWith("{")) {
+                encodedPassword = "{bcrypt}" + encodedPassword;
+            }
+            inactiveUser.setPassword(encodedPassword);
             inactiveUser.setName(requestDto.getName());
             inactiveUser.setPhoneNumber(requestDto.getPhoneNumber());
             inactiveUser.setActivated(true);
             user = inactiveUser;
         } else {
             // 새 계정 생성
+            String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
+            if (!encodedPassword.startsWith("{")) {
+                encodedPassword = "{bcrypt}" + encodedPassword;
+            }
             user = UserEntity.builder()
                     .email(requestDto.getEmail())
-                    .password(passwordEncoder.encode(requestDto.getPassword()))
+                    .password(encodedPassword)
                     .name(requestDto.getName())
                     .phoneNumber(requestDto.getPhoneNumber())
                     .role(Role.USER)
@@ -104,7 +112,11 @@ public class UserJpaService {
         UserEntity user = userJpaRepository.findByEmail(resetPasswordRequestDto.getEmail())
             .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 이메일입니다."));
 
-        user.setPassword(passwordEncoder.encode(resetPasswordRequestDto.getNewPassword()));
+        String encodedPassword = passwordEncoder.encode(resetPasswordRequestDto.getNewPassword());
+        if (!encodedPassword.startsWith("{")) {
+            encodedPassword = "{bcrypt}" + encodedPassword;
+        }
+        user.setPassword(encodedPassword);
         userJpaRepository.save(user);
     }
 
@@ -130,7 +142,11 @@ public class UserJpaService {
             if (!requestDto.getNewPassword().equals(requestDto.getConfirmPassword())) {
                 throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
             }
-            user.setPassword(passwordEncoder.encode(requestDto.getNewPassword()));
+            String encodedPassword = passwordEncoder.encode(requestDto.getNewPassword());
+            if (!encodedPassword.startsWith("{")) {
+                encodedPassword = "{bcrypt}" + encodedPassword;
+            }
+            user.setPassword(encodedPassword);
         }
 
         // 이름과 전화번호 업데이트
