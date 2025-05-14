@@ -1,12 +1,12 @@
-package com.grepp.smartwatcha.app.model.details.service;
+package com.grepp.smartwatcha.app.model.details.service.jpaservice;
 
-import com.grepp.smartwatcha.app.model.details.dto.RatingBarDto;
-import com.grepp.smartwatcha.app.model.details.dto.RatingRequestDto;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingRequestDto;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
-import com.grepp.smartwatcha.app.model.details.repository.MovieDetailsJpaRepository;
-import com.grepp.smartwatcha.app.model.details.repository.RatingJpaRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.RatingJpaRepository;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

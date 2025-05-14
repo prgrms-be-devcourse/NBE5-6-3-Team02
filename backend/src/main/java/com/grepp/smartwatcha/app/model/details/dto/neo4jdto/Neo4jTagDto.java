@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.details.dto;
+package com.grepp.smartwatcha.app.model.details.dto.neo4jdto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

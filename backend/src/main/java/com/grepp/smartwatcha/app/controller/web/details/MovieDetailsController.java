@@ -1,12 +1,12 @@
 package com.grepp.smartwatcha.app.controller.web.details;
 
-import com.grepp.smartwatcha.app.model.details.dto.MovieDetailsDTO;
-import com.grepp.smartwatcha.app.model.details.dto.RatingBarDto;
-import com.grepp.smartwatcha.app.model.details.dto.Neo4jTagDto;
-import com.grepp.smartwatcha.app.model.details.service.MovieJpaService;
-import com.grepp.smartwatcha.app.model.details.service.MovieNeo4jService;
-import com.grepp.smartwatcha.app.model.details.service.RatingJpaService;
-import com.grepp.smartwatcha.app.model.details.service.TagNeo4jService;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDTO;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
+import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.MovieJpaService;
+import com.grepp.smartwatcha.app.model.details.service.neo4jservice.MovieNeo4jService;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
+import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
 import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

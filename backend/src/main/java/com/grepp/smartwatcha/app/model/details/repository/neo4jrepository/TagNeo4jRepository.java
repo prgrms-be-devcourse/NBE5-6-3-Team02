@@ -1,15 +1,16 @@
-package com.grepp.smartwatcha.app.model.details.repository;
+package com.grepp.smartwatcha.app.model.details.repository.neo4jrepository;
 
-import com.grepp.smartwatcha.app.model.details.dto.TagDto;
-import com.grepp.smartwatcha.infra.jpa.entity.TagEntity;
+import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.infra.neo4j.node.TagNode;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
-public interface TagNeo4jRepository extends Neo4jRepository<TagEntity, Long> {
+@Repository
+public interface TagNeo4jRepository extends Neo4jRepository<TagNode, String> {
 
     //유저랑 태그 관계 삽입
     @Query("MERGE (u:USER {id: $userId})\n" +
@@ -27,5 +28,5 @@ public interface TagNeo4jRepository extends Neo4jRepository<TagEntity, Long> {
             "RETURN t.name AS name, count(*) AS count " +
             "ORDER BY count DESC " +
             "LIMIT 6")
-    List<TagDto> findTop6TagsByMovieId(@Param("movieId") Long movieId);
+    List<Neo4jTagDto> findTop6TagsByMovieId(@Param("movieId") Long movieId);
 }

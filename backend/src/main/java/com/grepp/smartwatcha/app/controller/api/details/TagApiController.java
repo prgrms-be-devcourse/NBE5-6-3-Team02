@@ -1,31 +1,40 @@
 package com.grepp.smartwatcha.app.controller.api.details;
 
-import com.grepp.smartwatcha.app.model.details.dto.Neo4jTagDto;
-import com.grepp.smartwatcha.app.model.details.service.TagNeo4jService;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.JpaTagDto;
+import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.TagJpaService;
+import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/movies/{id}/tags")
 public class TagApiController {
     private final TagNeo4jService tagService;
+    private final TagJpaService tagJpaService;
 
-    public TagApiController(TagNeo4jService tagService) {
+    public TagApiController(TagNeo4jService tagService, TagJpaService tagJpaService)
+    {
         this.tagService = tagService;
+        this.tagJpaService = tagJpaService;
+    }
+
+    @GetMapping("/search")
+    public List<JpaTagDto> searchTags(@RequestParam String keyword){
+        return tagJpaService.searchTags(keyword);
     }
 
     @PostMapping("/select")
-    public void selectTag(
+    public ResponseEntity<Void> selectTag(
             @RequestParam Long userId,
             @RequestParam Long movieId,
             @RequestParam String tagName
     ) {
         tagService.saveTagSelection(userId, movieId, tagName);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/top6")
