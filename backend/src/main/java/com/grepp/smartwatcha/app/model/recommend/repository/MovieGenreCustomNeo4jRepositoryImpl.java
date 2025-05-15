@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class MovieGenreCustomRepositoryImpl implements MovieGenreCustomRepository {
+public class MovieGenreCustomNeo4jRepositoryImpl implements MovieGenreCustomNeo4jRepository {
 
     private final Neo4jClient neo4jClient;
 

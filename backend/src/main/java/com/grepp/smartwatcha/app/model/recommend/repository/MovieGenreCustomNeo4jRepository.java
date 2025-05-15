@@ -4,6 +4,6 @@ import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagR
 
 import java.util.List;
 
-public interface MovieGenreCustomRepository {
+public interface MovieGenreCustomNeo4jRepository {
     List<MovieGenreTagResponse> findGenresAndTagsByMovieIdList(List<Long> movieIdList);
 }

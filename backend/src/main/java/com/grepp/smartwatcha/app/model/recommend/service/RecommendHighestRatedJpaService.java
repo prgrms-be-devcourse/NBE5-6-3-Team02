@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.model.recommend.service;
 
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
-import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryRepository;
+import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
 import com.grepp.smartwatcha.app.model.recommend.repository.RecommendHighestRatedMovieJpaRepository;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.Objects;
 public class RecommendHighestRatedJpaService {
 
     private final RecommendHighestRatedMovieJpaRepository ratingRepo;
-    private final MovieQueryRepository movieRepo;
+    private final MovieQueryJpaRepository movieRepo;
     private final RecommendHighestRatedNeo4jService genreService;
 
     @Transactional("jpaTransactionManager")

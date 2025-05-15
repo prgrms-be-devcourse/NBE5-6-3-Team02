@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.model.recommend.service;
 
-import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryRepository;
-import com.grepp.smartwatcha.app.model.recommend.repository.RatingRepository;
+import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
+import com.grepp.smartwatcha.app.model.recommend.repository.RatingRecommendJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +15,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional("jpaTransactionManager")
 public class RecommendPersonalRatedJpaService {
 
-    private final RatingRepository ratingRepository;
-    private final MovieQueryRepository movieQueryRepository;
+    private final RatingRecommendJpaRepository ratingRepository;
+    private final MovieQueryJpaRepository movieQueryRepository;
 
 
     public List<MovieEntity> findAllReleasedMovies() {
         return movieQueryRepository.findAllReleased();
     }
 
-    @Transactional("jpaTransactionManager")
     public Map<String, Double> calculateGenrePreferences(Long userId, Map<Long, List<String>> genreMap) {
         List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
         Map<String, List<Double>> genreScores = new HashMap<>();
@@ -47,7 +47,6 @@ public class RecommendPersonalRatedJpaService {
                 ));
     }
 
-    @Transactional("jpaTransactionManager")
     public Map<String, Double> calculateTagPreferences(Long userId, Map<Long, List<String>> tagMap) {
         List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
         Map<String, List<Double>> tagScores = new HashMap<>();

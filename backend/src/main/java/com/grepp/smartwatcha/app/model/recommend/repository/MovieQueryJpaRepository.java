@@ -4,11 +4,12 @@ import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Repository
-public class MovieQueryRepository {
+public class MovieQueryJpaRepository {
 
     @PersistenceContext
     private EntityManager em;

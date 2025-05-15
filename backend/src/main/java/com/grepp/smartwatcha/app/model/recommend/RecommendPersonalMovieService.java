@@ -7,12 +7,14 @@ import com.grepp.smartwatcha.app.model.recommend.service.RecommendPersonalRatedN
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
 public class RecommendPersonalMovieService {
 
     private final RecommendPersonalRatedJpaService ratingService;
