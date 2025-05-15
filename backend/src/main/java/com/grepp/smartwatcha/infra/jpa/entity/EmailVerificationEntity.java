@@ -29,7 +29,7 @@ public class EmailVerificationEntity {
     @Column(nullable = false)
     private LocalDateTime expiredAt;
 
-    @Column(nullable = false, columnDefinition = "datetime(6) default CURRENT_TIMESTAMP")
+    @Column(nullable = false)
     private LocalDateTime lastSentAt;
 
     private boolean verified = false;
