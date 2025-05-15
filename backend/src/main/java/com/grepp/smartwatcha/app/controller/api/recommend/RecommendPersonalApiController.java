@@ -19,15 +19,15 @@ public class RecommendPersonalApiController {
 
     private final RecommendPersonalMovieService recommendService;
 
-//    @GetMapping("/personal")
-//    public List<MovieRecommendPersonalResponse> getPersonalRecommendations(@AuthenticationPrincipal UserDetails userDetails) {
-//        Long userId = Long.parseLong(userDetails.getUsername());
-//        return recommendService.getTop10PersonalMovies(userId);
-//    }
-
     @GetMapping("/personal")
-    public List<MovieRecommendPersonalResponse> getPersonalRecommendations(@RequestParam Long userId) {
+    public List<MovieRecommendPersonalResponse> getPersonalRecommendations(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         return recommendService.getTop10PersonalMovies(userId);
     }
+
+//    @GetMapping("/personal")
+//    public List<MovieRecommendPersonalResponse> getPersonalRecommendations(@RequestParam Long userId) {
+//        return recommendService.getTop10PersonalMovies(userId);
+//    }
 
 }
