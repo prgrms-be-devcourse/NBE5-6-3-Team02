@@ -17,6 +17,28 @@
             color: #9e9e9e;
             margin-bottom: 20px;
         }
+        .input-field input[type=text],
+        .input-field input[type=email],
+        .input-field input[type=password],
+        .input-field input[type=tel] {
+            color: white;
+        }
+        .input-field label {
+            color: #9e9e9e;
+        }
+        .input-field input[type=text]:focus + label,
+        .input-field input[type=email]:focus + label,
+        .input-field input[type=password]:focus + label,
+        .input-field input[type=tel]:focus + label {
+            color: #e53935;
+        }
+        .input-field input[type=text]:focus,
+        .input-field input[type=email]:focus,
+        .input-field input[type=password]:focus,
+        .input-field input[type=tel]:focus {
+            border-bottom: 1px solid #e53935;
+            box-shadow: 0 1px 0 0 #e53935;
+        }
     </style>
 </head>
 <body>

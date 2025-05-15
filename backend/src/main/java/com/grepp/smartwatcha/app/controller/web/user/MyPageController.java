@@ -20,6 +20,9 @@ public class MyPageController {
 
     @GetMapping
     public String myPage(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        if (userDetails != null && userDetails.getRole() != null && userDetails.getRole().name().equals("ADMIN")) {
+            return "redirect:/admin";
+        }
         UserEntity user = userJpaService.findById(userDetails.getUser().getId());
         model.addAttribute("user", user);
         return "user/mypage";
