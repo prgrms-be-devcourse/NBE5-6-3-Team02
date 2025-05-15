@@ -22,7 +22,7 @@ public class EmailVerificationJpaService {
     private final UserJpaRepository userJpaRepository;
     private final JavaMailSender mailSender;
 
-    @Value("${app.email.verification.expire-minutes:10}")
+    @Value("${app.email.verification.expire-minutes:1}")
     private int expireMinutes;
 
     @Value("${app.email.verification.cooldown-seconds:60}")
@@ -96,7 +96,7 @@ public class EmailVerificationJpaService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject("[스마트왓챠] 이메일 인증 코드 안내");
-        message.setText("인증 코드: " + code + "\n10분 이내에 입력해 주세요.");
+        message.setText("인증 코드: " + code + "\n1분 이내에 입력해 주세요.");
         mailSender.send(message);
     }
 } 
