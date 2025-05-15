@@ -34,41 +34,41 @@ public class SearchJpaService {
         return searchResultDtos;
     }
 
-    public List<SearchResultDto> findByTitle(String title) {
+    public List<Long> findByTitle(String title) {
         List<MovieEntity> movieEntities = searchJpaRepository.findByTitle(title);
-        List<SearchResultDto> searchResultDtos = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
 
         for (MovieEntity movieEntity : movieEntities) {
-            SearchResultDto searchResultDto = SearchResultDto.fromEntity(movieEntity);
-            searchResultDtos.add(searchResultDto);
+            Long id = movieEntity.getId();
+            ids.add(id);
         }
 
-        return searchResultDtos;
+        return ids;
     }
 
-    public List<SearchResultDto> findByYear(int year) {
+    public List<Long> findByYear(int year) {
         LocalDateTime start = LocalDateTime.of(year, 1, 1, 0, 0, 0);
         LocalDateTime end = LocalDateTime.of(year + 1, 1, 1, 0, 0, 0);
         List<MovieEntity> movieEntities = searchJpaRepository.findByYear(start, end);
-        List<SearchResultDto> searchResultDtos = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
 
         for (MovieEntity movieEntity : movieEntities) {
-            SearchResultDto searchResultDto = SearchResultDto.fromEntity(movieEntity);
-            searchResultDtos.add(searchResultDto);
+            Long id = movieEntity.getId();
+            ids.add(id);
         }
 
-        return searchResultDtos;
+        return ids;
     }
 
-    public List<SearchResultDto> findByCountry(String country) {
+    public List<Long> findByCountry(String country) {
         List<MovieEntity> movieEntities = searchJpaRepository.findByCountry(country);
-        List<SearchResultDto> searchResultDtos = new ArrayList<>();
+        List<Long> ids = new ArrayList<>();
 
         for (MovieEntity movieEntity : movieEntities) {
-            SearchResultDto searchResultDto = SearchResultDto.fromEntity(movieEntity);
-            searchResultDtos.add(searchResultDto);
+            Long id = movieEntity.getId();
+            ids.add(id);
         }
 
-        return searchResultDtos;
+        return ids;
     }
 }

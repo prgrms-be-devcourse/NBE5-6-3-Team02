@@ -29,5 +29,8 @@ public class EmailVerificationEntity {
     @Column(nullable = false)
     private LocalDateTime expiredAt;
 
+    @Column(nullable = false)
+    private LocalDateTime lastSentAt;
+
     private boolean verified = false;
 }
