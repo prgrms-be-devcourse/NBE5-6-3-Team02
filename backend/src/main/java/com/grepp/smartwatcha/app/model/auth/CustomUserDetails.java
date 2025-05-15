@@ -2,13 +2,12 @@ package com.grepp.smartwatcha.app.model.auth;
 
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.infra.jpa.enums.Role;
-
-
-import java.util.Collection;
-import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
 
@@ -62,4 +61,10 @@ public class CustomUserDetails implements UserDetails {
   public Role getRole() {
     return user.getRole();
   }
+
+  public UserEntity getUser() {
+    return user;
+  }
+
+
 }
