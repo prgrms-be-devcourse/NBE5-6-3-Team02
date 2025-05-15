@@ -40,6 +40,7 @@ public class RatingJpaService {
 
         ratingJpaRepository.save(rating);
     }
+
     public Map<Integer, Integer> getRatingDistribution(Long movieId) {
         List<Object[]> results = ratingJpaRepository.countRatingsByScore(movieId);
         Map<Integer, Integer> distribution = new HashMap<>();
@@ -66,8 +67,4 @@ public class RatingJpaService {
         }
         return list;
     }
-
-
-
-
 }
