@@ -12,10 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,12 +30,15 @@ public class RatingJpaService {
         UserEntity user = userJpaRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        RatingEntity rating = RatingEntity.builder()
-                .movie(movie)
-                .user(user)
-                .score(dto.getScore())
-                .build();
+        Optional<RatingEntity> optionalRating = ratingJpaRepository.findByUserAndMovie(user, movie);
+        RatingEntity rating = optionalRating.orElseGet(RatingEntity::new);
+        rating.setUser(user);
+        rating.setMovie(movie);
+        rating.setScore(dto.getScore());
 
+        if (rating.getCreatedAt() == null) {
+            rating.setCreatedAt(LocalDateTime.now());
+        }
         ratingJpaRepository.save(rating);
     }
 
@@ -66,5 +67,9 @@ public class RatingJpaService {
             list.add(new RatingBarDto(i, rawMap.get(i)));
         }
         return list;
+    }
+    public double getAverageRating(Long movieId) {
+        Double avg = ratingJpaRepository.getAverageRating(movieId);
+        return avg != null ? avg : 0.0;
     }
 }

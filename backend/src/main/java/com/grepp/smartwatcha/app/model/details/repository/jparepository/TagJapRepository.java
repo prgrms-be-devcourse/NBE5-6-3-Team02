@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface TagJapRepository extends JpaRepository<TagEntity, Long> {
 
-//    List<TagEntity> findByUser_IdAndMovie_Id(Long userId, Long movieId);
+    List<TagEntity> findByName(String name);
 
     List<TagEntity> findByNameContainingIgnoreCase(String name);
 

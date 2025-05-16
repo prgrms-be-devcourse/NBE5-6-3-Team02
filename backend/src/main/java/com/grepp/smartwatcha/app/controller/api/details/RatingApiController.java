@@ -1,9 +1,11 @@
 package com.grepp.smartwatcha.app.controller.api.details;
 
+import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingRequestDto;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,12 +17,26 @@ public class RatingApiController {
 
     @PostMapping
     public ResponseEntity<String> addRating(
-            @PathVariable("id")Long movieId,
-            @RequestBody RatingRequestDto dto) {
+            @PathVariable("id") Long movieId,
+            @RequestBody RatingRequestDto dto,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getId();
+        System.out.println("movieId = " + movieId);
+        System.out.println("score = " + dto.getScore());
+        System.out.println("userId = " + userId);
+
+        dto.setUserId(userId);
         dto.setMovieId(movieId);
-        dto.setUserId(1L);
+
         ratingJpaService.addRating(dto);
         return ResponseEntity.ok("평점이 성공적으로 등록되었습니다.");
+    }
+    @GetMapping("/average")
+    public ResponseEntity<Double> getAverageRating(
+            @PathVariable("id") Long movieId) {
+        double average = ratingJpaService.getAverageRating(movieId);
+        return ResponseEntity.ok(average);
     }
 
 }
