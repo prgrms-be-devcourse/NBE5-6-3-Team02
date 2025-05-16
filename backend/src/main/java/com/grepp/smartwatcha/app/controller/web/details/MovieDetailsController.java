@@ -1,5 +1,6 @@
 package com.grepp.smartwatcha.app.controller.web.details;
 
+import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDTO;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
 import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
@@ -10,7 +11,6 @@ import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jServ
 import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +32,7 @@ public class MovieDetailsController {
 
     @GetMapping("/{id}")
     public String getMovieDetail(
-            @PathVariable Long id, Model model,@AuthenticationPrincipal UserDetails userDetails) {
+            @PathVariable Long id, Model model,@AuthenticationPrincipal CustomUserDetails userDetails) {
 
         MovieDetailsDTO movie = movieJpaService.getMovieDetail(id);
         Double averageScore = movieJpaService.getAverageScore(id);
@@ -40,9 +40,6 @@ public class MovieDetailsController {
         Map<Integer, Integer> ratingDistribution = ratingJpaService.getRatingDistribution(id);
         MovieNode neo4jMovie = movieNeo4jService.getMovieWithAllRelations(id);
         List<Neo4jTagDto> topTags = tagNeo4jService.getTop6Tags(id);
-
-
-        // 여기서 user에대한 정보 받아와야 하나?!!
 
         // mysql db
         model.addAttribute("movie", movie);
@@ -57,8 +54,12 @@ public class MovieDetailsController {
         System.out.println(">>> topTags = " + topTags);
         model.addAttribute("topTags", topTags);
 
+
         if (userDetails != null) {
+            Long userId = userDetails.getUser().getId();
+            model.addAttribute("userId", userId);
             model.addAttribute("user", userDetails);
+
             return "movie/member-details";  // 로그인한 사용자용 페이지
         } else {
             return "movie/guest-details";   // 비로그인 사용자용 페이지

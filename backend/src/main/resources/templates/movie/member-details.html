@@ -292,6 +292,9 @@
                 <input type="text" id="tagInput" placeholder="태그를 입력하세요..." autocomplete="off"/>
                 <div id="suggestions"></div>
                 <button id="submitTag" disabled>태그 남기기</button>
+
+                <div class="section-divider"></div>
+
                 <div class="my-tags">
                     <h4>내가 남긴 태그</h4>
                     <ul id="my-tags">
@@ -320,12 +323,14 @@
 </div>
 <script>
     async function loadMyTags() {
-        const response = await fetch(`/movies/${movieId}/tags/user?userId=${userId}`);
+        const response = await fetch(`/movies/${movieId}/tags/user`);
+        if (!response.ok) return;
+
         const tags = await response.json();
         myTags.innerHTML = '';
         tags.forEach(tag => {
             const li = document.createElement("li");
-            li.textContent = `# ${tag.name}`;
+            li.textContent = `# ${tag}`;
             myTags.appendChild(li);
         });
     }
@@ -340,6 +345,13 @@
             li.textContent = `# ${tag.name}`;
             list.appendChild(li);
         });
+    }
+    async function loadAverageScore() {
+        const res = await fetch(`/movies/${movieId}/ratings/average`);
+        if (!res.ok) return;
+        const avg = await res.json();
+
+        document.querySelector(".rating-center strong").textContent = avg.toFixed(1);
     }
 
     function rateMovie(movieId, score) {
@@ -358,6 +370,8 @@
                         s.classList.remove("fa-regular");
                     }
                 });
+                alert("평점이 성공적으로 등록되었습니다.");
+                loadAverageScore();
                 //loadMyTags();
                 //loadTopTags();
             } else {
@@ -372,17 +386,28 @@
             method: 'POST'
         }).then(res => {
             if (res.ok) {
+                // 기존 아이콘 초기화
                 document.querySelectorAll(".icon-button i").forEach(icon => {
                     icon.classList.remove("fa-solid", "active");
                     icon.classList.add("fa-regular");
                 });
+
                 const icon = status === "WATCH_LATER"
                     ? document.querySelector("i.fa-bookmark")
                     : document.querySelector("i.fa-eye-slash");
-                icon.classList.add("fa-solid", "active");
-                icon.classList.remove("fa-regular");
+
+                if (icon) {
+                    icon.classList.add("fa-solid", "active");
+                    icon.classList.remove("fa-regular");
+                }
+                const message = status === "WATCH_LATER"
+                    ? "보고싶어요로 등록되었습니다."
+                    : "관심없어요로 등록되었습니다.";
+                alert(message);
                 //loadMyTags();
                 //loadTopTags();
+            } else {
+                alert("관심 상태 등록에 실패했습니다.");
             }
         });
     }
@@ -428,11 +453,26 @@
     });
 
     submitBtn.addEventListener("click", async () => {
-        if (!selectedTag) return;
+        if (!selectedTag) {
+            selectedTag = {name:tagInput.value.trim()};
+        }
 
-        await fetch(`/movies/${movieId}/tags/select?userId=${userId}&movieId=${movieId}&tagName=${selectedTag.name}`, {
+        if (!selectedTag.name) return;
+
+        const res = await fetch(`/movies/${movieId}/tags/select?tagName=${selectedTag.name}`, {
             method: 'POST'
         });
+
+        if (res.status === 409) {
+            const message = await res.text();
+            alert(message);
+            return
+        }
+
+        if (!res.ok) {
+            alert("태그 등록에 실패했습니다.");
+            return;
+        }
 
         if (![...myTags.children].some(li => li.textContent === `# ${selectedTag.name}`)) {
             const li = document.createElement("li");
@@ -481,8 +521,8 @@
     });
 
     // 초기 로딩 시 사용자 태그/Top 태그 불러오기
-    //loadMyTags();
-    //loadTopTags();
+    loadMyTags();
+    loadTopTags();
 </script>
 </body>
 </html>
