@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>활동 관리</title>
+</head>
+<body>
+<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m8 offset-m2">
+                <div class="card" style="background-color: #1e1e1e; padding: 20px;">
+                    <div class="card-content white-text">
+                        <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;">활동 관리</span>
+                        
+                        <!-- 별점 준 영화 -->
+                        <div style="margin-bottom: 40px;">
+                            <div style="font-weight:600; font-size:1.1rem; margin-bottom:10px;">⭐ 내가 별점 준 영화</div>
+                            <div class="horizontal-scroll">
+                                <div th:each="movie : ${ratedMovies}" class="movie-card card black">
+                                    <img th:src="${movie.posterUrl}" alt="포스터" style="height:210px; object-fit:cover;">
+                                    <div th:text="${movie.title}" class="white-text truncate" style="margin:8px 0 4px 0;"></div>
+                                    <div>
+                                        <span th:each="i : ${#numbers.sequence(1,5)}"
+                                              th:classappend="${i <= movie.myRating} ? 'highlight' : 'grey-text text-darken-1'"
+                                              th:data-value="${i}"
+                                              th:onclick="'updateRating(' + ${movie.id} + ',' + ${i} + ')'"
+                                              style="font-size:1.2rem; cursor:pointer;">★</span>
+                                    </div>
+                                </div>
+                                <div th:if="${#lists.isEmpty(ratedMovies)}" style="color:#aaa; margin:20px 0 30px 8px;">아직 별점을 준 영화가 없습니다.</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 보고싶어요 영화 -->
+                        <div>
+                            <div style="font-weight:600; font-size:1.1rem; margin-bottom:10px;">❤️ 보고싶어요 표시한 영화</div>
+                            <div class="horizontal-scroll">
+                                <div th:each="movie : ${wishlistMovies}" class="movie-card card black">
+                                    <img th:src="${movie.posterUrl}" alt="포스터" style="height:210px; object-fit:cover;">
+                                    <div th:text="${movie.title}" class="white-text truncate" style="margin:8px 0 4px 0;"></div>
+                                    <button class="btn-flat highlight" th:onclick="'removeWishlist(' + ${movie.id} + ')'" style="margin-top:6px;">보고싶어요 해제</button>
+                                </div>
+                                <div th:if="${#lists.isEmpty(wishlistMovies)}" style="color:#aaa; margin:20px 0 30px 8px;">아직 보고싶어요 표시한 영화가 없습니다.</div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    // 별점 수정 (예시, 실제 구현은 ajax 등 필요)
+    function updateRating(movieId, rating) {
+        // TODO: 별점 수정 ajax 호출
+        alert('영화 ID ' + movieId + '의 별점을 ' + rating + '점으로 수정');
+    }
+    // 보고싶어요 해제 (예시)
+    function removeWishlist(movieId) {
+        // TODO: 해제 ajax 호출
+        alert('영화 ID ' + movieId + '의 보고싶어요를 해제');
+    }
+</script>
+</body>
+</html> 
