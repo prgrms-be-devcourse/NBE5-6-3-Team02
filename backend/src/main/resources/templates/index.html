@@ -131,7 +131,28 @@
     <span class="material-icons banner-icon">favorite_border</span>
     보고싶어요한 콘텐츠 랜덤 감상
   </div>
+
+  <!-- MyPage Dropdown -->
+  <div class="mypage-dropdown" style="display:inline-block; position:relative;">
+    <button class="mypage-btn" style="background:none; border:none; cursor:pointer; font-size:1.1rem;">
+      <span class="material-icons" style="vertical-align:middle;">account_circle</span>
+      마이페이지
+    </button>
+    <div class="mypage-menu" style="display:none; position:absolute; top:100%; left:50%; transform:translateX(-50%); min-width:120px; background:#fff; border:1px solid #ddd; box-shadow:0 2px 8px rgba(0,0,0,0.15); border-radius:8px; z-index:100; padding:8px 0;">
+      <a href="/user/mypage" style="display:block; padding:8px 20px; color:#222; text-decoration:none;">정보 수정</a>
+      <a href="/user/mypage/activity" style="display:block; padding:8px 20px; color:#222; text-decoration:none;">활동 관리</a>
+    </div>
+  </div>
 </main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const dropdown = document.querySelector('.mypage-dropdown');
+    const menu = dropdown.querySelector('.mypage-menu');
+    dropdown.addEventListener('mouseenter', () => { menu.style.display = 'block'; });
+    dropdown.addEventListener('mouseleave', () => { menu.style.display = 'none'; });
+  });
+</script>
 
 </body>
 </html>
