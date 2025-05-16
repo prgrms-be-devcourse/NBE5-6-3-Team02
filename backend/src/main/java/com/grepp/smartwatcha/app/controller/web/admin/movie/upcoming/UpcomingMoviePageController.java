@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.controller.web.admin.upcoming;
+package com.grepp.smartwatcha.app.controller.web.admin.movie.upcoming;
 
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.jpa.UpcomingMovieSyncTimeJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.jpa.UpcomingMovieSaveJpaService;
