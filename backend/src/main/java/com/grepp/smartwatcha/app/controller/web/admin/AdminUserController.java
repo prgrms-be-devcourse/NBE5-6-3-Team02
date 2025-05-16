@@ -26,7 +26,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AdminUserController {
 
   private final AdminUserJpaService adminUserJpaService;
-  private final AdminUserRatingJpaRepository adminUserRatingJpaRepository;
   private final AdminUserRatingJpaService adminUserRatingJpaService;
 
   @GetMapping("/users")
