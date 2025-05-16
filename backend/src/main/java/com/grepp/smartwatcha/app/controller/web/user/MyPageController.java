@@ -52,4 +52,12 @@ public class MyPageController {
             return "redirect:/user/mypage";
         }
     }
+
+    @GetMapping("/activity")
+    public String mypageActivity(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUser().getId();
+        model.addAttribute("ratedMovies", userJpaService.findRatedMoviesByUserId(userId));
+        model.addAttribute("wishlistMovies", userJpaService.findWishlistMoviesByUserId(userId));
+        return "user/mypage-activity";
+    }
 } 

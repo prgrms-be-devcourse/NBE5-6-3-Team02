@@ -8,13 +8,20 @@ import com.grepp.smartwatcha.app.model.user.dto.EmailCodeVerifyRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.UserUpdateRequestDto;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
 import com.grepp.smartwatcha.app.model.user.repository.EmailVerificationJpaRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.RatingJpaRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.InterestJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.EmailVerificationEntity;
+import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
+import com.grepp.smartwatcha.infra.jpa.entity.InterestEntity;
 import com.grepp.smartwatcha.infra.jpa.enums.Role;
+import com.grepp.smartwatcha.infra.jpa.enums.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +30,8 @@ public class UserJpaService {
     private final EmailVerificationJpaRepository emailVerificationJpaRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailVerificationJpaService emailVerificationJpaService;
+    private final RatingJpaRepository ratingJpaRepository;
+    private final InterestJpaRepository interestJpaRepository;
 
     @Transactional(transactionManager = "jpaTransactionManager")
     public Long signup(SignupRequestDto requestDto) {
@@ -145,5 +154,15 @@ public class UserJpaService {
         UserEntity user = findById(userId);
         user.unActivated();
         userJpaRepository.save(user);
+    }
+
+    public List<RatingEntity> findRatedMoviesByUserId(Long userId) {
+        UserEntity user = findById(userId);
+        return ratingJpaRepository.findByUser(user);
+    }
+
+    public List<InterestEntity> findWishlistMoviesByUserId(Long userId) {
+        UserEntity user = findById(userId);
+        return interestJpaRepository.findByUserAndStatus(user, Status.WATCH_LATER);
     }
 } 
