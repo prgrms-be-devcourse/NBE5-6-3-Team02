@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.service.common;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.common;
 
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.api.UpcomingMovieCreditApi;
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.api.UpcomingMovieDetailApi;

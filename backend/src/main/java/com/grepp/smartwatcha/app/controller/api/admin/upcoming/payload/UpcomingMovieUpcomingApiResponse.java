@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
 import java.util.List;
 import lombok.Data;
 

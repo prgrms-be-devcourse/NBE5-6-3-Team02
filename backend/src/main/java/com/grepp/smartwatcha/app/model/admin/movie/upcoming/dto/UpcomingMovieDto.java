@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.dto;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;

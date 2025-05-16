@@ -1,8 +1,8 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.service.common;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.common;
 
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieCastDto;
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieCrewDto;
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieCastDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieCrewDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieCreditApiResponse;
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieDetailApiResponse;
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieReleaseDateApiResponse;

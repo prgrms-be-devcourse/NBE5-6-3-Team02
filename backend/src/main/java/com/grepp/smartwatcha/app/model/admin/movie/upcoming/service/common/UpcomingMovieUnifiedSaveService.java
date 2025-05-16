@@ -1,8 +1,8 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.service.common;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.common;
 
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieDto;
-import com.grepp.smartwatcha.app.model.admin.upcoming.service.neo4j.UpcomingMovieSaveNeo4jService;
-import com.grepp.smartwatcha.app.model.admin.upcoming.service.jpa.UpcomingMovieSaveJpaService;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.neo4j.UpcomingMovieSaveNeo4jService;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.jpa.UpcomingMovieSaveJpaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

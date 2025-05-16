@@ -1,7 +1,7 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.service.neo4j;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.neo4j;
 
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.api.UpcomingMovieGenreApi;
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieGenreDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieGenreDto;
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieGenreApiResponse;
 import jakarta.annotation.PostConstruct;
 import java.util.HashMap;

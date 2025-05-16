@@ -1,9 +1,9 @@
 package com.grepp.smartwatcha.app.controller.web.admin.upcoming;
 
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieDto;
-import com.grepp.smartwatcha.app.model.admin.upcoming.service.common.UpcomingMovieFetchService;
-import com.grepp.smartwatcha.app.model.admin.upcoming.service.common.UpcomingMovieUnifiedSaveService;
-import com.grepp.smartwatcha.app.model.admin.upcoming.service.jpa.UpcomingMovieSyncTimeJpaService;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.common.UpcomingMovieFetchService;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.common.UpcomingMovieUnifiedSaveService;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.jpa.UpcomingMovieSyncTimeJpaService;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

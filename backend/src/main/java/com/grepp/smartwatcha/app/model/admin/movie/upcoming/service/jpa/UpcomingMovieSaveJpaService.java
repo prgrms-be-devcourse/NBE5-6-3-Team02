@@ -1,8 +1,8 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.service.jpa;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.jpa;
 
-import com.grepp.smartwatcha.app.model.admin.upcoming.mapper.UpcomingMovieMapper;
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieDto;
-import com.grepp.smartwatcha.app.model.admin.upcoming.repository.jpa.UpcomingMovieJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper.UpcomingMovieMapper;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.jpa.UpcomingMovieJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
