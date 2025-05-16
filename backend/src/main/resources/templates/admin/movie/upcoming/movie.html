@@ -1,0 +1,200 @@
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layoutAdmin}" xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="UTF-8">
+  <title>Upcoming movies</title>
+  <style>
+    h4 {
+      margin-top: 0;
+    }
+
+    .dashboard-section {
+      flex: 1;
+      padding: 2rem;
+      min-width: 0;
+    }
+
+    .upcomingMovie-controls select,
+    .upcomingMovie-controls input[type="text"],
+    .upcomingMovie-controls button {
+      height: 42px;
+      padding: 0 0.8rem;
+      background-color: #1e1e1e;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .upcomingMovie-table thead tr {
+      border-bottom: 2px solid #444;
+      background-color: #2c2c2c;
+    }
+
+    .upcomingMovie-table th {
+      color: #e0e0e0;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    .upcomingMovie-layout {
+      display: flex;
+      gap: 2rem;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .upcomingMovie-table {
+      flex: 1 1 70%;
+      min-width: 0;
+    }
+
+    .upcomingMovie-detail-panel p {
+      margin: 0.5rem 0;
+    }
+
+    table.highlight tbody tr td {
+      color: white;
+    }
+
+    tr:hover {
+      background-color: #2a2a2a;
+      cursor: pointer;
+    }
+
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 2.5rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .page-button {
+      color: white;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      padding: 0.4rem 0.8rem;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .page-button:hover {
+      background-color: #3d3d3d;
+    }
+
+    .page-button.active {
+      background-color: #ff6262;
+      font-weight: bold;
+      border-color: #ff6262;
+    }
+
+  </style>
+</head>
+<body>
+<section class="dashboard-section" layout:fragment="main-content">
+  <!--메인 콘텐츠 영역-->
+  <h4 style="color: lightgrey">🗓️ Upcoming movies</h4>
+
+  <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;">
+    <div style="color: steelblue ; display: flex; align-items: center; gap: 12px;">
+
+      <div style="font-size: 1rem;">
+        <strong>Last Sync Time:</strong>
+        <span th:text="${lastSyncTime != null ? #temporals.format(lastSyncTime, 'yyyy-MM-dd HH:mm') : 'N/A'}">N/A</span>
+      </div>
+
+      <button type="button" class="waves-effect" onclick="syncUpcomingMovies()" style="background-color: #ff6262; color: white; border: none; padding: 6px 12px; border-radius: 4px;
+        font-size: 0.95rem; line-height: 1.2; display: flex; align-items: center; gap: 6px;"><i class="material-icons" style="font-size: 1.1rem;">cached</i>Manual Sync
+      </button>
+
+    </div>
+  </div>
+
+  <div class="upcomingMovie-layout">
+    <!-- Upcoming Movie 테이블 -->
+    <div class="upcomingMovie-table">
+      <table class="highlight">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Poster</th>
+          <th>Overview</th>
+          <th>Release Date</th>
+          <th>Country</th>
+          <th>Certification</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="movie : ${movies}">
+          <td th:text="${movie.id}" style="width: 7%">ID</td>
+          <td th:text="${movie.title}"style="width: 15%">Title</td>
+          <td>
+            <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="Poster" style=" width: 80px;">
+          </td>
+          <td th:text="${movie.overview}" style="width: 50%;">Overview</td>
+          <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 12%">Release Date</td>
+          <td th:text="${movie.country}" style="width: 8%">Country</td>
+          <td th:text="${movie.certification}" style="width: 20%">Certification</td>
+        </tr>
+
+        <tr th:if="${#lists.isEmpty(pageResponse.content)}">
+          <td colspan="7">No Movies found.</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <!-- Prev -->
+        <a th:if="${pageResponse.startNumber() > 1}"
+           th:href="@{${pageResponse.url()}(page=${pageResponse.startNumber() - 2})}"
+           class="page-button">Prev</a>
+
+        <!-- now -->
+        <a th:each="i : ${#numbers.sequence(pageResponse.startNumber(), pageResponse.endNumber())}"
+           th:href="@{${pageResponse.url()}(page=${i - 1})}"
+           th:text="${i}"
+           th:classappend="${i == pageResponse.currentNumber()} ? 'page-button active' : 'page-button'">
+        </a>
+
+        <!-- Next -->
+        <a th:if="${pageResponse.endNumber() < pageResponse.totalPages()}"
+           th:href="@{${pageResponse.url()}(page=${pageResponse.endNumber()})}"
+           class="page-button">Next</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function syncUpcomingMovies() {
+      fetch('/admin/movies/upcoming/sync-manual-test', {
+        method: 'GET'
+      })
+      .then(res => {
+        console.log("응답 상태:", res.status);
+        if (res.ok) {
+          alert("✅ Sync completed successfully!");
+          window.location.href = '/admin/movies/upcoming?v=' + new Date().getTime();
+        } else {
+          alert("❌ Sync failed! (" + res.status + ")");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("⚠️ An error occurred!");
+      });
+    }
+  </script>
+
+</section>
+</body>
+</html>
