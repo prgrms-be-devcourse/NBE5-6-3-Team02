@@ -1,7 +1,7 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.mapper;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper;
 
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieDto;
-import com.grepp.smartwatcha.app.model.admin.upcoming.service.neo4j.UpcomingMovieGenreFetchNeo4jService;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.neo4j.UpcomingMovieGenreFetchNeo4jService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.neo4j.node.ActorNode;
 import com.grepp.smartwatcha.infra.neo4j.node.DirectorNode;

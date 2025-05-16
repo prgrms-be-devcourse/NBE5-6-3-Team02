@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.repository.jpa;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.jpa;
 
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import java.time.LocalDateTime;

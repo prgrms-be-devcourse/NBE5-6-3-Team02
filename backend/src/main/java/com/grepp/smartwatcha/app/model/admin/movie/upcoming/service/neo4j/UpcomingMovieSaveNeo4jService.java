@@ -1,8 +1,8 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.service.neo4j;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.neo4j;
 
-import com.grepp.smartwatcha.app.model.admin.upcoming.dto.UpcomingMovieDto;
-import com.grepp.smartwatcha.app.model.admin.upcoming.mapper.UpcomingMovieMapper;
-import com.grepp.smartwatcha.app.model.admin.upcoming.repository.neo4j.UpcomingMovieNeo4jRepository;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper.UpcomingMovieMapper;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.neo4j.UpcomingMovieNeo4jRepository;
 import com.grepp.smartwatcha.infra.neo4j.node.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

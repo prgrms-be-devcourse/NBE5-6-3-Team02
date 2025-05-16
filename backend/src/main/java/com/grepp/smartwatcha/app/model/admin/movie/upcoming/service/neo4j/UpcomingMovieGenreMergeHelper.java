@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.upcoming.service.neo4j;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.neo4j;
 
 import com.grepp.smartwatcha.infra.neo4j.node.GenreNode;
 import java.util.ArrayList;
