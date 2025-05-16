@@ -37,7 +37,6 @@ public class MovieEntity extends BaseEntity {
     private String certification; // 관람등급
 
     @Lob
-    @Length(max=256)
     private String overview;
 
 }
