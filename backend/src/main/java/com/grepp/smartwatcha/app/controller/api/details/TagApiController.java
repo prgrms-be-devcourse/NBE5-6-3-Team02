@@ -22,6 +22,14 @@ public class TagApiController {
         this.tagJpaService = tagJpaService;
     }
 
+
+//    @GetMapping("/user")
+//    public List<JpaTagDto> getUserTags(
+//            @PathVariable Long movieId,
+//            @RequestParam Long userId) {
+//        return tagJpaService.getUserTags(userId,movieId);
+//    }
+
     @GetMapping("/search")
     public List<JpaTagDto> searchTags(@RequestParam String keyword){
         return tagJpaService.searchTags(keyword);
@@ -41,4 +49,6 @@ public class TagApiController {
     public List<Neo4jTagDto> top6Tags(@RequestParam Long movieId) {
         return tagService.getTop6Tags(movieId);
     }
+
+
 }
