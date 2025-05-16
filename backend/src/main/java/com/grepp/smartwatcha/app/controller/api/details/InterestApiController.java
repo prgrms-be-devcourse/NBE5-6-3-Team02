@@ -2,9 +2,8 @@ package com.grepp.smartwatcha.app.controller.api.details;
 
 
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
-import com.grepp.smartwatcha.app.model.details.service.InterestJpaService;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.InterestJpaService;
 import com.grepp.smartwatcha.infra.jpa.enums.Status;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

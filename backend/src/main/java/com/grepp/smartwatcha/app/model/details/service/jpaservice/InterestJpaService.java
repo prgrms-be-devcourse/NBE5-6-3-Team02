@@ -1,9 +1,8 @@
-package com.grepp.smartwatcha.app.model.details.service;
+package com.grepp.smartwatcha.app.model.details.service.jpaservice;
 
-import com.grepp.smartwatcha.app.model.details.repository.InterestJpaRepository;
-import com.grepp.smartwatcha.app.model.details.repository.MovieDetailsJpaRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.InterestJpaRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
-import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import com.grepp.smartwatcha.infra.jpa.entity.InterestEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;

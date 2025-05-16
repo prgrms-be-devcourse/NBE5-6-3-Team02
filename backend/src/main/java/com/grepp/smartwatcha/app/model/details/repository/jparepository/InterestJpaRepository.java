@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.details.repository;
+package com.grepp.smartwatcha.app.model.details.repository.jparepository;
 
 import com.grepp.smartwatcha.infra.jpa.entity.InterestEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;

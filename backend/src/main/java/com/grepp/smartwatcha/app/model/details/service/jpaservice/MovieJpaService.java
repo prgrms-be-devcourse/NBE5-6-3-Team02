@@ -1,7 +1,7 @@
-package com.grepp.smartwatcha.app.model.details.service;
+package com.grepp.smartwatcha.app.model.details.service.jpaservice;
 
-import com.grepp.smartwatcha.app.model.details.dto.MovieDetailsDTO;
-import com.grepp.smartwatcha.app.model.details.repository.MovieDetailsJpaRepository;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDTO;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

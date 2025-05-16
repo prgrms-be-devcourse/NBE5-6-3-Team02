@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${movie.title}">영화 상세 페이지</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.85);
+            min-height: 100vh;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1e1e1e;
+            padding: 15px 30px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        nav a:last-child {
+            color: red;
+        }
+
+        .main-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .poster img {
+            width: 300px;
+            border-radius: 10px;
+        }
+
+        .graph {
+            width: 300px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 120px;
+            margin-top: 20px;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bar-vertical {
+            width: 16px;
+            background-color: #ff2f6e;
+            border-radius: 5px 5px 0 0;
+            margin-bottom: 5px;
+            min-height: 5px;
+        }
+
+        .bar-label {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .info-section {
+            flex: 1;
+        }
+
+        .movie-title {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .info-text {
+            margin: 10px 0;
+            color: #ccc;
+        }
+
+        .section-divider {
+            border-top: 1px solid #555;
+            margin: 20px 0;
+        }
+
+        .rating-wrapper {
+            margin: 20px 0;
+        }
+
+        /* ⭐ 별점 영역 3분할 구조 */
+        .rating-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .rating-left,
+        .rating-center,
+        .rating-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rating-center {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .stars {
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .stars.hovered {
+            color: #f5c518;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .icon-button i {
+            margin-right: 6px;
+            font-size: 18px;
+        }
+
+        .average-rating strong {
+            font-size: 28px;
+            color: #f15b5b;
+        }
+
+        .tag-selection {
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        #tagInput {
+            border: none;
+            outline: none;
+            box-shadow: none;
+            background-color: white;
+            color: black;
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+
+        .top-tags ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .top-tags li {
+            margin-bottom: 5px;
+        }
+
+        .cast-section {
+            margin-top: 20px;
+        }
+
+        .cast-section div {
+            margin-bottom: 10px;
+        }
+
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-modal-content {
+            background-color: #1e1e1e;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 400px;
+            box-shadow: 0 0 20px #f15b5b;
+        }
+
+        .login-modal-content h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #f15b5b;
+        }
+
+        .login-modal-content p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .login-modal-content button {
+            background-color: #f15b5b;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-modal-content .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body th:attr="data-movie-id=${movie.id}, data-user-id='1'">
+
+<div id="login-banner" class="login-modal">
+    <div class="login-modal-content">
+        <span class="close" onclick="closeLoginBanner()">&times;</span>
+        <h2>SmartMovie</h2>
+        <p>회원가입 또는 로그인이 필요한 기능입니다.<br>SmartMovie를 더 편리하게 이용해보세요.</p>
+        <button onclick="location.href='/login'">로그인</button>
+        <button onclick="location.href='/user/signup'">회원가입</button>
+    </div>
+</div>
+
+<div class="overlay">
+    <nav>
+        <div style="font-size: 24px; font-weight: bold;"><i class="fa-solid fa-clapperboard"></i> SmartMovie</div>
+        <div>
+            <a href="/">Home</a>
+            <a href="/search">Search</a>
+            <a href="/mypage">My Page</a>
+            <a href="/login">Login</a>
+        </div>
+    </nav>
+
+    <div class="main-section">
+        <div class="poster">
+            <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="포스터">
+            <div class="graph">
+                <div th:each="bar : ${ratingBars}" class="bar-group">
+                    <div class="bar-vertical" th:style="|height: ${bar.percent}%;|"></div>
+                    <div class="bar-label" th:text="${bar.score} + '점'"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="movie-title" th:text="${movie.title}">영화 제목</div>
+            <div class="info-text">
+                <strong>장르:</strong>
+                <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
+            </div>
+            <div class="info-text">
+                <span th:text="'개봉일: ' + ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}"></span> |
+                <span th:text="'국가: ' + ${movie.country}"></span> |
+                <span th:text="'관람등급: ' + ${movie.certification}"></span> |
+                <span th:text="'공개 여부: ' + (${movie.isReleased} ? '공개됨' : '미공개')"></span>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="rating-wrapper">
+                <div class="rating-flex">
+                    <!-- 왼쪽: 평가하기 -->
+                    <div class="rating-left">
+                        <strong>평가하기:</strong>
+                        <span th:each="i : ${#numbers.sequence(1,5)}">
+                <i class="fa-regular fa-star stars" th:attr="data-score=${i}"></i>
+            </span>
+                    </div>
+
+                    <!-- 가운데: 평균 별점 -->
+                    <div class="rating-center">
+                        <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
+                        <div style="font-size: 14px; color: #ccc;">평균 별점</div>
+                    </div>
+
+                    <!-- 오른쪽: 아이콘 버튼 -->
+                    <div class="rating-right">
+                        <button class="icon-button"><i class="fa-solid fa-bookmark"></i> 보고싶어요</button>
+                        <button class="icon-button"><i class="fa-solid fa-eye-slash"></i> 관심없어요</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="tag-selection">
+                <label for="tagInput"><strong>태그 남기기:</strong></label>
+                <input type="text" id="tagInput" placeholder="태그를 입력하세요..." autocomplete="off"/>
+                <button id="submitTag">태그 남기기</button>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="top-tags">
+                <h3>Top 6 Tags</h3>
+                <ul>
+                    <li th:each="t : ${topTags}" th:text="${'# ' + t.name}"></li>
+                </ul>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="cast-section">
+                <div><strong>감독:</strong> <span th:each="d, stat : ${directors}"
+                                                th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+                <div><strong>출연:</strong> <span th:each="a, stat : ${actors}"
+                                                th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showLoginBanner() {
+        document.getElementById("login-banner").style.display = "flex";
+    }
+
+    function closeLoginBanner() {
+        document.getElementById("login-banner").style.display = "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".stars").forEach(star => {
+            star.addEventListener("mouseenter", () => {
+                const score = parseInt(star.dataset.score);
+                document.querySelectorAll(".stars").forEach(s => {
+                    if (parseInt(s.dataset.score) <= score) {
+                        s.classList.add("hovered");
+                        s.classList.remove("fa-regular");
+                        s.classList.add("fa-solid");
+                    }
+                });
+            });
+
+            star.addEventListener("mouseleave", () => {
+                document.querySelectorAll(".stars").forEach(s => {
+                    s.classList.remove("hovered");
+                    s.classList.remove("fa-solid");
+                    s.classList.add("fa-regular");
+                });
+            });
+
+            star.onclick = showLoginBanner;
+        });
+
+        document.querySelectorAll(".icon-button").forEach(btn => {
+            btn.onclick = showLoginBanner;
+        });
+
+        document.getElementById("submitTag").onclick = showLoginBanner;
+        document.getElementById("tagInput").onclick = showLoginBanner;
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === "Escape") closeLoginBanner();
+    });
+
+    window.addEventListener('click', function (event) {
+        const modal = document.getElementById("login-banner");
+        if (event.target === modal) closeLoginBanner();
+    });
+</script>
+</body>
+</html>

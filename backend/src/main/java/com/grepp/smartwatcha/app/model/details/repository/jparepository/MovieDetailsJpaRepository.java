@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.details.repository;
+package com.grepp.smartwatcha.app.model.details.repository.jparepository;
 
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +9,7 @@ public interface MovieDetailsJpaRepository extends JpaRepository<MovieEntity, Lo
 
     @Query("SELECT AVG(r.score) FROM RatingEntity r WHERE r.movie.id = :movieId")
     Double findAverageScore(@Param("movieId") Long movieId);
+
+
 }
 

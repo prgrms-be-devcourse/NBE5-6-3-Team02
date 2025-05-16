@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${movie.title}">영화 상세 페이지</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.85);
+            min-height: 100vh;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1e1e1e;
+            padding: 15px 30px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+
+        nav a:last-child {
+            color: red;
+        }
+
+        .main-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .poster img {
+            width: 300px;
+            border-radius: 10px;
+        }
+
+        .graph {
+            width: 300px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 120px;
+            margin-top: 20px;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bar-vertical {
+            width: 16px;
+            background-color: #ff2f6e;
+            border-radius: 5px 5px 0 0;
+            margin-bottom: 5px;
+            min-height: 5px;
+        }
+
+        .bar-label {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .info-section {
+            flex: 1;
+        }
+
+        .movie-title {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .info-text {
+            margin: 10px 0;
+            color: #ccc;
+        }
+
+        .section-divider {
+            border-top: 1px solid #555;
+            margin: 20px 0;
+        }
+
+        .rating-wrapper {
+            margin: 20px 0;
+        }
+
+        .rating-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .rating-left,
+        .rating-center,
+        .rating-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rating-center {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .stars {
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .stars.hovered,
+        .stars.selected {
+            color: #f5c518;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .icon-button i {
+            margin-right: 6px;
+            font-size: 18px;
+        }
+
+        .icon-button i.active {
+            color: #ff2f6e;
+        }
+
+        .tag-selection {
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        #tagInput {
+            border: none;
+            outline: none;
+            box-shadow: none;
+            background-color: white;
+            color: black;
+            padding: 6px 10px;
+            border-radius: 4px;
+        }
+
+        #suggestions {
+            background: white;
+            border: 1px solid #ccc;
+            position: absolute;
+            z-index: 1000;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 200px;
+            color: black;
+        }
+
+        #suggestions:empty {
+            display: none;
+        }
+
+        .my-tags {
+            margin-top: 10px;
+        }
+
+        .my-tags ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .my-tags li {
+            display: inline-block;
+            background-color: #f15b5b;
+            color: white;
+            padding: 4px 10px;
+            margin: 3px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .top-tags {
+            margin-top: 20px;
+        }
+
+        .top-tags ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .top-tags li {
+            margin-bottom: 5px;
+        }
+
+        .cast-section {
+            margin-top: 20px;
+        }
+
+        .cast-section div {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body th:attr="data-movie-id=${movie.id}, data-user-id=${userId}">
+<div class="overlay">
+    <nav>
+        <div style="font-size: 24px; font-weight: bold;"><i class="fa-solid fa-clapperboard"></i> SmartMovie</div>
+        <div>
+            <a href="/">Home</a>
+            <a href="/search">Search</a>
+            <a href="/mypage">My Page</a>
+            <a href="/login">Login</a>
+        </div>
+    </nav>
+
+    <div class="main-section">
+        <div class="poster">
+            <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="포스터">
+            <div class="graph">
+                <div th:each="bar : ${ratingBars}" class="bar-group">
+                    <div class="bar-vertical" th:style="|height: ${bar.percent}%;|"></div>
+                    <div class="bar-label" th:text="${bar.score} + '점'"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="movie-title" th:text="${movie.title}">영화 제목</div>
+            <div class="info-text">
+                <strong>장르:</strong>
+                <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
+            </div>
+            <div class="info-text">
+                <span th:text="'개봉일: ' + ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}"></span> |
+                <span th:text="'국가: ' + ${movie.country}"></span> |
+                <span th:text="'관람등급: ' + ${movie.certification}"></span> |
+                <span th:text="'공개 여부: ' + (${movie.isReleased} ? '공개됨' : '미공개')"></span>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="rating-wrapper">
+                <div class="rating-flex">
+                    <div class="rating-left">
+                        <strong>평가하기:</strong>
+                        <span th:each="i : ${#numbers.sequence(1,5)}">
+                            <i class="fa-star stars"
+                               th:classappend="${userRating >= i} ? 'fa-solid selected' : 'fa-regular'"
+                               th:attr="data-score=${i}, onclick=|rateMovie(${movie.id},${i})|">
+                            </i>
+                        </span>
+                    </div>
+                    <div class="rating-center">
+                        <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
+                        <div style="font-size: 14px; color: #ccc;">평균 별점</div>
+                    </div>
+                    <div class="rating-right">
+                        <button class="icon-button" onclick="setInterest('WATCH_LATER')">
+                            <i class="fa-bookmark" th:classappend="${interestStatus == 'WATCH_LATER'} ? 'fa-solid active' : 'fa-regular'"></i> 보고싶어요
+                        </button>
+                        <button class="icon-button" onclick="setInterest('NOT_INTERESTED')">
+                            <i class="fa-eye-slash" th:classappend="${interestStatus == 'NOT_INTERESTED'} ? 'fa-solid active' : 'fa-regular'"></i> 관심없어요
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="tag-selection">
+                <label for="tagInput"><strong>태그 남기기:</strong></label>
+                <input type="text" id="tagInput" placeholder="태그를 입력하세요..." autocomplete="off"/>
+                <div id="suggestions"></div>
+                <button id="submitTag" disabled>태그 남기기</button>
+                <div class="my-tags">
+                    <h4>내가 남긴 태그</h4>
+                    <ul id="my-tags">
+                        <li th:each="tag : ${userTags}" th:text="'# ' + ${tag.name}"></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="top-tags">
+                <h3>Top 6 Tags</h3>
+                <ul>
+                    <li th:each="t : ${topTags}" th:text="${'# ' + t.name}"></li>
+                </ul>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="cast-section">
+                <div><strong>감독:</strong> <span th:each="d, stat : ${directors}" th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+                <div><strong>출연:</strong> <span th:each="a, stat : ${actors}" th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    async function loadMyTags() {
+        const response = await fetch(`/movies/${movieId}/tags/user?userId=${userId}`);
+        const tags = await response.json();
+        myTags.innerHTML = '';
+        tags.forEach(tag => {
+            const li = document.createElement("li");
+            li.textContent = `# ${tag.name}`;
+            myTags.appendChild(li);
+        });
+    }
+
+    async function loadTopTags() {
+        const response = await fetch(`/movies/${movieId}/tags/top6?movieId=${movieId}`);
+        const tags = await response.json();
+        const list = document.querySelector(".top-tags ul");
+        list.innerHTML = '';
+        tags.forEach(tag => {
+            const li = document.createElement("li");
+            li.textContent = `# ${tag.name}`;
+            list.appendChild(li);
+        });
+    }
+
+    function rateMovie(movieId, score) {
+        fetch(`/movies/${movieId}/ratings`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({movieId, score})
+        }).then(res => {
+            if (res.ok) {
+                document.querySelectorAll(".stars").forEach(s => {
+                    s.classList.remove("selected", "fa-solid");
+                    s.classList.add("fa-regular");
+                    const sScore = parseInt(s.dataset.score);
+                    if (sScore <= score) {
+                        s.classList.add("selected", "fa-solid");
+                        s.classList.remove("fa-regular");
+                    }
+                });
+                //loadMyTags();
+                //loadTopTags();
+            } else {
+                alert("오류 발생!");
+            }
+        });
+    }
+
+    function setInterest(status) {
+        const movieId = document.body.getAttribute("data-movie-id");
+        fetch(`/movies/${movieId}/interest?status=${status}`, {
+            method: 'POST'
+        }).then(res => {
+            if (res.ok) {
+                document.querySelectorAll(".icon-button i").forEach(icon => {
+                    icon.classList.remove("fa-solid", "active");
+                    icon.classList.add("fa-regular");
+                });
+                const icon = status === "WATCH_LATER"
+                    ? document.querySelector("i.fa-bookmark")
+                    : document.querySelector("i.fa-eye-slash");
+                icon.classList.add("fa-solid", "active");
+                icon.classList.remove("fa-regular");
+                //loadMyTags();
+                //loadTopTags();
+            }
+        });
+    }
+
+    const tagInput = document.getElementById("tagInput");
+    const suggestions = document.getElementById("suggestions");
+    const submitBtn = document.getElementById("submitTag");
+    const myTags = document.getElementById("my-tags");
+    const movieId = document.body.getAttribute("data-movie-id");
+    const userId = document.body.getAttribute("data-user-id");
+
+    let selectedTag = null;
+
+    tagInput.addEventListener("input", async () => {
+        const keyword = tagInput.value.trim();
+        suggestions.innerHTML = '';
+        selectedTag = null;
+        submitBtn.disabled = true;
+
+        if (keyword.length > 0) {
+            const res = await fetch(`/movies/${movieId}/tags/search?keyword=${keyword}`);
+            if (!res.ok) return;
+            const tags = await res.json();
+
+            if (tags.length > 0) {
+                suggestions.style.display = 'block';
+                tags.forEach(tag => {
+                    const div = document.createElement("div");
+                    div.textContent = tag.name;
+                    div.style.padding = "5px";
+                    div.style.cursor = "pointer";
+                    div.addEventListener("click", () => {
+                        tagInput.value = tag.name;
+                        selectedTag = tag;
+                        suggestions.innerHTML = '';
+                        suggestions.style.display = 'none';
+                        submitBtn.disabled = false;
+                    });
+                    suggestions.appendChild(div);
+                });
+            }
+        }
+    });
+
+    submitBtn.addEventListener("click", async () => {
+        if (!selectedTag) return;
+
+        await fetch(`/movies/${movieId}/tags/select?userId=${userId}&movieId=${movieId}&tagName=${selectedTag.name}`, {
+            method: 'POST'
+        });
+
+        if (![...myTags.children].some(li => li.textContent === `# ${selectedTag.name}`)) {
+            const li = document.createElement("li");
+            li.textContent = `# ${selectedTag.name}`;
+            myTags.appendChild(li);
+        }
+
+        tagInput.value = '';
+        submitBtn.disabled = true;
+
+        await loadTopTags();
+    });
+
+    document.addEventListener('click', function (event) {
+        if (!tagInput.contains(event.target) && !suggestions.contains(event.target)) {
+            suggestions.style.display = 'none';
+        }
+    });
+
+    tagInput.addEventListener('focus', function () {
+        if (suggestions.children.length > 0) {
+            suggestions.style.display = 'block';
+        }
+    });
+
+    document.querySelectorAll(".stars").forEach(star => {
+        star.addEventListener("mouseenter", () => {
+            const score = parseInt(star.dataset.score);
+            document.querySelectorAll(".stars").forEach(s => {
+                if (parseInt(s.dataset.score) <= score) {
+                    s.classList.add("hovered", "fa-solid");
+                    s.classList.remove("fa-regular");
+                }
+            });
+        });
+
+        star.addEventListener("mouseleave", () => {
+            document.querySelectorAll(".stars").forEach(s => {
+                s.classList.remove("hovered");
+                if (!s.classList.contains("selected")) {
+                    s.classList.remove("fa-solid");
+                    s.classList.add("fa-regular");
+                }
+            });
+        });
+    });
+
+    // 초기 로딩 시 사용자 태그/Top 태그 불러오기
+    //loadMyTags();
+    //loadTopTags();
+</script>
+</body>
+</html>

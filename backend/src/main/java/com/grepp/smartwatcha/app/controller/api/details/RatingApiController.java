@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.api.details;
 
-import com.grepp.smartwatcha.app.model.details.dto.RatingRequestDto;
-import com.grepp.smartwatcha.app.model.details.service.RatingJpaService;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingRequestDto;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
