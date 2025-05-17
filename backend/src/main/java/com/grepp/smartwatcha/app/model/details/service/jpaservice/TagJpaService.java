@@ -4,6 +4,7 @@ import com.grepp.smartwatcha.app.model.details.dto.jpadto.JpaTagDto;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieTagRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.TagJapRepository;
+import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieTagEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.TagEntity;
@@ -23,6 +24,7 @@ public class TagJpaService {
     private final MovieTagRepository movieTagRepository;
     private final MovieDetailsJpaRepository movieDetailsJpaRepository;
     private final TagJapRepository tagRepository;
+    private final TagNeo4jService tagNeo4jService;
 
     public void selectTag(UserEntity user, Long movieId, String tagName) {
         MovieEntity movie = movieDetailsJpaRepository.findById(movieId)
@@ -39,6 +41,9 @@ public class TagJpaService {
         }
         MovieTagEntity entity = new MovieTagEntity(user, movie, tag);
         movieTagRepository.save(entity);
+
+        // Neo4j Tagged 관계 저장 해줘야함
+        tagNeo4jService.saveTaggedRelation(user.getId(), movieId, tagName);
     }
 
     public List<MovieTagEntity> getUserTags(UserEntity user, Long movieId) {
@@ -53,5 +58,15 @@ public class TagJpaService {
         return tagRepository.findByNameContainingIgnoreCase(keyword).stream()
                 .map(tagEntity -> new JpaTagDto(tagEntity.getId(), tagEntity.getName()))
                 .collect(Collectors.toList());
+    }
+
+    public void deleteUserTag(UserEntity user, Long movieId, String tagName) {
+        MovieTagEntity entity = movieTagRepository
+                .findByUserAndMovieIdAndTag_Name(user,movieId,tagName)
+                .orElseThrow(() -> new IllegalArgumentException("해당 태그 없음"));
+
+        movieTagRepository.delete(entity);
+        tagNeo4jService.deletTaggedRelation(user.getId(), movieId, tagName);
+
     }
 }

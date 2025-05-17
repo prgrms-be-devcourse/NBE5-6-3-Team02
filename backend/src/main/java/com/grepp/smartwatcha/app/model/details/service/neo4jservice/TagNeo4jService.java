@@ -54,4 +54,29 @@ public class TagNeo4jService {
                 )
                 .all());
     }
+
+    public void saveTaggedRelation(Long userId, Long movieId, String tagName) {
+        String query = "MERGE (u:USER {id: $userId}) " +
+                "MERGE (m:MOVIE {id: $movieId}) " +
+                "MERGE (t:TAG {name: $tagName}) " +
+                "MERGE (u)-[:TAGGED {movieId: $movieId}]->(t)";
+
+        neo4jClient.query(query)
+                .bindAll(Map.of(
+                        "userId", userId,
+                        "movieId", movieId,
+                        "tagName", tagName
+                ))
+                .run();
+    }
+    public void deletTaggedRelation(Long userId, Long movieId, String tagName) {
+        String query = "MATCH (u:USER {id: $userId})-[r:TAGGED {movieId: $movieId}]->(t:TAG {name: $tagName}) DELETE r";
+        neo4jClient.query(query)
+                .bindAll(Map.of(
+                        "userId", userId,
+                        "movieId", movieId,
+                        "tagName", tagName
+                ))
+                .run();
+    }
 }

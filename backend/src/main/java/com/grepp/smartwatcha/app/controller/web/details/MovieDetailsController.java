@@ -50,17 +50,25 @@ public class MovieDetailsController {
         model.addAttribute("averageScore", averageScore);
         model.addAttribute("ratingDistribution", ratingDistribution);
         model.addAttribute("ratingBars", ratingList);
+
         // neo4j db
         model.addAttribute("no4jMovie", neo4jMovie);
         model.addAttribute("genres", neo4jMovie.getGenres());
         model.addAttribute("actors", neo4jMovie.getActors());
         model.addAttribute("directors", neo4jMovie.getDirectors());
-        System.out.println(">>> topTags = " + topTags);
         model.addAttribute("topTags", topTags);
 
 
         if (userDetails != null) {
-            Long userId = userDetails.getUser().getId();
+            UserEntity userEntity = userDetails.getUser();
+            Long userId = userEntity.getId();
+
+            Integer userRating = ratingJpaService.getUserRating(userId,id);
+            Status interestStatus = interestJpaService.getInterestStatus(userId,id);
+
+            model.addAttribute("userRating", userRating);
+            model.addAttribute("interestStatus", interestStatus);
+
             model.addAttribute("userId", userId);
             model.addAttribute("user", userDetails);
 
