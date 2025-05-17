@@ -4,10 +4,13 @@ import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDTO;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
 import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.InterestJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.MovieJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.MovieNeo4jService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
+import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
+import com.grepp.smartwatcha.infra.jpa.enums.Status;
 import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +32,7 @@ public class MovieDetailsController {
     private final RatingJpaService ratingJpaService;
     private final MovieNeo4jService movieNeo4jService;
     private final TagNeo4jService tagNeo4jService;
+    private final InterestJpaService interestJpaService;
 
     @GetMapping("/{id}")
     public String getMovieDetail(
