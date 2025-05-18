@@ -72,4 +72,10 @@ public class RatingJpaService {
         Double avg = ratingJpaRepository.getAverageRating(movieId);
         return avg != null ? avg : 0.0;
     }
+
+    public Integer getUserRating(Long userId, Long movieId) {
+        return ratingJpaRepository.findRatingByUserAndMovie(userId, movieId)
+                .map(r -> r.getScore() != null ? r.getScore().intValue() : null)
+                .orElse(null);
+    }
 }

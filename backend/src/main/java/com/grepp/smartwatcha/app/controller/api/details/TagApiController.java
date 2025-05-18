@@ -58,6 +58,15 @@ public class TagApiController {
                     .body(e.getMessage());
         }
     }
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUserTag(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable("id") Long movieId,
+            @RequestParam String tagName
+    ) {
+        tagJpaService.deleteUserTag(userDetails.getUser(), movieId, tagName);
+        return ResponseEntity.ok().build();
+    }
 
     @GetMapping("/top6")
     public List<Neo4jTagDto> top6Tags(@RequestParam Long movieId) {

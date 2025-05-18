@@ -276,10 +276,12 @@
                     </div>
                     <div class="rating-right">
                         <button class="icon-button" onclick="setInterest('WATCH_LATER')">
-                            <i class="fa-bookmark" th:classappend="${interestStatus == 'WATCH_LATER'} ? 'fa-solid active' : 'fa-regular'"></i> 보고싶어요
+                            <i th:class="'fa-bookmark ' + (${interestStatus.name()} == 'WATCH_LATER' ? 'fa-solid active' : 'fa-regular')"> </i>
+                            보고싶어요
                         </button>
                         <button class="icon-button" onclick="setInterest('NOT_INTERESTED')">
-                            <i class="fa-eye-slash" th:classappend="${interestStatus == 'NOT_INTERESTED'} ? 'fa-solid active' : 'fa-regular'"></i> 관심없어요
+                            <i th:class="'fa-eye-slash ' + (${interestStatus.name()} == 'NOT_INTERESTED' ? 'fa-solid active' : 'fa-regular')"> </i>
+                            관심없어요
                         </button>
                     </div>
                 </div>
@@ -329,9 +331,7 @@
         const tags = await response.json();
         myTags.innerHTML = '';
         tags.forEach(tag => {
-            const li = document.createElement("li");
-            li.textContent = `# ${tag}`;
-            myTags.appendChild(li);
+            myTags.appendChild(createTagListItem(tag));
         });
     }
 
@@ -382,35 +382,72 @@
 
     function setInterest(status) {
         const movieId = document.body.getAttribute("data-movie-id");
+
         fetch(`/movies/${movieId}/interest?status=${status}`, {
             method: 'POST'
         }).then(res => {
             if (res.ok) {
-                // 기존 아이콘 초기화
-                document.querySelectorAll(".icon-button i").forEach(icon => {
-                    icon.classList.remove("fa-solid", "active");
-                    icon.classList.add("fa-regular");
-                });
+                // ✅ 모든 아이콘 초기화 ❌ 제거
+                // 🔥 대신 정확히 두 개의 아이콘만 초기화
+                const bookmarkIcon = document.querySelector("i.fa-bookmark");
+                const eyeSlashIcon = document.querySelector("i.fa-eye-slash");
 
-                const icon = status === "WATCH_LATER"
-                    ? document.querySelector("i.fa-bookmark")
-                    : document.querySelector("i.fa-eye-slash");
+                // 모든 아이콘 일단 기본 상태로 초기화
+                bookmarkIcon.classList.remove("fa-solid", "active");
+                bookmarkIcon.classList.add("fa-regular");
 
-                if (icon) {
-                    icon.classList.add("fa-solid", "active");
-                    icon.classList.remove("fa-regular");
-                }
-                const message = status === "WATCH_LATER"
-                    ? "보고싶어요로 등록되었습니다."
-                    : "관심없어요로 등록되었습니다.";
-                alert(message);
-                //loadMyTags();
-                //loadTopTags();
+                eyeSlashIcon.classList.remove("fa-solid", "active");
+                eyeSlashIcon.classList.add("fa-regular");
+
+                // 선택한 아이콘만 활성화
+                const selectedIcon = status === "WATCH_LATER" ? bookmarkIcon : eyeSlashIcon;
+                selectedIcon.classList.add("fa-solid", "active");
+                selectedIcon.classList.remove("fa-regular");
+
+                alert(
+                    status === "WATCH_LATER"
+                        ? "보고싶어요로 등록되었습니다."
+                        : "관심없어요로 등록되었습니다."
+                );
             } else {
                 alert("관심 상태 등록에 실패했습니다.");
             }
         });
     }
+
+
+    function createTagListItem(tag) {
+        const li = document.createElement("li");
+        li.textContent = `# ${tag} `;
+
+        const btn = document.createElement("button");
+        btn.textContent = "x";
+        btn.style.marginLeft = "5px";
+        btn.style.background = "none";
+        btn.style.border = "none";
+        btn.style.color = "white";
+        btn.style.cursor = "pointer";
+        btn.onclick = () => deleteTag(tag);
+
+        li.appendChild(btn);
+        return li;
+    }
+    function deleteTag(tagName) {
+        if (!confirm(`'${tagName}' 태그를 삭제할까요?`)) return;
+
+        fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
+            method: 'DELETE'
+        }).then(res => {
+            if (res.ok) {
+                alert("삭제되었습니다.");
+                loadMyTags();   // 내 태그 다시 불러오기
+                loadTopTags();  // Top 태그도 다시 반영
+            } else {
+                alert("삭제에 실패했습니다.");
+            }
+        });
+    }
+
 
     const tagInput = document.getElementById("tagInput");
     const suggestions = document.getElementById("suggestions");

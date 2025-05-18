@@ -4,10 +4,13 @@ import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDTO;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
 import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.InterestJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.MovieJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.MovieNeo4jService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
+import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
+import com.grepp.smartwatcha.infra.jpa.enums.Status;
 import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +32,7 @@ public class MovieDetailsController {
     private final RatingJpaService ratingJpaService;
     private final MovieNeo4jService movieNeo4jService;
     private final TagNeo4jService tagNeo4jService;
+    private final InterestJpaService interestJpaService;
 
     @GetMapping("/{id}")
     public String getMovieDetail(
@@ -46,17 +50,25 @@ public class MovieDetailsController {
         model.addAttribute("averageScore", averageScore);
         model.addAttribute("ratingDistribution", ratingDistribution);
         model.addAttribute("ratingBars", ratingList);
+
         // neo4j db
         model.addAttribute("no4jMovie", neo4jMovie);
         model.addAttribute("genres", neo4jMovie.getGenres());
         model.addAttribute("actors", neo4jMovie.getActors());
         model.addAttribute("directors", neo4jMovie.getDirectors());
-        System.out.println(">>> topTags = " + topTags);
         model.addAttribute("topTags", topTags);
 
 
         if (userDetails != null) {
-            Long userId = userDetails.getUser().getId();
+            UserEntity userEntity = userDetails.getUser();
+            Long userId = userEntity.getId();
+
+            Integer userRating = ratingJpaService.getUserRating(userId,id);
+            Status interestStatus = interestJpaService.getInterestStatus(userId,id);
+
+            model.addAttribute("userRating", userRating);
+            model.addAttribute("interestStatus", interestStatus);
+
             model.addAttribute("userId", userId);
             model.addAttribute("user", userDetails);
 

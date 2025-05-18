@@ -34,4 +34,9 @@ public class InterestJpaService {
     }
 
 
+    public Status getInterestStatus(Long userId, Long movieId) {
+        return interestJpaRepository.findByUserIdAndMovieId(userId, movieId)
+                .map(InterestEntity::getStatus)
+                .orElse(null);
+    }
 }
