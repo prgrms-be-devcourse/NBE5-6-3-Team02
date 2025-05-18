@@ -511,11 +511,11 @@
             return;
         }
 
-        if (![...myTags.children].some(li => li.textContent === `# ${selectedTag.name}`)) {
-            const li = document.createElement("li");
-            li.textContent = `# ${selectedTag.name}`;
-            myTags.appendChild(li);
+        if (![...myTags.children].some(li => li.textContent.trim().startsWith(`# ${selectedTag.name}`))) {
+            const tagElement = createTagListItem(selectedTag.name);
+            myTags.appendChild(tagElement);
         }
+
 
         tagInput.value = '';
         submitBtn.disabled = true;
