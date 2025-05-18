@@ -287,7 +287,7 @@
             <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="포스터">
             <div class="graph">
                 <div th:each="bar : ${ratingBars}" class="bar-group">
-                    <div class="bar-vertical" th:style="|height: ${bar.percent}%;|"></div>
+                    <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
                     <div class="bar-label" th:text="${bar.score} + '점'"></div>
                 </div>
             </div>
@@ -325,11 +325,11 @@
                     </div>
                     <div class="rating-right">
                         <button class="icon-button" onclick="setInterest('WATCH_LATER')">
-                            <i th:class="'fa-bookmark ' + (${interestStatus.name()} == 'WATCH_LATER' ? 'fa-solid active' : 'fa-regular')"> </i>
+                            <i th:class="'fa-bookmark ' + (${interestStatus != null and interestStatus.name() == 'WATCH_LATER'} ? 'fa-solid active' : 'fa-regular')"> </i>
                             보고싶어요
                         </button>
                         <button class="icon-button" onclick="setInterest('NOT_INTERESTED')">
-                            <i th:class="'fa-eye-slash ' + (${interestStatus.name()} == 'NOT_INTERESTED' ? 'fa-solid active' : 'fa-regular')"> </i>
+                            <i th:class="'fa-eye-slash ' + (${interestStatus != null and interestStatus.name() == 'NOT_INTERESTED'} ? 'fa-solid active' : 'fa-regular')"> </i>
                             관심없어요
                         </button>
                     </div>
@@ -402,6 +402,33 @@
 
         document.querySelector(".rating-center strong").textContent = avg.toFixed(1);
     }
+    async function loadRatingBars() {
+        const res = await fetch(`/movies/${movieId}/ratings/bars`);
+        if (!res.ok) return;
+
+        const bars = await res.json();
+        const graph = document.querySelector(".graph");
+        graph.innerHTML = "";  // 기존 그래프 초기화
+
+        const maxHeight = 100;
+
+        bars.forEach(bar => {
+            const group = document.createElement("div");
+            group.className = "bar-group";
+
+            const barDiv = document.createElement("div");
+            barDiv.className = "bar-vertical";
+            barDiv.style.height = (bar.percent * maxHeight / 100) + "px";
+
+            const label = document.createElement("div");
+            label.className = "bar-label";
+            label.textContent = bar.score + "점";
+
+            group.appendChild(barDiv);
+            group.appendChild(label);
+            graph.appendChild(group);
+        });
+    }
 
     function rateMovie(movieId, score) {
         fetch(`/movies/${movieId}/ratings`, {
@@ -421,6 +448,7 @@
                 });
                 alert("평점이 성공적으로 등록되었습니다.");
                 loadAverageScore();
+                loadRatingBars();
                 //loadMyTags();
                 //loadTopTags();
             } else {

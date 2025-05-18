@@ -294,7 +294,7 @@
             <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="포스터">
             <div class="graph">
                 <div th:each="bar : ${ratingBars}" class="bar-group">
-                    <div class="bar-vertical" th:style="|height: ${bar.percent}%;|"></div>
+                    <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
                     <div class="bar-label" th:text="${bar.score} + '점'"></div>
                 </div>
             </div>
