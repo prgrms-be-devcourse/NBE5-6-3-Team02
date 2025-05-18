@@ -418,7 +418,7 @@
 
             const barDiv = document.createElement("div");
             barDiv.className = "bar-vertical";
-            barDiv.style.height = (bar.percent * maxHeight / 100) + "px";
+            barDiv.style.height = (bar.percent * 10) + "px";
 
             const label = document.createElement("div");
             label.className = "bar-label";
@@ -447,8 +447,10 @@
                     }
                 });
                 alert("평점이 성공적으로 등록되었습니다.");
-                loadAverageScore();
-                loadRatingBars();
+                setTimeout(() => {
+                    loadAverageScore();
+                    loadRatingBars();
+                }, 100);
                 //loadMyTags();
                 //loadTopTags();
             } else {
