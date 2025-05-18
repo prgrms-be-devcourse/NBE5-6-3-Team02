@@ -17,13 +17,36 @@
         }
 
         nav {
+            background-color: #1e1e1e;
+            padding: 15px 30px;
+
+            display: flex;
+            justify-content: center;
+        }
+        .nav-content {
+            width: 100%;
+            max-width: 1200px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #1e1e1e;
-            padding: 15px 30px;
+        }
+        .nav-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
         }
 
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .nav-menu a.logout {
+            color: red;
+        }
         nav a {
             color: white;
             text-decoration: none;
@@ -250,22 +273,28 @@
 </div>
 
 <div class="overlay">
+
     <nav>
-        <div style="font-size: 24px; font-weight: bold;"><i class="fa-solid fa-clapperboard"></i> SmartMovie</div>
-        <div>
-            <a href="/">Home</a>
-            <a href="/search">Search</a>
-            <a href="/mypage">My Page</a>
-            <a href="/login">Login</a>
+        <div class="nav-content">
+            <a href="/" class="nav-logo">
+                <i class="fa-solid fa-clapperboard" style="color: #a58efc;"></i> SmartMovie
+            </a>
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+                <a href="/login" class="logout">Login</a>
+            </div>
         </div>
     </nav>
+
+
 
     <div class="main-section">
         <div class="poster">
             <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="포스터">
             <div class="graph">
                 <div th:each="bar : ${ratingBars}" class="bar-group">
-                    <div class="bar-vertical" th:style="|height: ${bar.percent}%;|"></div>
+                    <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
                     <div class="bar-label" th:text="${bar.score} + '점'"></div>
                 </div>
             </div>

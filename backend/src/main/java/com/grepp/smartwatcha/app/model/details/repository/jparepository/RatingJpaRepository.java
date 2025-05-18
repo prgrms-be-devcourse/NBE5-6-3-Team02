@@ -16,7 +16,7 @@ public interface RatingJpaRepository extends JpaRepository<RatingEntity, Long> {
     Optional<RatingEntity> findByUserAndMovie(UserEntity user, MovieEntity movie);
 
 
-    @Query("SELECT FLOOR(r.score), COUNT(r) FROM RatingEntity r WHERE r.movie.id = :movieId GROUP BY FLOOR(r.score)")
+    @Query("SELECT r.score, COUNT(r) FROM RatingEntity r WHERE r.movie.id = :movieId GROUP BY r.score")
     List<Object[]> countRatingsByScore(@Param("movieId") Long movieId);
 
 

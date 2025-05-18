@@ -17,11 +17,54 @@
         }
 
         nav {
+            background-color: #1e1e1e;
+            padding: 15px 30px;
+
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-content {
+            width: 100%;
+            max-width: 1200px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #1e1e1e;
-            padding: 15px 30px;
+        }
+
+        .nav-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .nav-menu a.logout {
+            color: red;
+        }
+        .nav-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 16px;
+        }
+
+        .nav-menu a.logout {
+            color: red;
         }
 
         nav a {
@@ -223,22 +266,28 @@
 </head>
 <body th:attr="data-movie-id=${movie.id}, data-user-id=${userId}">
 <div class="overlay">
+
     <nav>
-        <div style="font-size: 24px; font-weight: bold;"><i class="fa-solid fa-clapperboard"></i> SmartMovie</div>
-        <div>
-            <a href="/">Home</a>
-            <a href="/search">Search</a>
-            <a href="/mypage">My Page</a>
-            <a href="/login">Login</a>
+        <div class="nav-content">
+            <a href="/" class="nav-logo">
+                <i class="fa-solid fa-clapperboard" style="color: #a58efc;"></i> SmartMovie
+            </a>
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/search">Search</a>
+                <a href="/mypage"><i class="fa-solid fa-user"></i> My Page</a>
+                <a href="/logout" class="logout">Logout</a>
+            </div>
         </div>
     </nav>
+
 
     <div class="main-section">
         <div class="poster">
             <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="포스터">
             <div class="graph">
                 <div th:each="bar : ${ratingBars}" class="bar-group">
-                    <div class="bar-vertical" th:style="|height: ${bar.percent}%;|"></div>
+                    <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
                     <div class="bar-label" th:text="${bar.score} + '점'"></div>
                 </div>
             </div>
@@ -276,11 +325,11 @@
                     </div>
                     <div class="rating-right">
                         <button class="icon-button" onclick="setInterest('WATCH_LATER')">
-                            <i th:class="'fa-bookmark ' + (${interestStatus.name()} == 'WATCH_LATER' ? 'fa-solid active' : 'fa-regular')"> </i>
+                            <i th:class="'fa-bookmark ' + (${interestStatus != null and interestStatus.name() == 'WATCH_LATER'} ? 'fa-solid active' : 'fa-regular')"> </i>
                             보고싶어요
                         </button>
                         <button class="icon-button" onclick="setInterest('NOT_INTERESTED')">
-                            <i th:class="'fa-eye-slash ' + (${interestStatus.name()} == 'NOT_INTERESTED' ? 'fa-solid active' : 'fa-regular')"> </i>
+                            <i th:class="'fa-eye-slash ' + (${interestStatus != null and interestStatus.name() == 'NOT_INTERESTED'} ? 'fa-solid active' : 'fa-regular')"> </i>
                             관심없어요
                         </button>
                     </div>
@@ -353,6 +402,33 @@
 
         document.querySelector(".rating-center strong").textContent = avg.toFixed(1);
     }
+    async function loadRatingBars() {
+        const res = await fetch(`/movies/${movieId}/ratings/bars`);
+        if (!res.ok) return;
+
+        const bars = await res.json();
+        const graph = document.querySelector(".graph");
+        graph.innerHTML = "";  // 기존 그래프 초기화
+
+        const maxHeight = 100;
+
+        bars.forEach(bar => {
+            const group = document.createElement("div");
+            group.className = "bar-group";
+
+            const barDiv = document.createElement("div");
+            barDiv.className = "bar-vertical";
+            barDiv.style.height = (bar.percent * maxHeight / 100) + "px";
+
+            const label = document.createElement("div");
+            label.className = "bar-label";
+            label.textContent = bar.score + "점";
+
+            group.appendChild(barDiv);
+            group.appendChild(label);
+            graph.appendChild(group);
+        });
+    }
 
     function rateMovie(movieId, score) {
         fetch(`/movies/${movieId}/ratings`, {
@@ -372,6 +448,7 @@
                 });
                 alert("평점이 성공적으로 등록되었습니다.");
                 loadAverageScore();
+                loadRatingBars();
                 //loadMyTags();
                 //loadTopTags();
             } else {
@@ -511,11 +588,11 @@
             return;
         }
 
-        if (![...myTags.children].some(li => li.textContent === `# ${selectedTag.name}`)) {
-            const li = document.createElement("li");
-            li.textContent = `# ${selectedTag.name}`;
-            myTags.appendChild(li);
+        if (![...myTags.children].some(li => li.textContent.trim().startsWith(`# ${selectedTag.name}`))) {
+            const tagElement = createTagListItem(selectedTag.name);
+            myTags.appendChild(tagElement);
         }
+
 
         tagInput.value = '';
         submitBtn.disabled = true;
