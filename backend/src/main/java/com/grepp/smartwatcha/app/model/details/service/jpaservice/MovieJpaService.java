@@ -23,6 +23,7 @@ public class MovieJpaService {
                 movie.getTitle(),
                 movie.getReleaseDate(),
                 movie.getCountry(),
+                movie.getOverview(),
                 movie.getPoster(),
                 movie.getCertification(),
                 movie.getIsReleased()
