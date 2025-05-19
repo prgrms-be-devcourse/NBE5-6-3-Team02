@@ -16,6 +16,6 @@ public interface IndexJpaRepository extends JpaRepository<MovieEntity, Long> {
     @Query("SELECT m FROM MovieEntity m ORDER BY rand() LIMIT 10")
     List<MovieEntity> findByRandom();
 
-    @Query("SELECT m FROM MovieEntity m JOIN InterestEntity i on i.movie = m WHERE i.user.id = :id")
+    @Query("SELECT m FROM MovieEntity m JOIN InterestEntity i on i.movie = m WHERE i.user.id = :id AND i.status = 'WATCH_LATER'")
     List<MovieEntity> findByInterest(@Param("id") Long id);
 }
