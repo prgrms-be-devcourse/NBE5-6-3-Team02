@@ -103,9 +103,9 @@
             <p>⚠️ Failed: <strong th:text="${failedCount}">0</strong></p>
         </div>
 
-        <!-- 🎬 최근 영화 목록 -->
+        <!-- 🎬 공개 예정 영화 목록 -->
         <div class="half-section">
-            <h5>🎬 Recently Synced Movies</h5>
+            <h5>🎬 Upcoming Movies</h5>
             <ul>
                 <li th:each="movie : ${recentUpcomingMovies}">
                     <a class="modal-trigger movie-link" style="color: steelblue"
