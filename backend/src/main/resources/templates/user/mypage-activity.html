@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layout}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <title>활동 관리</title>
@@ -18,13 +18,13 @@
                             <div style="font-weight:600; font-size:1.1rem; margin-bottom:10px;">⭐ 내가 별점 준 영화</div>
                             <div class="horizontal-scroll">
                                 <div th:each="movie : ${ratedMovies}" class="movie-card card black">
-                                    <img th:src="${movie.posterUrl}" alt="포스터" style="height:210px; object-fit:cover;">
-                                    <div th:text="${movie.title}" class="white-text truncate" style="margin:8px 0 4px 0;"></div>
+                                    <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.movie.poster}" alt="포스터" style="height:210px; object-fit:cover;">
+                                    <div th:text="${movie.movie.title}" class="white-text truncate" style="margin:8px 0 4px 0;"></div>
                                     <div>
                                         <span th:each="i : ${#numbers.sequence(1,5)}"
-                                              th:classappend="${i <= movie.myRating} ? 'highlight' : 'grey-text text-darken-1'"
+                                              th:classappend="${i <= movie.score} ? 'highlight' : 'grey-text text-darken-1'"
                                               th:data-value="${i}"
-                                              th:onclick="'updateRating(' + ${movie.id} + ',' + ${i} + ')'"
+                                              th:onclick="'updateRating(' + ${movie.movie.id} + ',' + ${i} + ')'"
                                               style="font-size:1.2rem; cursor:pointer;">★</span>
                                     </div>
                                 </div>
@@ -37,9 +37,9 @@
                             <div style="font-weight:600; font-size:1.1rem; margin-bottom:10px;">❤️ 보고싶어요 표시한 영화</div>
                             <div class="horizontal-scroll">
                                 <div th:each="movie : ${wishlistMovies}" class="movie-card card black">
-                                    <img th:src="${movie.posterUrl}" alt="포스터" style="height:210px; object-fit:cover;">
-                                    <div th:text="${movie.title}" class="white-text truncate" style="margin:8px 0 4px 0;"></div>
-                                    <button class="btn-flat highlight" th:onclick="'removeWishlist(' + ${movie.id} + ')'" style="margin-top:6px;">보고싶어요 해제</button>
+                                    <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.movie.poster}" alt="포스터" style="height:210px; object-fit:cover;">
+                                    <div th:text="${movie.movie.title}" class="white-text truncate" style="margin:8px 0 4px 0;"></div>
+                                    <button class="btn-flat highlight" th:onclick="'removeWishlist(' + ${movie.movie.id} + ')'" style="margin-top:6px;">보고싶어요 해제</button>
                                 </div>
                                 <div th:if="${#lists.isEmpty(wishlistMovies)}" style="color:#aaa; margin:20px 0 30px 8px;">아직 보고싶어요 표시한 영화가 없습니다.</div>
                             </div>
@@ -52,15 +52,31 @@
     </div>
 </main>
 <script>
-    // 별점 수정 (예시, 실제 구현은 ajax 등 필요)
+    // 별점 수정
     function updateRating(movieId, rating) {
-        // TODO: 별점 수정 ajax 호출
-        alert('영화 ID ' + movieId + '의 별점을 ' + rating + '점으로 수정');
+        fetch(`/movies/` + movieId + `/ratings`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({movieId: movieId, score: rating})
+        }).then(res => {
+            if (res.ok) {
+                if (window.M && M.toast) M.toast({html: '별점이 반영되었습니다!'});
+            } else {
+                alert('별점 등록에 실패했습니다.');
+            }
+        });
     }
-    // 보고싶어요 해제 (예시)
+    // 보고싶어요 해제
     function removeWishlist(movieId) {
-        // TODO: 해제 ajax 호출
-        alert('영화 ID ' + movieId + '의 보고싶어요를 해제');
+        fetch(`/movies/` + movieId + `/interest?status=NONE`, {
+            method: 'POST'
+        }).then(res => {
+            if (res.ok) {
+                if (window.M && M.toast) M.toast({html: '보고싶어요가 해제되었습니다!'});
+            } else {
+                alert('보고싶어요 해제에 실패했습니다.');
+            }
+        });
     }
 </script>
 </body>
