@@ -24,7 +24,8 @@ public class MyPageController {
             return "redirect:/admin";
         }
         UserEntity user = userJpaService.findById(userDetails.getUser().getId());
-        model.addAttribute("user", user);
+        com.grepp.smartwatcha.app.model.user.dto.UserInfoDto userDto = com.grepp.smartwatcha.app.model.user.dto.UserInfoDto.from(user);
+        model.addAttribute("user", userDto);
         return "user/mypage-info";
     }
 
@@ -65,8 +66,16 @@ public class MyPageController {
             return "redirect:/admin";
         }
         Long userId = userDetails.getUser().getId();
-        model.addAttribute("ratedMovies", userJpaService.findRatedMoviesByUserId(userId));
-        model.addAttribute("wishlistMovies", userJpaService.findWishlistMoviesByUserId(userId));
+        var ratedEntities = userJpaService.findRatedMoviesByUserId(userId);
+        var wishlistEntities = userJpaService.findWishlistMoviesByUserId(userId);
+        var ratedMovies = ratedEntities.stream()
+                .map(com.grepp.smartwatcha.app.model.user.dto.RatedMovieDto::from)
+                .toList();
+        var wishlistMovies = wishlistEntities.stream()
+                .map(com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto::from)
+                .toList();
+        model.addAttribute("ratedMovies", ratedMovies);
+        model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";
     }
 } 
