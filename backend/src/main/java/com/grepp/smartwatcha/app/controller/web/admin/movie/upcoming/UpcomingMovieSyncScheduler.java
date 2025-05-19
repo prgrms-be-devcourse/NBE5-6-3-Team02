@@ -63,7 +63,7 @@ public class UpcomingMovieSyncScheduler {
         failed++;
       }
     }
-    syncTimeService.update("upcoming");
+    syncTimeService.update("upcoming", success, failed);
 
     // 요약 로그
     log.info("📊 [공개 예정작 동기화 요약]");
