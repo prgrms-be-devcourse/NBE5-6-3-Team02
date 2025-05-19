@@ -10,11 +10,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
 public class RecommendUserBasedRatedNeo4jService {
 
     private final MovieGenreCustomNeo4jRepository movieGenreCustomRepository;
 
-    @Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
     public List<MovieGenreTagResponse> getGenreTagInfoByMovieIdList(List<Long> movieIdList) {
         return movieGenreCustomRepository.findGenresAndTagsByMovieIdList(movieIdList);
     }

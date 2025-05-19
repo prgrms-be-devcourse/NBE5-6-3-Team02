@@ -13,12 +13,13 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional("jpaTransactionManager")
 public class RecommendUserBasedRatedJpaService {
 
     private final RatingRecommendJpaRepository ratingRepository;
     private static final int K = 10;
 
-    @Transactional("jpaTransactionManager")
+
     public Map<Long, Double> calculateUserBasedScores(Long userId) {
         List<RatingEntity> myRatings = ratingRepository.findByUserId(userId);
         if (myRatings.isEmpty()) return Map.of();
