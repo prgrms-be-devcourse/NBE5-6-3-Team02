@@ -1,28 +1,174 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layoutAdmin}">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        .dashboard-section {
+            flex: 1;
+            padding: 2rem;
+            min-width: 0;
+        }
+
+        .dashboard-flex {
+            display: flex;
+            width: 100%;
+        }
+
+        h4 {
+            margin-top: 0;
+            margin-bottom: 2.2rem;
+        }
+
+        .summary-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: #222;
+            padding: 1rem;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .section h5,
+        .section p,
+        .section ol {
+            margin-top: 0;
+            margin-bottom: 0.8rem;
+        }
+
+        .tag-list li {
+            margin: 0.3rem 0;
+        }
+
+        .quick-links .card {
+            display: inline-block;
+            padding: 1rem;
+            margin: 0.5rem;
+            background-color: #222;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .quick-links .card:hover {
+            background-color: #333;
+        }
+
+        .flex-two-column {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .half-section {
+            flex: 1;
+            min-width: 280px;
+        }
+    </style>
+</head>
 <body>
 <section class="dashboard-section" layout:fragment="main-content">
-    <h4>🎬 Admin Dashboard</h4>
-    <p>Welcome, Admin!</p>
-    <div class="row">
-        <div class="col s12 m6">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">Edit</span>
-                    <p>Edit</p>
-                </div>
-            </div>
-        </div>
-        <div class="col s12 m6">
-            <div class="card">
-                <div class="card-content">
-                    <span class="card-title">Edit</span>
-                    <p>Edit</p>
-                </div>
-            </div>
+    <h4>📊 Admin Dashboard</h4>
+
+    <!-- Summary -->
+    <div class="section">
+        <h5>✅ Summary</h5>
+        <div class="summary-cards">
+            <div class="card"><strong>👤 Total Users</strong><div th:text="${totalUsers}">0</div></div>
+            <div class="card"><strong>✅ Active User</strong><div th:text="${activeUsers}">0</div></div>
+            <div class="card"><strong>❌ Inactive User</strong><div th:text="${inactiveUsers}">0</div></div>
+            <div class="card"><strong>🎬 Total Movies</strong><div th:text="${totalMovies}">0</div></div>
+            <div class="card"><strong>⏳ Upcoming Movies</strong><div th:text="${upcomingMovies}">0</div></div>
+            <div class="card"><strong>🏷️ Total Tags</strong><div th:text="${totalTags}">0</div></div>
         </div>
     </div>
+
+    <!-- Sync Info & 최근 영화 -->
+    <div class="flex-two-column">
+        <div class="half-section" style="flex: 0 0 50%;">
+            <h5>🕒 Recent Upcoming Sync</h5>
+            <p>📅 Last Sync Time: <span th:text="${#temporals.format(lastSyncTime, 'yyyy-MM-dd HH:mm:ss')}">N/A</span></p>
+            <p>📥 New Movies Added: <strong th:text="${newlyAddedCount}">0</strong></p>
+            <p>⚠️ Failed: <strong th:text="${failedCount}">0</strong></p>
+        </div>
+
+        <!-- 🎬 최근 영화 목록 -->
+        <div class="half-section">
+            <h5>🎬 Recently Synced Movies</h5>
+            <ul>
+                <li th:each="movie : ${recentUpcomingMovies}">
+                    <a class="modal-trigger movie-link" style="color: steelblue"
+                       th:href="'#movieModal__' + ${movie.id}"
+                       th:text="'🎞 ' + ${movie.id} + ' | ' + ${movie.title} + ' | ' + ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}">
+                    </a>
+
+                    <!-- ⬇️ 각 영화용 모달 -->
+                    <div th:id="'movieModal__' + ${movie.id}" class="modal" style="background-color: #1e1e1e; color: white;">
+                        <div class="modal-content">
+                            <h5 th:text="${movie.title}" style="color: steelblue; margin-bottom: 20px">Title</h5>
+                            <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                                <div>
+                                    <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
+                                         alt="Poster"
+                                         style="width: 120px; border-radius: 8px;"
+                                         onerror="this.onerror=null; this.src='/images/default.jpg';" />
+                                </div>
+                                <div style="flex: 1; margin-top: 0px">
+                                    <p><strong>ID:</strong> <span th:text="${movie.id}">N/A</span></p>
+                                    <p><strong>Release Date:</strong>
+                                        <span th:text="${movie.releaseDate != null} ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : 'null'">null</span>
+                                    </p>
+                                    <p><strong>Certification:</strong>
+                                        <span th:text="${movie.certification != null} ? ${movie.certification} : 'null'">null</span>
+                                    </p>
+                                    <p><strong>Country:</strong>
+                                        <span th:text="${movie.country != null} ? ${movie.country} : 'null'">null</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <p><strong>Overview:</strong>
+                                <span th:text="${movie.overview != null} ? ${movie.overview} : 'null'">null</span>
+                            </p>
+                        </div>
+                        <div class="modal-footer" style="background-color: #1e1e1e">
+                            <a href="#!" class="modal-close btn-flat" style="color: lightcoral">Close</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            <a href="/admin/movies/upcoming" style="margin-top:1rem; display:inline-block; color: lightcoral;">➕ More</a>
+        </div>
+    </div>
+
+    <!-- 🔗 Quick Admin Navigation -->
+    <div class="section">
+        <h5>🔗 Quick Admin Navigation</h5>
+        <div class="quick-links">
+            <a class="card" href="/admin/users">User List</a>
+            <a class="card" href="/admin/users/ratings">User Ratings</a>
+            <a class="card" href="/admin/movies">Movie List</a>
+            <a class="card" href="/admin/movies/upcoming">Upcoming Movies</a>
+            <a class="card" href="/admin/tags">Tag List</a>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var elems = document.querySelectorAll('.modal');
+        M.Modal.init(elems);
+    });
+</script>
 </section>
 </body>
 </html>
