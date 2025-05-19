@@ -23,8 +23,7 @@ public class MyPageController {
         if (userDetails != null && userDetails.getRole() != null && userDetails.getRole().name().equals("ADMIN")) {
             return "redirect:/admin";
         }
-        UserEntity user = userJpaService.findById(userDetails.getUser().getId());
-        com.grepp.smartwatcha.app.model.user.dto.UserInfoDto userDto = com.grepp.smartwatcha.app.model.user.dto.UserInfoDto.from(user);
+        var userDto = userJpaService.findUserInfoById(userDetails.getUser().getId());
         model.addAttribute("user", userDto);
         return "user/mypage-info";
     }
@@ -66,14 +65,8 @@ public class MyPageController {
             return "redirect:/admin";
         }
         Long userId = userDetails.getUser().getId();
-        var ratedEntities = userJpaService.findRatedMoviesByUserId(userId);
-        var wishlistEntities = userJpaService.findWishlistMoviesByUserId(userId);
-        var ratedMovies = ratedEntities.stream()
-                .map(com.grepp.smartwatcha.app.model.user.dto.RatedMovieDto::from)
-                .toList();
-        var wishlistMovies = wishlistEntities.stream()
-                .map(com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto::from)
-                .toList();
+        var ratedMovies = userJpaService.findRatedMoviesByUserId(userId);
+        var wishlistMovies = userJpaService.findWishlistMoviesByUserId(userId);
         model.addAttribute("ratedMovies", ratedMovies);
         model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";
