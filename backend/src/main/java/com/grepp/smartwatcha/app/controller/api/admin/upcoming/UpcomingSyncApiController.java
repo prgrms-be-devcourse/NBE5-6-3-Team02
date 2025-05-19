@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.controller.api.admin.upcoming;
 
-import com.grepp.smartwatcha.app.controller.web.admin.upcoming.UpcomingMovieSyncScheduler;
+import com.grepp.smartwatcha.app.controller.web.admin.movie.upcoming.UpcomingMovieSyncScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;

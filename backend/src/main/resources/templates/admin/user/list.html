@@ -169,14 +169,14 @@
       <select name="activated" class="browser-default" style="flex: 1 1 150px; height: 40px; padding: 0 0.5rem;
         background-color: #1e1e1e; color: white; border: 1px solid #444; border-radius: 4px;">
         <option value="">All Status</option>
-        <option value="true" th:selected="${activated == 'true'}">Active</option>
-        <option value="false" th:selected="${activated == 'false'}">Inactive</option>
+        <option value="true" th:selected="${activated == 'true' or activated == true}">Active</option>
+        <option value="false" th:selected="${activated == 'false' or activated == false}">Inactive</option>
       </select>
       <!-- Keyword -->
       <input type="text" name="keyword" placeholder="Search by name" th:value="${keyword}"
              style="flex: 2 1 250px; height: 40px; padding: 0 0.8rem; background-color: #1e1e1e; color: white; border: 1px solid #444; border-radius: 4px;"/>
       <!-- X button-->
-      <button type="button" onclick="resetSearchForm()" style="height: 40px; width: 40px;
+      <button type="button" id="resetBtn"  style="height: 40px; width: 40px;
         background-color: #444;color: white; font-size: 1.2rem; border: 1px solid #444; cursor: pointer;">✕</button>
       <!-- Search button -->
       <button type="submit" style="height: 40px; padding: 0 1rem; background-color: #ff5252;
@@ -232,15 +232,17 @@
               </div>
 
               <!-- modal-footer -->
-              <div class="modal-footer" style="display: flex; align-items: center; justify-content: space-between; padding: 0 1rem; gap: 1rem; background-color: #424242; margin-bottom: 10px">
+              <div class="modal-footer custom-modal-footer" style="padding: 0 1rem; background-color: #424242;">
                 <form th:action="@{'/admin/users/' + ${user.id} + '/update-status'}" method="post"
-                      style="display: flex; align-items: center; gap: 1rem; margin: 0;">
+                      style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 0;">
                   <label style="margin: 0; display: flex; align-items: center;">
                     <input type="checkbox" name="activated" th:checked="${user.activated}" />
                     <span style="margin-left: 0.5rem; color: white">Activated</span>
                   </label>
-                  <button type="submit" class="btn blue" style="margin-left: 500px">Save</button>
-                  <a href="#!" class="modal-close btn-flat" style="color: white">Cancel</a>
+                  <div>
+                    <button type="submit" class="btn" style="background-color: steelblue">Save</button>
+                    <a href="#!" class="modal-close btn-flat" style="color: white">Cancel</a>
+                  </div>
                 </form>
               </div>
             </div>
@@ -307,20 +309,10 @@
   </div>
 
   <script>
-    // X Button
-    function resetSearchForm() {
-      const form = document.querySelector('.user-controls');
-      if (!form) {
-        return;
-      }
+    document.getElementById("resetBtn").addEventListener("click", function () {
+      window.location.href = "/admin/users";
+    });
 
-      form.querySelector('[name="role"]').value = '';
-      form.querySelector('[name="activated"]').value = '';
-      form.querySelector('[name="keyword"]').value = '';
-
-      // 페이지를 초기화한 상태로 리디렉트 (검색 조건 없이)
-      window.location.href = '/admin/users?page=0';
-    }
     // User Details
     document.addEventListener('DOMContentLoaded', function () {
       var elems = document.querySelectorAll('.modal');
