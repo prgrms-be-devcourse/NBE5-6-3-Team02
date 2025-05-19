@@ -22,4 +22,7 @@ public class SyncTimeEntity {
   private String type;
 
   private LocalDateTime syncTime;
+
+  private int newlyAddedCount;
+  private int failedCount;
 }
