@@ -364,7 +364,7 @@
           <th>ID</th>
           <th>Title</th>
           <th>Release Date</th>
-          <th>Status</th>
+          <th>Release Status</th>
           <th>Edit</th>
           <th>Status</th>
         </tr>
@@ -372,8 +372,8 @@
         <tbody>
         <tr th:each="movie : ${pageResponse.content()}">
           <td th:text="${movie.id}" style="width: 10%;">ID</td>
-          <td th:text="${movie.title}"style="width: 50%;">Movie Title</td>
-          <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 10%;">2025-01-01</td>
+          <td th:text="${movie.title}"style="width: 45%;">Movie Title</td>
+          <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 15%;">2025-01-01</td>
           <td th:text="${movie.isReleased == true ? 'Released' : 'Upcoming'}"
               th:classappend="${movie.isReleased} ? 'green-text' : 'red-text'"style="width: 10%;">Status</td>
           <td style="width: 8%;">
