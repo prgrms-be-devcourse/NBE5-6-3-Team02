@@ -14,6 +14,7 @@ public class MovieDetailsDTO {
     private String title;
     private LocalDateTime releaseDate;
     private String country;
+    private String overview;
     private String poster;
     private String certification;
     private Boolean isReleased;

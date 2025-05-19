@@ -314,6 +314,12 @@
             </div>
 
             <div class="section-divider"></div>
+            <div class="info-text">
+                <strong>줄거리 : </strong>
+                <span th:text="${movie.overview != null ? movie.overview : '정보없음'}"></span>
+            </div>
+
+            <div class="section-divider"></div>
 
             <div class="rating-wrapper">
                 <div class="rating-flex">
@@ -359,10 +365,21 @@
             <div class="section-divider"></div>
 
             <div class="cast-section">
-                <div><strong>감독:</strong> <span th:each="d, stat : ${directors}"
-                                                th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span></div>
-                <div><strong>출연:</strong> <span th:each="a, stat : ${actors}"
-                                                th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+                <!-- 감독 -->
+                <div>
+                    <strong>감독:</strong>
+                    <span th:if="${#lists.isEmpty(directors)}">정보없음</span>
+                    <span th:each="d, stat : ${directors}" th:unless="${#lists.isEmpty(directors)}"
+                          th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span>
+                </div>
+
+                <!-- 출연 -->
+                <div>
+                    <strong>출연:</strong>
+                    <span th:if="${#lists.isEmpty(actors)}">정보없음</span>
+                    <span th:each="a, stat : ${actors}" th:unless="${#lists.isEmpty(actors)}"
+                          th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span>
+                </div>
             </div>
         </div>
     </div>
