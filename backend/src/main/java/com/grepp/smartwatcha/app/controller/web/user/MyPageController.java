@@ -23,8 +23,8 @@ public class MyPageController {
         if (userDetails != null && userDetails.getRole() != null && userDetails.getRole().name().equals("ADMIN")) {
             return "redirect:/admin";
         }
-        UserEntity user = userJpaService.findById(userDetails.getUser().getId());
-        model.addAttribute("user", user);
+        var userDto = userJpaService.findUserInfoById(userDetails.getUser().getId());
+        model.addAttribute("user", userDto);
         return "user/mypage-info";
     }
 
@@ -65,8 +65,10 @@ public class MyPageController {
             return "redirect:/admin";
         }
         Long userId = userDetails.getUser().getId();
-        model.addAttribute("ratedMovies", userJpaService.findRatedMoviesByUserId(userId));
-        model.addAttribute("wishlistMovies", userJpaService.findWishlistMoviesByUserId(userId));
+        var ratedMovies = userJpaService.findRatedMoviesByUserId(userId);
+        var wishlistMovies = userJpaService.findWishlistMoviesByUserId(userId);
+        model.addAttribute("ratedMovies", ratedMovies);
+        model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";
     }
 } 

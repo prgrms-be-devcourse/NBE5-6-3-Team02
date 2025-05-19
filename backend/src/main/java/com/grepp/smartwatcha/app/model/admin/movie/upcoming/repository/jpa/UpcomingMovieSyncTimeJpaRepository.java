@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UpcomingMovieSyncTimeJpaRepository extends JpaRepository<SyncTimeEntity, String> {
   Optional<SyncTimeEntity> findByType(String time);
+  Optional<SyncTimeEntity> findTopByTypeOrderBySyncTimeDesc(String type);
 }

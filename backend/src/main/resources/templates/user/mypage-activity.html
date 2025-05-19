@@ -4,51 +4,107 @@
     <meta charset="UTF-8">
     <title>활동 관리</title>
 </head>
+<style>
+    .scroll-container {
+        position: relative;
+    }
+
+    .scroll-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.6);
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 8px;
+        z-index: 1;
+        display: none; /* 기본적으로 숨김 */
+        border-radius: 50%;
+    }
+
+    .scroll-btn.left {
+        left: 10px;
+    }
+
+    .scroll-btn.right {
+        right: 10px;
+    }
+
+    .scroll-container:hover .scroll-btn {
+        display: block;
+    }
+
+    .horizontal-scroll {
+        display: flex;
+        overflow-x: auto;
+        padding: 1rem 0;
+        gap: 1rem;
+        scroll-behavior: smooth;
+    }
+
+    .horizontal-scroll::-webkit-scrollbar {
+        display: none; /* 스크롤바 숨기기 (선택) */
+    }
+
+    .movie-card {
+        flex: 0 0 auto;
+        width: 180px;     /* 카드 너비 조절 */
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .card-image img {
+        height: 270px;     /* 포스터 비율 유지 */
+        object-fit: cover;
+    }
+    .card-content {
+        padding: 0.5rem;
+    }
+</style>
 <body>
-<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
-    <div class="container">
-        <div class="row">
-            <div class="col s12 m8 offset-m2">
-                <div class="card" style="background-color: #1e1e1e; padding: 20px;">
-                    <div class="card-content white-text">
-                        <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;">활동 관리</span>
-                        
-                        <!-- 별점 준 영화 -->
-                        <div style="margin-bottom: 40px;">
-                            <div style="font-weight:600; font-size:1.1rem; margin-bottom:10px;">⭐ 내가 별점 준 영화</div>
-                            <div class="horizontal-scroll">
-                                <div th:each="movie : ${ratedMovies}" class="movie-card card black">
-                                    <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.movie.poster}" alt="포스터" style="height:210px; object-fit:cover;">
-                                    <div th:text="${movie.movie.title}" class="white-text truncate" style="margin:8px 0 4px 0;"></div>
-                                    <div>
-                                        <span th:each="i : ${#numbers.sequence(1,5)}"
-                                              th:classappend="${i <= movie.score} ? 'highlight' : 'grey-text text-darken-1'"
-                                              th:data-value="${i}"
-                                              th:onclick="'updateRating(' + ${movie.movie.id} + ',' + ${i} + ')'"
-                                              style="font-size:1.2rem; cursor:pointer;">★</span>
-                                    </div>
-                                </div>
-                                <div th:if="${#lists.isEmpty(ratedMovies)}" style="color:#aaa; margin:20px 0 30px 8px;">아직 별점을 준 영화가 없습니다.</div>
-                            </div>
-                        </div>
-                        
-                        <!-- 보고싶어요 영화 -->
-                        <div>
-                            <div style="font-weight:600; font-size:1.1rem; margin-bottom:10px;">❤️ 보고싶어요 표시한 영화</div>
-                            <div class="horizontal-scroll">
-                                <div th:each="movie : ${wishlistMovies}" class="movie-card card black">
-                                    <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.movie.poster}" alt="포스터" style="height:210px; object-fit:cover;">
-                                    <div th:text="${movie.movie.title}" class="white-text truncate" style="margin:8px 0 4px 0;"></div>
-                                    <button class="btn-flat highlight" th:onclick="'removeWishlist(' + ${movie.movie.id} + ')'" style="margin-top:6px;">보고싶어요 해제</button>
-                                </div>
-                                <div th:if="${#lists.isEmpty(wishlistMovies)}" style="color:#aaa; margin:20px 0 30px 8px;">아직 보고싶어요 표시한 영화가 없습니다.</div>
-                            </div>
-                        </div>
-                        
+<main layout:fragment="content" style="min-height: 80vh; padding: 80px 0;">
+    <div class="card-content white-text">
+        <h4 class="center-align highlight" style="margin-bottom: 40px;">🎯 활동 관리</h4>
+
+        <!-- 별점 준 영화 -->
+        <div class="section">
+            <h5 class="highlight" style="margin-bottom: 20px;">⭐ 내가 별점 준 영화</h5>
+            <div class="horizontal-scroll" style="display: flex; gap: 20px; overflow-x: auto; padding-bottom: 10px;">
+                <div th:each="movie : ${ratedMovies}" class="movie-card"
+                     style="min-width: 160px; max-width: 160px; background: #2a2a2a; padding: 10px; border-radius: 10px;">
+                    <a th:href="@{/movies/{id}(id=${movie.movieId})}">
+                    <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Movie Poster" />
+                    <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Default Poster" />
+                    <div th:text="${movie.title}" class="white-text truncate" style="margin-top:10px;"></div>
+                    <div style="margin-top:5px;">
+    <span th:each="i : ${#numbers.sequence(1,5)}"
+          th:classappend="${i <= movie.score} ? 'highlight' : 'grey-text text-darken-1'"
+          th:data-value="${i}"
+          style="font-size:1.2rem; cursor:pointer;">★</span>
                     </div>
+                    </a>
                 </div>
+                <div th:if="${#lists.isEmpty(ratedMovies)}" style="color:#aaa; margin-top:10px;">아직 별점을 준 영화가 없습니다.</div>
             </div>
         </div>
+
+        <!-- 보고싶어요 영화 -->
+        <div class="section" style="margin-top: 50px;">
+            <h5 class="highlight" style="margin-bottom: 20px;">❤️ 보고싶어요 표시한 영화</h5>
+            <div class="horizontal-scroll" style="display: flex; gap: 20px; overflow-x: auto; padding-bottom: 10px;">
+                <div th:each="movie : ${wishlistMovies}" class="movie-card"
+                     style="min-width: 160px; max-width: 160px; background: #2a2a2a; padding: 10px; border-radius: 10px;">
+                    <a th:href="@{/movies/{id}(id=${movie.movieId})}">
+                    <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Movie Poster" />
+                    <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Default Poster" />
+                    <div th:text="${movie.title}" class="white-text truncate" style="margin-top:10px;"></div>
+                    </a>
+                </div>
+                <div th:if="${#lists.isEmpty(wishlistMovies)}" style="color:#aaa; margin-top:10px;">아직 보고싶어요 표시한 영화가 없습니다.</div>
+            </div>
+        </div>
+
     </div>
 </main>
 <script>
@@ -80,4 +136,4 @@
     }
 </script>
 </body>
-</html> 
+</html>

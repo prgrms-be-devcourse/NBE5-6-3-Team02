@@ -100,7 +100,8 @@
           <a th:href="@{/movies/{id}(id=${movie.id})}">
             <div class="card-image">
               <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
-              <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />            </div>
+              <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />
+            </div>
             <div class="card-content">
               <span th:text="${movie.title}" class="white-text truncate"></span>
             </div>
@@ -209,18 +210,7 @@
       <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
     </div>
   </div>
-
-  <!-- MyPage Dropdown -->
-  <div class="mypage-dropdown" style="display:inline-block; position:relative;">
-    <button class="mypage-btn" style="background:none; border:none; cursor:pointer; font-size:1.1rem;">
-      <span class="material-icons" style="vertical-align:middle;">account_circle</span>
-      마이페이지
-    </button>
-    <div class="mypage-menu" style="display:none; position:absolute; top:100%; left:50%; transform:translateX(-50%); min-width:120px; background:#fff; border:1px solid #ddd; box-shadow:0 2px 8px rgba(0,0,0,0.15); border-radius:8px; z-index:100; padding:8px 0;">
-      <a href="/user/mypage" style="display:block; padding:8px 20px; color:#222; text-decoration:none;">정보 수정</a>
-      <a href="/user/mypage/activity" style="display:block; padding:8px 20px; color:#222; text-decoration:none;">활동 관리</a>
-    </div>
-  </div>
+  
 
   <script>
     function scrollLeftBy(btn) {
