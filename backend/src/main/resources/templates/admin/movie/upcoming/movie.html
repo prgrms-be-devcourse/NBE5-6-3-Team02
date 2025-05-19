@@ -143,7 +143,10 @@
           <td th:text="${movie.id}" style="width: 7%">ID</td>
           <td th:text="${movie.title}"style="width: 15%">Title</td>
           <td>
-            <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="Poster" style=" width: 80px;">
+            <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
+                 alt="Poster"
+                 style="width: 80px;"
+                 onerror="this.onerror=null;this.src='/images/default.jpg';">
           </td>
           <td th:text="${movie.overview}" style="width: 50%;">Overview</td>
           <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 12%">Release Date</td>
