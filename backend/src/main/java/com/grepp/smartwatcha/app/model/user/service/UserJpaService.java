@@ -156,13 +156,28 @@ public class UserJpaService {
         userJpaRepository.save(user);
     }
 
-    public List<RatingEntity> findRatedMoviesByUserId(Long userId) {
-        UserEntity user = findById(userId);
-        return ratingJpaRepository.findByUser(user);
+    @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
+    public com.grepp.smartwatcha.app.model.user.dto.UserInfoDto findUserInfoById(Long id) {
+        UserEntity user = userJpaRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return com.grepp.smartwatcha.app.model.user.dto.UserInfoDto.from(user);
     }
 
-    public List<InterestEntity> findWishlistMoviesByUserId(Long userId) {
-        UserEntity user = findById(userId);
-        return interestJpaRepository.findByUserAndStatus(user, Status.WATCH_LATER);
+    @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
+    public java.util.List<com.grepp.smartwatcha.app.model.user.dto.RatedMovieDto> findRatedMoviesByUserId(Long userId) {
+        UserEntity user = userJpaRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return ratingJpaRepository.findByUser(user).stream()
+            .map(com.grepp.smartwatcha.app.model.user.dto.RatedMovieDto::from)
+            .toList();
+    }
+
+    @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
+    public java.util.List<com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto> findWishlistMoviesByUserId(Long userId) {
+        UserEntity user = userJpaRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return interestJpaRepository.findByUserAndStatus(user, Status.WATCH_LATER).stream()
+            .map(com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto::from)
+            .toList();
     }
 } 
