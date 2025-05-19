@@ -19,14 +19,14 @@ public class RecommendUserBasedApiController {
 
     private final RecommendUserBasedMovieService recommendUserBasedMovieService;
 
-//    @GetMapping
-//    public List<MovieRecommendUserBasedResponse> getUserBasedRecommendations(@AuthenticationPrincipal UserDetails userDetails) {
-//        Long userId = Long.parseLong(userDetails.getUsername());
-//        return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
-//    }
-
-    @GetMapping("/{userId}")
-    public List<MovieRecommendUserBasedResponse> getUserBasedRecommendationsForTest(@PathVariable Long userId) {
+    @GetMapping
+    public List<MovieRecommendUserBasedResponse> getUserBasedRecommendations(@AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = Long.parseLong(userDetails.getUsername());
         return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
     }
+
+//    @GetMapping("/{userId}")
+//    public List<MovieRecommendUserBasedResponse> getUserBasedRecommendationsForTest(@PathVariable Long userId) {
+//        return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
+//    }
 }
