@@ -25,13 +25,16 @@ public class MyPageController {
         }
         UserEntity user = userJpaService.findById(userDetails.getUser().getId());
         model.addAttribute("user", user);
-        return "user/mypage";
+        return "user/mypage-info";
     }
 
     @PostMapping("/update")
     public String updateUser(@ModelAttribute UserUpdateRequestDto requestDto,
                            @AuthenticationPrincipal CustomUserDetails userDetails,
                            RedirectAttributes redirectAttributes) {
+        if (userDetails != null && userDetails.getRole() != null && userDetails.getRole().name().equals("ADMIN")) {
+            return "redirect:/admin";
+        }
         try {
             userJpaService.updateUser(userDetails.getUser().getId(), requestDto);
             redirectAttributes.addFlashAttribute("message", "회원 정보가 성공적으로 수정되었습니다.");
@@ -44,6 +47,9 @@ public class MyPageController {
     @PostMapping("/delete")
     public String deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails,
                            RedirectAttributes redirectAttributes) {
+        if (userDetails != null && userDetails.getRole() != null && userDetails.getRole().name().equals("ADMIN")) {
+            return "redirect:/admin";
+        }
         try {
             userJpaService.deleteUser(userDetails.getUser().getId());
             return "redirect:/logout";
@@ -55,6 +61,9 @@ public class MyPageController {
 
     @GetMapping("/activity")
     public String mypageActivity(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        if (userDetails != null && userDetails.getRole() != null && userDetails.getRole().name().equals("ADMIN")) {
+            return "redirect:/admin";
+        }
         Long userId = userDetails.getUser().getId();
         model.addAttribute("ratedMovies", userJpaService.findRatedMoviesByUserId(userId));
         model.addAttribute("wishlistMovies", userJpaService.findWishlistMoviesByUserId(userId));
