@@ -11,6 +11,67 @@
             color: #ffffff;
         }
 
+        .genre-recommend-container {
+            padding: 20px 0;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .recommend-list {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            scroll-behavior: smooth;
+            padding: 10px 0;
+            margin: 0 40px;
+        }
+
+        .recommend-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .recommend-item {
+            width: 120px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .recommend-poster {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .slider-button {
+            position: absolute;
+            z-index: 10;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .slider-button.left {
+            left: 0;
+        }
+
+        .slider-button.right {
+            right: 0;
+        }
+
+        .slider-button:hover {
+            background-color: #27c29c;
+        }
+
+
         .overlay {
             background-color: rgba(0, 0, 0, 0.85);
             min-height: 100vh;
@@ -49,6 +110,7 @@
         .nav-menu a.logout {
             color: red;
         }
+
         .nav-logo {
             font-size: 24px;
             font-weight: bold;
@@ -284,7 +346,8 @@
 
     <div class="main-section">
         <div class="poster">
-            <img th:src="${movie.poster != null ? 'https://image.tmdb.org/t/p/w500' + movie.poster : '/images/default.jpg'}" alt="포스터">
+            <img th:src="${movie.poster != null ? 'https://image.tmdb.org/t/p/w500' + movie.poster : '/images/default.jpg'}"
+                 alt="포스터">
             <div class="graph">
                 <div th:each="bar : ${ratingBars}" class="bar-group">
                     <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
@@ -300,7 +363,8 @@
                 <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
             </div>
             <div class="info-text">
-                <span th:text="'개봉일: ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : '정보없음')"></span> |
+                <span th:text="'개봉일: ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : '정보없음')"></span>
+                |
                 <span th:text="'국가: ' + (${movie.country} != null ? ${movie.country} : '정보없음')"></span> |
                 <span th:text="'관람등급: ' + (${movie.certification} != null ? ${movie.certification} : '정보없음')"></span> |
                 <span th:text="'공개 여부: ' + (${movie.isReleased} ? '공개됨' : '미공개')"></span>
@@ -372,279 +436,314 @@
             <div class="section-divider"></div>
 
             <div class="cast-section">
-                <div><strong>감독:</strong> <span th:each="d, stat : ${directors}" th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span></div>
-                <div><strong>출연:</strong> <span th:each="a, stat : ${actors}" th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+                <div><strong>감독:</strong> <span th:each="d, stat : ${directors}"
+                                                th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+                <div><strong>출연:</strong> <span th:each="a, stat : ${actors}"
+                                                th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span></div>
             </div>
         </div>
     </div>
-</div>
-<script>
-    async function loadMyTags() {
-        const response = await fetch(`/movies/${movieId}/tags/user`);
-        if (!response.ok) return;
+    <div class="section-divider"></div>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
+        <div class="genre-recommend-container">
+            <h3 class="recommend-title">장르가 비슷한 작품:</h3>
+            <div class="slider-wrapper">
+                <button class="slider-button left" onclick="scrollToLeft(this)">&#10094;</button>
+                <div class="recommend-list"
+                     style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none;">
+                    <div class="recommend-item" th:each="sim : ${similarMovies}">
+                        <a th:href="@{'/movies/' + ${sim.id}}">
+                            <img th:src="${sim.poster != null ? 'https://image.tmdb.org/t/p/w500' + sim.poster : '/images/default.jpg'}"
+                                 alt="포스터" class="recommend-poster"/>
+                        </a>
+                        <p class="recommend-title" th:text="${sim.title}">영화 제목</p>
+                    </div>
+                </div>
+                <button class="slider-button right" onclick="scrollToRight(this)">&#10095;</button>
+            </div>
+        </div>
+        <div>
+        </div>
+        <script>
+            async function loadMyTags() {
+                const response = await fetch(`/movies/${movieId}/tags/user`);
+                if (!response.ok) return;
 
-        const tags = await response.json();
-        myTags.innerHTML = '';
-        tags.forEach(tag => {
-            myTags.appendChild(createTagListItem(tag));
-        });
-    }
+                const tags = await response.json();
+                myTags.innerHTML = '';
+                tags.forEach(tag => {
+                    myTags.appendChild(createTagListItem(tag));
+                });
+            }
 
-    async function loadTopTags() {
-        const response = await fetch(`/movies/${movieId}/tags/top6?movieId=${movieId}`);
-        const tags = await response.json();
-        const list = document.querySelector(".top-tags ul");
-        list.innerHTML = '';
-        tags.forEach(tag => {
-            const li = document.createElement("li");
-            li.textContent = `# ${tag.name}`;
-            list.appendChild(li);
-        });
-    }
-    async function loadAverageScore() {
-        const res = await fetch(`/movies/${movieId}/ratings/average`);
-        if (!res.ok) return;
-        const avg = await res.json();
+            async function loadTopTags() {
+                const response = await fetch(`/movies/${movieId}/tags/top6?movieId=${movieId}`);
+                const tags = await response.json();
+                const list = document.querySelector(".top-tags ul");
+                list.innerHTML = '';
+                tags.forEach(tag => {
+                    const li = document.createElement("li");
+                    li.textContent = `# ${tag.name}`;
+                    list.appendChild(li);
+                });
+            }
 
-        document.querySelector(".rating-center strong").textContent = avg.toFixed(1);
-    }
-    async function loadRatingBars() {
-        const res = await fetch(`/movies/${movieId}/ratings/bars`);
-        if (!res.ok) return;
+            async function loadAverageScore() {
+                const res = await fetch(`/movies/${movieId}/ratings/average`);
+                if (!res.ok) return;
+                const avg = await res.json();
 
-        const bars = await res.json();
-        const graph = document.querySelector(".graph");
-        graph.innerHTML = "";  // 기존 그래프 초기화
+                document.querySelector(".rating-center strong").textContent = avg.toFixed(1);
+            }
 
-        const maxHeight = 100;
+            async function loadRatingBars() {
+                const res = await fetch(`/movies/${movieId}/ratings/bars`);
+                if (!res.ok) return;
 
-        bars.forEach(bar => {
-            const group = document.createElement("div");
-            group.className = "bar-group";
+                const bars = await res.json();
+                const graph = document.querySelector(".graph");
+                graph.innerHTML = "";  // 기존 그래프 초기화
 
-            const barDiv = document.createElement("div");
-            barDiv.className = "bar-vertical";
-            barDiv.style.height = (bar.percent * 10) + "px";
+                const maxHeight = 100;
 
-            const label = document.createElement("div");
-            label.className = "bar-label";
-            label.textContent = bar.score + "점";
+                bars.forEach(bar => {
+                    const group = document.createElement("div");
+                    group.className = "bar-group";
 
-            group.appendChild(barDiv);
-            group.appendChild(label);
-            graph.appendChild(group);
-        });
-    }
+                    const barDiv = document.createElement("div");
+                    barDiv.className = "bar-vertical";
+                    barDiv.style.height = (bar.percent * 10) + "px";
 
-    function rateMovie(movieId, score) {
-        fetch(`/movies/${movieId}/ratings`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({movieId, score})
-        }).then(res => {
-            if (res.ok) {
-                document.querySelectorAll(".stars").forEach(s => {
-                    s.classList.remove("selected", "fa-solid");
-                    s.classList.add("fa-regular");
-                    const sScore = parseInt(s.dataset.score);
-                    if (sScore <= score) {
-                        s.classList.add("selected", "fa-solid");
-                        s.classList.remove("fa-regular");
+                    const label = document.createElement("div");
+                    label.className = "bar-label";
+                    label.textContent = bar.score + "점";
+
+                    group.appendChild(barDiv);
+                    group.appendChild(label);
+                    graph.appendChild(group);
+                });
+            }
+
+            function rateMovie(movieId, score) {
+                fetch(`/movies/${movieId}/ratings`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({movieId, score})
+                }).then(res => {
+                    if (res.ok) {
+                        document.querySelectorAll(".stars").forEach(s => {
+                            s.classList.remove("selected", "fa-solid");
+                            s.classList.add("fa-regular");
+                            const sScore = parseInt(s.dataset.score);
+                            if (sScore <= score) {
+                                s.classList.add("selected", "fa-solid");
+                                s.classList.remove("fa-regular");
+                            }
+                        });
+                        alert("평점이 성공적으로 등록되었습니다.");
+                        setTimeout(() => {
+                            loadAverageScore();
+                            loadRatingBars();
+                        }, 100);
+                        //loadMyTags();
+                        //loadTopTags();
+                    } else {
+                        alert("오류 발생!");
                     }
                 });
-                alert("평점이 성공적으로 등록되었습니다.");
-                setTimeout(() => {
-                    loadAverageScore();
-                    loadRatingBars();
-                }, 100);
-                //loadMyTags();
-                //loadTopTags();
-            } else {
-                alert("오류 발생!");
             }
-        });
-    }
 
-    function setInterest(status) {
-        const movieId = document.body.getAttribute("data-movie-id");
+            function setInterest(status) {
+                const movieId = document.body.getAttribute("data-movie-id");
 
-        fetch(`/movies/${movieId}/interest?status=${status}`, {
-            method: 'POST'
-        }).then(res => {
-            if (res.ok) {
-                // ✅ 모든 아이콘 초기화 ❌ 제거
-                // 🔥 대신 정확히 두 개의 아이콘만 초기화
-                const bookmarkIcon = document.querySelector("i.fa-bookmark");
-                const eyeSlashIcon = document.querySelector("i.fa-eye-slash");
+                fetch(`/movies/${movieId}/interest?status=${status}`, {
+                    method: 'POST'
+                }).then(res => {
+                    if (res.ok) {
+                        // ✅ 모든 아이콘 초기화 ❌ 제거
+                        // 🔥 대신 정확히 두 개의 아이콘만 초기화
+                        const bookmarkIcon = document.querySelector("i.fa-bookmark");
+                        const eyeSlashIcon = document.querySelector("i.fa-eye-slash");
 
-                // 모든 아이콘 일단 기본 상태로 초기화
-                bookmarkIcon.classList.remove("fa-solid", "active");
-                bookmarkIcon.classList.add("fa-regular");
+                        // 모든 아이콘 일단 기본 상태로 초기화
+                        bookmarkIcon.classList.remove("fa-solid", "active");
+                        bookmarkIcon.classList.add("fa-regular");
 
-                eyeSlashIcon.classList.remove("fa-solid", "active");
-                eyeSlashIcon.classList.add("fa-regular");
+                        eyeSlashIcon.classList.remove("fa-solid", "active");
+                        eyeSlashIcon.classList.add("fa-regular");
 
-                // 선택한 아이콘만 활성화
-                const selectedIcon = status === "WATCH_LATER" ? bookmarkIcon : eyeSlashIcon;
-                selectedIcon.classList.add("fa-solid", "active");
-                selectedIcon.classList.remove("fa-regular");
+                        // 선택한 아이콘만 활성화
+                        const selectedIcon = status === "WATCH_LATER" ? bookmarkIcon : eyeSlashIcon;
+                        selectedIcon.classList.add("fa-solid", "active");
+                        selectedIcon.classList.remove("fa-regular");
 
-                alert(
-                    status === "WATCH_LATER"
-                        ? "보고싶어요로 등록되었습니다."
-                        : "관심없어요로 등록되었습니다."
-                );
-            } else {
-                alert("관심 상태 등록에 실패했습니다.");
-            }
-        });
-    }
-
-
-    function createTagListItem(tag) {
-        const li = document.createElement("li");
-        li.textContent = `# ${tag} `;
-
-        const btn = document.createElement("button");
-        btn.textContent = "x";
-        btn.style.marginLeft = "5px";
-        btn.style.background = "none";
-        btn.style.border = "none";
-        btn.style.color = "white";
-        btn.style.cursor = "pointer";
-        btn.onclick = () => deleteTag(tag);
-
-        li.appendChild(btn);
-        return li;
-    }
-    function deleteTag(tagName) {
-        if (!confirm(`'${tagName}' 태그를 삭제할까요?`)) return;
-
-        fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
-            method: 'DELETE'
-        }).then(res => {
-            if (res.ok) {
-                alert("삭제되었습니다.");
-                loadMyTags();   // 내 태그 다시 불러오기
-                loadTopTags();  // Top 태그도 다시 반영
-            } else {
-                alert("삭제에 실패했습니다.");
-            }
-        });
-    }
-
-
-    const tagInput = document.getElementById("tagInput");
-    const suggestions = document.getElementById("suggestions");
-    const submitBtn = document.getElementById("submitTag");
-    const myTags = document.getElementById("my-tags");
-    const movieId = document.body.getAttribute("data-movie-id");
-    const userId = document.body.getAttribute("data-user-id");
-
-    let selectedTag = null;
-
-    tagInput.addEventListener("input", async () => {
-        const keyword = tagInput.value.trim();
-        suggestions.innerHTML = '';
-        selectedTag = null;
-        submitBtn.disabled = true;
-
-        if (keyword.length > 0) {
-            const res = await fetch(`/movies/${movieId}/tags/search?keyword=${keyword}`);
-            if (!res.ok) return;
-            const tags = await res.json();
-
-            if (tags.length > 0) {
-                suggestions.style.display = 'block';
-                tags.forEach(tag => {
-                    const div = document.createElement("div");
-                    div.textContent = tag.name;
-                    div.style.padding = "5px";
-                    div.style.cursor = "pointer";
-                    div.addEventListener("click", () => {
-                        tagInput.value = tag.name;
-                        selectedTag = tag;
-                        suggestions.innerHTML = '';
-                        suggestions.style.display = 'none';
-                        submitBtn.disabled = false;
-                    });
-                    suggestions.appendChild(div);
+                        alert(
+                            status === "WATCH_LATER"
+                                ? "보고싶어요로 등록되었습니다."
+                                : "관심없어요로 등록되었습니다."
+                        );
+                    } else {
+                        alert("관심 상태 등록에 실패했습니다.");
+                    }
                 });
             }
-        }
-    });
-
-    submitBtn.addEventListener("click", async () => {
-        if (!selectedTag) {
-            selectedTag = {name:tagInput.value.trim()};
-        }
-
-        if (!selectedTag.name) return;
-
-        const res = await fetch(`/movies/${movieId}/tags/select?tagName=${selectedTag.name}`, {
-            method: 'POST'
-        });
-
-        if (res.status === 409) {
-            const message = await res.text();
-            alert(message);
-            return
-        }
-
-        if (!res.ok) {
-            alert("태그 등록에 실패했습니다.");
-            return;
-        }
-
-        if (![...myTags.children].some(li => li.textContent.trim().startsWith(`# ${selectedTag.name}`))) {
-            const tagElement = createTagListItem(selectedTag.name);
-            myTags.appendChild(tagElement);
-        }
 
 
-        tagInput.value = '';
-        submitBtn.disabled = true;
+            function createTagListItem(tag) {
+                const li = document.createElement("li");
+                li.textContent = `# ${tag} `;
 
-        await loadTopTags();
-    });
+                const btn = document.createElement("button");
+                btn.textContent = "x";
+                btn.style.marginLeft = "5px";
+                btn.style.background = "none";
+                btn.style.border = "none";
+                btn.style.color = "white";
+                btn.style.cursor = "pointer";
+                btn.onclick = () => deleteTag(tag);
 
-    document.addEventListener('click', function (event) {
-        if (!tagInput.contains(event.target) && !suggestions.contains(event.target)) {
-            suggestions.style.display = 'none';
-        }
-    });
+                li.appendChild(btn);
+                return li;
+            }
 
-    tagInput.addEventListener('focus', function () {
-        if (suggestions.children.length > 0) {
-            suggestions.style.display = 'block';
-        }
-    });
+            function deleteTag(tagName) {
+                if (!confirm(`'${tagName}' 태그를 삭제할까요?`)) return;
 
-    document.querySelectorAll(".stars").forEach(star => {
-        star.addEventListener("mouseenter", () => {
-            const score = parseInt(star.dataset.score);
-            document.querySelectorAll(".stars").forEach(s => {
-                if (parseInt(s.dataset.score) <= score) {
-                    s.classList.add("hovered", "fa-solid");
-                    s.classList.remove("fa-regular");
+                fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
+                    method: 'DELETE'
+                }).then(res => {
+                    if (res.ok) {
+                        alert("삭제되었습니다.");
+                        loadMyTags();   // 내 태그 다시 불러오기
+                        loadTopTags();  // Top 태그도 다시 반영
+                    } else {
+                        alert("삭제에 실패했습니다.");
+                    }
+                });
+            }
+
+            function scrollToLeft(button) {
+                const list = button.parentElement.querySelector(".recommend-list");
+                list.scrollBy({left: -300, behavior: 'smooth'});
+            }
+
+            function scrollToRight(button) {
+                const list = button.parentElement.querySelector(".recommend-list");
+                list.scrollBy({left: 300, behavior: 'smooth'});
+            }
+
+
+            const tagInput = document.getElementById("tagInput");
+            const suggestions = document.getElementById("suggestions");
+            const submitBtn = document.getElementById("submitTag");
+            const myTags = document.getElementById("my-tags");
+            const movieId = document.body.getAttribute("data-movie-id");
+            const userId = document.body.getAttribute("data-user-id");
+
+            let selectedTag = null;
+
+            tagInput.addEventListener("input", async () => {
+                const keyword = tagInput.value.trim();
+                suggestions.innerHTML = '';
+                selectedTag = null;
+                submitBtn.disabled = true;
+
+                if (keyword.length > 0) {
+                    const res = await fetch(`/movies/${movieId}/tags/search?keyword=${keyword}`);
+                    if (!res.ok) return;
+                    const tags = await res.json();
+
+                    if (tags.length > 0) {
+                        suggestions.style.display = 'block';
+                        tags.forEach(tag => {
+                            const div = document.createElement("div");
+                            div.textContent = tag.name;
+                            div.style.padding = "5px";
+                            div.style.cursor = "pointer";
+                            div.addEventListener("click", () => {
+                                tagInput.value = tag.name;
+                                selectedTag = tag;
+                                suggestions.innerHTML = '';
+                                suggestions.style.display = 'none';
+                                submitBtn.disabled = false;
+                            });
+                            suggestions.appendChild(div);
+                        });
+                    }
                 }
             });
-        });
 
-        star.addEventListener("mouseleave", () => {
-            document.querySelectorAll(".stars").forEach(s => {
-                s.classList.remove("hovered");
-                if (!s.classList.contains("selected")) {
-                    s.classList.remove("fa-solid");
-                    s.classList.add("fa-regular");
+            submitBtn.addEventListener("click", async () => {
+                if (!selectedTag) {
+                    selectedTag = {name: tagInput.value.trim()};
+                }
+
+                if (!selectedTag.name) return;
+
+                const res = await fetch(`/movies/${movieId}/tags/select?tagName=${selectedTag.name}`, {
+                    method: 'POST'
+                });
+
+                if (res.status === 409) {
+                    const message = await res.text();
+                    alert(message);
+                    return
+                }
+
+                if (!res.ok) {
+                    alert("태그 등록에 실패했습니다.");
+                    return;
+                }
+
+                if (![...myTags.children].some(li => li.textContent.trim().startsWith(`# ${selectedTag.name}`))) {
+                    const tagElement = createTagListItem(selectedTag.name);
+                    myTags.appendChild(tagElement);
+                }
+
+
+                tagInput.value = '';
+                submitBtn.disabled = true;
+
+                await loadTopTags();
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!tagInput.contains(event.target) && !suggestions.contains(event.target)) {
+                    suggestions.style.display = 'none';
                 }
             });
-        });
-    });
 
-    // 초기 로딩 시 사용자 태그/Top 태그 불러오기
-    loadMyTags();
-    loadTopTags();
-</script>
+            tagInput.addEventListener('focus', function () {
+                if (suggestions.children.length > 0) {
+                    suggestions.style.display = 'block';
+                }
+            });
+
+            document.querySelectorAll(".stars").forEach(star => {
+                star.addEventListener("mouseenter", () => {
+                    const score = parseInt(star.dataset.score);
+                    document.querySelectorAll(".stars").forEach(s => {
+                        if (parseInt(s.dataset.score) <= score) {
+                            s.classList.add("hovered", "fa-solid");
+                            s.classList.remove("fa-regular");
+                        }
+                    });
+                });
+
+                star.addEventListener("mouseleave", () => {
+                    document.querySelectorAll(".stars").forEach(s => {
+                        s.classList.remove("hovered");
+                        if (!s.classList.contains("selected")) {
+                            s.classList.remove("fa-solid");
+                            s.classList.add("fa-regular");
+                        }
+                    });
+                });
+            });
+
+            // 초기 로딩 시 사용자 태그/Top 태그 불러오기
+            loadMyTags();
+            loadTopTags();
+        </script>
 </body>
 </html>

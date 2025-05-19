@@ -10,6 +10,64 @@
             background-color: #121212;
             color: #ffffff;
         }
+        .genre-recommend-container {
+            padding: 20px 0;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .recommend-list {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            scroll-behavior: smooth;
+            padding: 10px 0;
+            margin: 0 40px;
+        }
+        .recommend-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .recommend-item {
+            width: 120px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .recommend-poster {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .slider-button {
+            position: absolute;
+            z-index: 10;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .slider-button.left {
+            left: 0;
+        }
+
+        .slider-button.right {
+            right: 0;
+        }
+
+        .slider-button:hover {
+            background-color: #27c29c;
+        }
 
         .overlay {
             background-color: rgba(0, 0, 0, 0.85);
@@ -383,6 +441,24 @@
             </div>
         </div>
     </div>
+    <div class="section-divider"></div>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
+    <div class="genre-recommend-container">
+        <h3 class="recommend-title">장르가 비슷한 작품:</h3>
+        <div class="slider-wrapper">
+            <button class="slider-button left" onclick="scrollToLeft(this)">&#10094;</button>
+            <div class="recommend-list" style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none;">
+                <div class="recommend-item" th:each="sim : ${similarMovies}">
+                    <a th:href="@{'/movies/' + ${sim.id}}">
+                        <img th:src="${sim.poster != null ? 'https://image.tmdb.org/t/p/w500' + sim.poster : '/images/default.jpg'}"
+                             alt="포스터" class="recommend-poster" />
+                    </a>
+                    <p class="recommend-title" th:text="${sim.title}">영화 제목</p>
+                </div>
+            </div>
+            <button class="slider-button right" onclick="scrollToRight(this)">&#10095;</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -393,6 +469,16 @@
     function closeLoginBanner() {
         document.getElementById("login-banner").style.display = "none";
     }
+    function scrollToLeft(button) {
+        const list = button.parentElement.querySelector(".recommend-list");
+        list.scrollBy({ left: -300, behavior: 'smooth' });
+    }
+
+    function scrollToRight(button) {
+        const list = button.parentElement.querySelector(".recommend-list");
+        list.scrollBy({ left: 300, behavior: 'smooth' });
+    }
+
 
     document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".stars").forEach(star => {

@@ -3,7 +3,9 @@ package com.grepp.smartwatcha.app.controller.web.details;
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDTO;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.SimilarMovieDto;
 import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.app.model.details.service.GenreRecommendService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.InterestJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.MovieJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
@@ -33,6 +35,8 @@ public class MovieDetailsController {
     private final MovieNeo4jService movieNeo4jService;
     private final TagNeo4jService tagNeo4jService;
     private final InterestJpaService interestJpaService;
+    private final GenreRecommendService genreRecommendService;
+
 
     @GetMapping("/{id}")
     public String getMovieDetail(
@@ -45,11 +49,15 @@ public class MovieDetailsController {
         MovieNode neo4jMovie = movieNeo4jService.getMovieWithAllRelations(id);
         List<Neo4jTagDto> topTags = tagNeo4jService.getTop6Tags(id);
 
+        List<SimilarMovieDto> similarMovies = genreRecommendService.getGenreSimilarMovies(id);
+
+
         // mysql db
         model.addAttribute("movie", movie);
         model.addAttribute("averageScore", averageScore);
         model.addAttribute("ratingDistribution", ratingDistribution);
         model.addAttribute("ratingBars", ratingList);
+        model.addAttribute("similarMovies", similarMovies);
 
         // neo4j db
         model.addAttribute("no4jMovie", neo4jMovie);

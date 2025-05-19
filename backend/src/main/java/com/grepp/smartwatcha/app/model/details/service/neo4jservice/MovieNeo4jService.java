@@ -5,6 +5,8 @@ import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MovieNeo4jService {
@@ -13,5 +15,8 @@ public class MovieNeo4jService {
     public MovieNode getMovieWithAllRelations(Long movieId) {
         return movieNeo4jRepository.findById(movieId)
                 .orElseThrow(() -> new RuntimeException("Movie not found in Neo4j"));
+    }
+    public List<Long> findSimilarMovieIds(Long movieId) {
+        return movieNeo4jRepository.findSimilarMoviesByGenre(movieId);
     }
 }
