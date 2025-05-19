@@ -27,7 +27,12 @@ public class IndexService {
 
     public List<IndexMovieDto> findLightMovies() {
         List<Long> ids = indexNeo4jService.findLightMovies();
+        log.info("lightMovies: {}", indexJpaService.findByIds(ids));
 
         return indexJpaService.findByIds(ids);
+    }
+
+    public List<IndexMovieDto> findByInterest(Long id) {
+        return indexJpaService.findByInterest(id);
     }
 }

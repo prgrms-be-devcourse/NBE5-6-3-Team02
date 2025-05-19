@@ -51,6 +51,13 @@ public class SearchService {
         return queryCache.get(hash);
     }
 
+    public boolean isHash(String hash) {
+        if (!queryCache.exists(hash)) {
+            return false;
+        }
+        return true;
+    }
+
 
     public Page<SearchResultDto> getPaged(String queryHash, Pageable pageable) {
         List<SearchResultDto> all = queryCache.get(queryHash);

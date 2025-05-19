@@ -19,6 +19,17 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
+    @GetMapping("/notifications")
+    public String notifications(@AuthenticationPrincipal CustomUserDetails userDetails,Model model) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+
+        Long userId = userDetails.getUser().getId();
+
+        return "redirect:/notifications/" + userId;
+    }
+
     @GetMapping("/notifications/{userId}")
     public String getNotifications(
             @PathVariable Long userId,

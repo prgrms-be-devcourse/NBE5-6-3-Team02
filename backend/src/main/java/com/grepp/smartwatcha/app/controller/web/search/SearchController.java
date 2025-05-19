@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Slf4j
 public class SearchController {
 
+    @Value("${app.internalToken}")
+    private String token;
+
     private final SearchService searchService;
     private final SmartSearchApi smartSearchApi;
 
@@ -49,6 +53,18 @@ public class SearchController {
             @AuthenticationPrincipal UserDetails user,
             Model model
     ){
+
+        String queryKey = searchService.buildQueryKey(type, intent, query);
+        String queryHash = searchService.hash(queryKey);
+        if (searchService.isHash(queryHash)) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+            Page<SearchResultDto> pages = searchService.getPaged(queryHash, pageable);
+            PageResponse<SearchResultDto> searchResultDtos = new PageResponse<>("/search/result/paged", pages, 5);
+
+            model.addAttribute("searchResult", searchResultDtos);
+            model.addAttribute("queryHash", queryHash);
+            return "search/search-result";
+        }
 
         List<Long> ids = new ArrayList<>();
 
@@ -75,29 +91,35 @@ public class SearchController {
                 case "actor":
                     ids = searchService.findByActor(query);
                     break;
+                default:
+                    throw new CommonException(ResponseCode.BAD_REQUEST, new RuntimeException("잘못된 검색 태그입니다."));
             }
         } else if (type.equals("smartSearch")) {
             if (user == null) {
                 throw new AccessDeniedException("Smart search requires login.");
             }
-            String token = "123qwe!@#";
 
-            SmartSearchApiRequest request = new SmartSearchApiRequest();
-            request.setIntent(intent);
-            request.setQuery(query);
-            try{
-                SmartSearchApiResponse response = smartSearchApi.call(token, request);
-                log.info("smartSearch response: {}", response);
-                ids = response.getMovieIds().stream()
-                        .map(SmartSearchApiResponse.MovieWrapper::getMovie)
-                        .toList();
+            if(intent.equals("recommend") || intent.equals("search")) {
 
-            } catch (Exception e){
-                throw new CommonException(ResponseCode.BAD_REQUEST, e);
+                SmartSearchApiRequest request = new SmartSearchApiRequest();
+                request.setIntent(intent);
+                request.setQuery(query);
+
+                try{
+                    SmartSearchApiResponse response = smartSearchApi.call(token, request);
+                    log.info("smartSearch response: {}", response);
+                    ids = response.getMovieIds().stream()
+                            .map(SmartSearchApiResponse.MovieWrapper::getMovie)
+                            .toList();
+
+                } catch (Exception e){
+                    throw new CommonException(ResponseCode.BAD_REQUEST, e);
+                }
+            } else {
+                throw new CommonException(ResponseCode.BAD_REQUEST, new RuntimeException("잘못된 검색 태그입니다."));
             }
         }
-        String queryKey = searchService.buildQueryKey(type, intent, query);
-        String queryHash = searchService.hash(queryKey);
+
         List<SearchResultDto> results = searchService.searchAndCache(queryHash, ids);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));

@@ -50,4 +50,14 @@ public class IndexJpaService {
         }
         return indexMovieDtos;
     }
+
+    public List<IndexMovieDto> findByInterest(Long id) {
+        List<MovieEntity> movies = indexJpaRepository.findByInterest(id);
+        List<IndexMovieDto> indexMovieDtos = new ArrayList<>();
+        for (MovieEntity movie : movies) {
+            IndexMovieDto indexMovieDto = IndexMovieDto.fromEntity(movie);
+            indexMovieDtos.add(indexMovieDto);
+        }
+        return indexMovieDtos;
+    }
 }

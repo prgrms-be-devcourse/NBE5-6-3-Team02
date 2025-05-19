@@ -100,25 +100,26 @@ generate_cypher:
         Based on your <|Role|> and the <|user input|> keywords, generate an appropriate Cypher query for searching in Neo4j according to the constraints and output it in the format specified by <|Output Format|>.
 
         # Constraints:
-        The output must strictly follow the JSON format.  
+        The output must strictly follow the JSON format.
         The data structure must follow the <|Data Base Structure|>.  
-        All relationship searches should be treated as bidirectional.  
+        All relationship searches should be treated as bidirectional.
+        Avoid using 'limit' unless the request demands it.
         The return value must always be `movie.id as movie`.
 
         # Data Base Structure
-        1. Nodes and Properties:  
-          MOVIE{{title, id}}  
-          GENRE{{name}}  
-          TAG{{name}}  
-          ACTOR{{name}}  
-          DIRECTOR{{name}}  
-          WRITER{{name}}  
+        1. Nodes and Properties:
+          MOVIE{{title, id}}
+          GENRE{{name}}
+          TAG{{name}}
+          ACTOR{{name}}
+          DIRECTOR{{name}}
+          WRITER{{name}}
 
-        2. Relationships and Properties:  
-          MOVIE -[HAS_GENRE]-> GENRE  
-          MOVIE -[HAS_TAG{{count}}]-> TAG  
-          MOVIE -[ACTED_IN]-> ACTOR  
-          MOVIE -[DIRECTED_BY]-> DIRECTOR  
+        2. Relationships and Properties:
+          MOVIE -[HAS_GENRE]-> GENRE
+          MOVIE -[HAS_TAG{{count}}]-> TAG
+          MOVIE -[ACTED_IN]-> ACTOR
+          MOVIE -[DIRECTED_BY]-> DIRECTOR
           MOVIE -[WRITTEN_BY]-> WRITER
 
         # Output Format:

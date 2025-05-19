@@ -1,8 +1,11 @@
 package com.grepp.smartwatcha.app.controller.web;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendPersonalResponse;
+import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.index.IndexService;
 import com.grepp.smartwatcha.app.model.index.dto.IndexMovieDto;
+import com.grepp.smartwatcha.app.model.recommend.RecommendPersonalMovieService;
 import com.grepp.smartwatcha.app.model.recommend.service.RecommendHighestRatedJpaService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +23,23 @@ public class IndexController {
 
     private final IndexService indexService;
     private final RecommendHighestRatedJpaService recommendService;
+    private final RecommendPersonalMovieService personalMovieService;
     
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         List<IndexMovieDto> newMovies = indexService.findByReleaseDate();
         List<IndexMovieDto> randomMovies = indexService.findByRandom();
         List<IndexMovieDto> lightMovies = indexService.findLightMovies();
         List<MovieRecommendHighestRatedResponse> top10Movies = recommendService.getTop10RatedMovies();
+
+        if (userDetails != null) {
+            List<MovieRecommendPersonalResponse> personalTol10Movies = personalMovieService.getTop10PersonalMovies(
+                    userDetails.getId());
+            List<IndexMovieDto> interestedMovie = indexService.findByInterest(userDetails.getId());
+
+            model.addAttribute("personalTop10Movies", personalTol10Movies);
+            model.addAttribute("interestedMovie", interestedMovie);
+        }
 
         model.addAttribute("newMovies", newMovies);
         model.addAttribute("randomMovies", randomMovies);
