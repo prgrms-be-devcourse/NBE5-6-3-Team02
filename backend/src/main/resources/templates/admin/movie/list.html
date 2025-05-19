@@ -388,7 +388,10 @@
                   </div>
                   <div style="display: flex; gap: 2rem; align-items: flex-start;">
                     <div>
-                      <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}" alt="Poster" style="width: 120px; border-radius: 8px;">
+                      <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
+                           alt="Poster"
+                           style="width: 120px; border-radius: 8px;"
+                           onerror="this.onerror=null; this.src='/images/default.jpg';" />
                     </div>
                     <div style="flex: 1;">
                       <div class="input-field input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: 20px">
