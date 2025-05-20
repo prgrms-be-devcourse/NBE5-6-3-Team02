@@ -167,6 +167,19 @@
             text-align: center;
         }
 
+        .icon-button.cancel-btn {
+            background-color: #f15b5b;
+            color: white;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .icon-button.cancel-btn:hover {
+            background-color: #d84444;
+        }
+
         .stars {
             font-size: 24px;
             color: #ccc;
@@ -306,7 +319,21 @@
         .slider-button:focus {
             background-color: #27c29c;
         }
+        .rating-inline {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+        }
+        .rating-label {
+            font-size: 16px;
+            font-weight: bold;
+        }
 
+        .rating-stars {
+            display: flex;
+            gap: 8px;
+        }
     </style>
 </head>
 <body th:attr="data-movie-id=${movie.id}, data-user-id=${userId}">
@@ -348,16 +375,17 @@
 
             <div class="rating-wrapper">
                 <div class="rating-flex">
-                    <div class="rating-left">
-                        <strong>평가하기:</strong>
-                        <span th:each="i : ${#numbers.sequence(1,5)}">
-                            <i class="fa-star stars"
-                               th:classappend="${userRating >= i} ? 'fa-solid selected' : 'fa-regular'"
-                               th:attr="data-score=${i}, onclick=|rateMovie(${movie.id},${i})|">
+                    <div class="rating-left rating-inline">
+                        <strong class="rating-label">평가 남기기:</strong>
+                        <span class="rating-stars" th:each="i : ${#numbers.sequence(1,5)}">
+                            <i class="fa-star stars" th:classappend="${userRating >= i} ? 'fa-solid selected' : 'fa-regular'"
+                                th:attr="data-score=${i}, onclick=|rateMovie(${movie.id},${i})|">
                             </i>
                         </span>
-                        <button class="icon-button" onclick="cancelRating()">평가 취소</button>
+                        <button class="icon-button cancel-btn" onclick="cancelRating()">평가 취소</button>
                     </div>
+
+
                     <div class="rating-center">
                         <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
                         <div style="font-size: 14px; color: #ccc;">평균 별점</div>
@@ -523,11 +551,17 @@
     }
 
     function cancelRating() {
+        const ratedStars = document.querySelectorAll(".stars.selected");
+
+        if (ratedStars.length === 0) {
+            alert("평가가 없습니다.");
+            return;
+        }
+
         fetch(`/movies/${movieId}/ratings`, {method: 'DELETE'})
             .then(res => {
                 if (res.ok) {
                     alert("평가가 취소되었습니다.");
-                    // 별점 UI 초기화
                     document.querySelectorAll(".stars").forEach(s => {
                         s.classList.remove("selected", "fa-solid");
                         s.classList.add("fa-regular");
@@ -539,6 +573,7 @@
                 }
             });
     }
+
 
     function setInterest(status) {
         const movieId = document.body.getAttribute("data-movie-id");
