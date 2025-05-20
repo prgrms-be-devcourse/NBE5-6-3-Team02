@@ -322,9 +322,9 @@
     <div class="login-modal-content">
         <span class="close" onclick="closeLoginBanner()">&times;</span>
         <h2>SmartMovie</h2>
-        <p>회원가입 또는 로그인이 필요한 기능입니다.<br>SmartMovie를 더 편리하게 이용해보세요.</p>
-        <button onclick="location.href='/login'">로그인</button>
-        <button onclick="location.href='/user/signup'">회원가입</button>
+        <p>This feature requires registration or login.<br>Use SmartMovie more conveniently.</p>
+        <button onclick="location.href='/login'">login</button>
+        <button onclick="location.href='/user/signup'">join member</button>
     </div>
 </div>
 <div class="overlay">
@@ -335,28 +335,27 @@
             <div class="graph">
                 <div th:each="bar : ${ratingBars}" class="bar-group">
                     <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
-                    <div class="bar-label" th:text="${bar.score} + '점'"></div>
+                    <div class="bar-label" th:text="${bar.score} + 'pointer'"></div>
                 </div>
             </div>
         </div>
         <div class="info-section">
             <div class="movie-title" th:text="${movie.title}">영화 제목</div>
             <div class="info-text">
-                <strong>장르:</strong>
+                <strong>Genre :</strong>
                 <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
             </div>
             <div class="info-text">
-                <span th:text="'개봉일: ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : '정보없음')"></span>
-                |
-                <span th:text="'국가: ' + (${movie.country} != null ? ${movie.country} : '정보없음')"></span> |
-                <span th:text="'관람등급: ' + (${movie.certification} != null ? ${movie.certification} : '정보없음')"></span> |
-                <span th:text="'공개 여부: ' + (${movie.isReleased} ? '공개됨' : '미공개')"></span>
+                <span th:text="'Release Date : ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : 'No information')"></span> |
+                <span th:text="'Country : ' + (${movie.country} != null ? ${movie.country} : 'No information')"></span> |
+                <span th:text="'Certification : ' + (${movie.certification} != null ? ${movie.certification} : 'No information')"></span> |
+                <span th:text="'undisclosed : ' + (${movie.isReleased} ? 'release' : 'undisclosed')"></span>
             </div>
 
             <div class="section-divider"></div>
             <div class="info-text">
-                <strong>줄거리 : </strong>
-                <span th:text="${movie.overview != null ? movie.overview : '정보없음'}"></span>
+                <strong>OverView : </strong>
+                <span th:text="${movie.overview != null ? movie.overview : 'No information'}"></span>
             </div>
 
             <div class="section-divider"></div>
@@ -365,19 +364,19 @@
                 <div class="rating-flex">
                     <!-- 왼쪽: 평가하기 -->
                     <div class="rating-left">
-                        <strong>평가하기:</strong>
+                        <strong>Leave a rating : </strong>
                         <span th:each="i : ${#numbers.sequence(1,5)}">
                         <i class="fa-regular fa-star stars" th:attr="data-score=${i}"></i></span>
                     </div>
                     <!-- 가운데: 평균 별점 -->
                     <div class="rating-center">
                         <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
-                        <div style="font-size: 14px; color: #ccc;">평균 별점</div>
+                        <div style="font-size: 14px; color: #ccc;">Average Star</div>
                     </div>
                     <!-- 오른쪽: 아이콘 버튼 -->
                     <div class="rating-right">
-                        <button class="icon-button"><i class="fa-solid fa-bookmark"></i> 보고싶어요</button>
-                        <button class="icon-button"><i class="fa-solid fa-eye-slash"></i> 관심없어요</button>
+                        <button class="icon-button"><i class="fa-solid fa-bookmark"></i> Interest</button>
+                        <button class="icon-button"><i class="fa-solid fa-eye-slash"></i> UnInterest</button>
                     </div>
                 </div>
             </div>
@@ -385,9 +384,9 @@
             <div class="section-divider"></div>
 
             <div class="tag-selection">
-                <label for="tagInput"><strong>태그 남기기:</strong></label>
-                <input type="text" id="tagInput" class="browser-default" placeholder="태그를 입력하세요..." autocomplete="off"/>
-                <button id="submitTag">태그 남기기</button>
+                <label for="tagInput"><strong>Leave a tag :</strong></label>
+                <input type="text" id="tagInput" class="browser-default" placeholder="Please enter tags..." autocomplete="off"/>
+                <button id="submitTag">Leave a tag</button>
             </div>
 
             <div class="section-divider"></div>
@@ -404,7 +403,7 @@
             <div class="cast-section">
                 <!-- 감독 -->
                 <div>
-                    <strong>감독:</strong>
+                    <strong>Director :</strong>
                     <span th:if="${#lists.isEmpty(directors)}">정보없음</span>
                     <span th:each="d, stat : ${directors}" th:unless="${#lists.isEmpty(directors)}"
                           th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span>
@@ -412,7 +411,7 @@
 
                 <!-- 출연 -->
                 <div>
-                    <strong>출연:</strong>
+                    <strong>Casting :</strong>
                     <span th:if="${#lists.isEmpty(actors)}">정보없음</span>
                     <span th:each="a, stat : ${actors}" th:unless="${#lists.isEmpty(actors)}"
                           th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span>
@@ -423,7 +422,7 @@
     <div class="section-divider"></div>
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
         <div class="genre-recommend-container">
-            <h3 class="recommend-title">장르가 비슷한 작품:</h3>
+            <h3 class="recommend-title">Recommendations of similar genres :</h3>
             <div class="slider-wrapper">
                 <button class="slider-button left" onclick="scrollToLeft(this)">&#10094;</button>
                 <div class="recommend-list"

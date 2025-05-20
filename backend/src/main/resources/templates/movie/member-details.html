@@ -346,7 +346,7 @@
             <div class="graph">
                 <div th:each="bar : ${ratingBars}" class="bar-group">
                     <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
-                    <div class="bar-label" th:text="${bar.score} + '점'"></div>
+                    <div class="bar-label" th:text="${bar.score} + 'point'"></div>
                 </div>
             </div>
         </div>
@@ -354,21 +354,20 @@
         <div class="info-section">
             <div class="movie-title" th:text="${movie.title}">영화 제목</div>
             <div class="info-text">
-                <strong>장르:</strong>
+                <strong>Genre :</strong>
                 <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
             </div>
             <div class="info-text">
-                <span th:text="'개봉일: ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : '정보없음')"></span>
-                |
-                <span th:text="'국가: ' + (${movie.country} != null ? ${movie.country} : '정보없음')"></span> |
-                <span th:text="'관람등급: ' + (${movie.certification} != null ? ${movie.certification} : '정보없음')"></span> |
-                <span th:text="'공개 여부: ' + (${movie.isReleased} ? '공개됨' : '미공개')"></span>
+                <span th:text="'Release Date : ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : 'No information')"></span> |
+                <span th:text="'Country : ' + (${movie.country} != null ? ${movie.country} : 'No information')"></span> |
+                <span th:text="'Certification : ' + (${movie.certification} != null ? ${movie.certification} : 'No information')"></span> |
+                <span th:text="'undisclosed : ' + (${movie.isReleased} ? 'release' : 'undisclosed')"></span>
             </div>
 
             <div class="section-divider"></div>
             <div class="info-text">
-                <strong>줄거리 : </strong>
-                <span th:text="${movie.overview != null ? movie.overview : '정보없음'}"></span>
+                <strong>OverView : </strong>
+                <span th:text="${movie.overview != null ? movie.overview : 'No information'}"></span>
             </div>
 
             <div class="section-divider"></div>
@@ -376,28 +375,28 @@
             <div class="rating-wrapper">
                 <div class="rating-flex">
                     <div class="rating-left rating-inline">
-                        <strong class="rating-label">평가 남기기:</strong>
+                        <strong class="rating-label">Leave a rating :</strong>
                         <span class="rating-stars" th:each="i : ${#numbers.sequence(1,5)}">
                             <i class="fa-star stars" th:classappend="${userRating >= i} ? 'fa-solid selected' : 'fa-regular'"
                                 th:attr="data-score=${i}, onclick=|rateMovie(${movie.id},${i})|">
                             </i>
                         </span>
-                        <button class="icon-button cancel-btn" onclick="cancelRating()">평가 취소</button>
+                        <button class="icon-button cancel-btn" onclick="cancelRating()">Cancel</button>
                     </div>
 
 
                     <div class="rating-center">
                         <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
-                        <div style="font-size: 14px; color: #ccc;">평균 별점</div>
+                        <div style="font-size: 14px; color: #ccc;">Average Star</div>
                     </div>
                     <div class="rating-right">
                         <button class="icon-button" onclick="setInterest('WATCH_LATER')">
                             <i th:class="'fa-bookmark ' + (${interestStatus != null and interestStatus.name() == 'WATCH_LATER'} ? 'fa-solid active' : 'fa-regular')"> </i>
-                            보고싶어요
+                            Interest
                         </button>
                         <button class="icon-button" onclick="setInterest('NOT_INTERESTED')">
                             <i th:class="'fa-eye-slash ' + (${interestStatus != null and interestStatus.name() == 'NOT_INTERESTED'} ? 'fa-solid active' : 'fa-regular')"> </i>
-                            관심없어요
+                            UnInterest
                         </button>
                     </div>
                 </div>
@@ -406,16 +405,16 @@
             <div class="section-divider"></div>
 
             <div class="tag-selection">
-                <label for="tagInput"><strong>태그 남기기:</strong></label>
-                <input type="text" id="tagInput" class="browser-default" placeholder="태그를 입력하세요..." autocomplete="off"/>
+                <label for="tagInput"><strong>Leave a tag :</strong></label>
+                <input type="text" id="tagInput" class="browser-default" placeholder="Please enter tags..." autocomplete="off"/>
                 <div id="suggestions"></div>
-                <button id="submitTag" disabled>태그 남기기</button>
+                <button id="submitTag" disabled>Leave a tag</button>
 
             </div>
             <div class="section-divider"></div>
 
             <div class="my-tags">
-                <h4>내가 남긴 태그</h4>
+                <h4>My Tags</h4>
                 <ul id="my-tags">
                     <li th:each="tag : ${userTags}" th:text="'# ' + ${tag.name}"></li>
                 </ul>
@@ -433,9 +432,9 @@
             <div class="section-divider"></div>
 
             <div class="cast-section">
-                <div><strong>감독:</strong> <span th:each="d, stat : ${directors}"
+                <div><strong>Director :</strong> <span th:each="d, stat : ${directors}"
                                                 th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span></div>
-                <div><strong>출연:</strong> <span th:each="a, stat : ${actors}"
+                <div><strong>Casting :</strong> <span th:each="a, stat : ${actors}"
                                                 th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span></div>
             </div>
         </div>
@@ -443,7 +442,7 @@
     <div class="section-divider"></div>
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
         <div class="genre-recommend-container">
-            <h3 class="recommend-title">장르가 비슷한 작품:</h3>
+            <h3 class="recommend-title">Recommendations of similar genres :</h3>
             <div class="slider-wrapper">
                 <button class="slider-button left" onclick="scrollToLeft(this)">&#10094;</button>
                 <div class="recommend-list"
@@ -513,7 +512,7 @@
 
             const label = document.createElement("div");
             label.className = "bar-label";
-            label.textContent = bar.score + "점";
+            label.textContent = bar.score + "point";
 
             group.appendChild(barDiv);
             group.appendChild(label);
@@ -537,7 +536,7 @@
                         s.classList.remove("fa-regular");
                     }
                 });
-                alert("평점이 성공적으로 등록되었습니다.");
+                alert("Your rating has been successfully registered.");
                 setTimeout(() => {
                     loadAverageScore();
                     loadRatingBars();
@@ -545,7 +544,7 @@
                 //loadMyTags();
                 //loadTopTags();
             } else {
-                alert("오류 발생!");
+                alert("An error occurred!");
             }
         });
     }
@@ -554,14 +553,14 @@
         const ratedStars = document.querySelectorAll(".stars.selected");
 
         if (ratedStars.length === 0) {
-            alert("평가가 없습니다.");
+            alert("There are no ratings.");
             return;
         }
 
         fetch(`/movies/${movieId}/ratings`, {method: 'DELETE'})
             .then(res => {
                 if (res.ok) {
-                    alert("평가가 취소되었습니다.");
+                    alert("The evaluation has been cancelled.");
                     document.querySelectorAll(".stars").forEach(s => {
                         s.classList.remove("selected", "fa-solid");
                         s.classList.add("fa-regular");
@@ -569,12 +568,10 @@
                     loadAverageScore();
                     loadRatingBars();
                 } else {
-                    alert("평가 취소 실패");
+                    alert("Failed to cancel evaluation");
                 }
             });
     }
-
-
     function setInterest(status) {
         const movieId = document.body.getAttribute("data-movie-id");
 
@@ -601,9 +598,9 @@
                     eyeSlashIcon.classList.remove("fa-solid", "active");
                     eyeSlashIcon.classList.add("fa-regular");
 
-                    alert("관심 상태가 취소되었습니다.");
+                    alert("Your interest has been cancelled.");
                 } else {
-                    alert("관심 상태 취소에 실패했습니다.");
+                    alert("Failed to cancel interest status.");
                 }
             });
         } else {
@@ -626,11 +623,11 @@
 
                     alert(
                         status === "WATCH_LATER"
-                            ? "보고싶어요로 등록되었습니다."
-                            : "관심없어요로 등록되었습니다."
+                            ? "It has been registered as I want to see you."
+                            : "Registered as not interested."
                     );
                 } else {
-                    alert("관심 상태 등록에 실패했습니다.");
+                    alert("Failed to register interest status.");
                 }
             });
         }
@@ -655,17 +652,17 @@
     }
 
     function deleteTag(tagName) {
-        if (!confirm(`'${tagName}' 태그를 삭제할까요?`)) return;
+        if (!confirm(`'${tagName}' Should I delete this tag?`)) return;
 
         fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
             method: 'DELETE'
         }).then(res => {
             if (res.ok) {
-                alert("삭제되었습니다.");
+                alert("It has been deleted.");
                 loadMyTags();   // 내 태그 다시 불러오기
                 loadTopTags();  // Top 태그도 다시 반영
             } else {
-                alert("삭제에 실패했습니다.");
+                alert("Deletion failed.");
             }
         });
     }
@@ -741,7 +738,7 @@
         }
 
         if (!res.ok) {
-            alert("태그 등록에 실패했습니다.");
+            alert("Tag registration failed");
             return;
         }
 
