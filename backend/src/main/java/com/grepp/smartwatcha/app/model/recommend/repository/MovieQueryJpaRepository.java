@@ -4,7 +4,6 @@ import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +20,14 @@ public class MovieQueryJpaRepository {
     public List<MovieEntity> findAllReleased() {
         return em.createQuery(
                         "SELECT m FROM MovieEntity m WHERE m.isReleased = true", MovieEntity.class)
+                .getResultList();
+    }
+
+    public List<MovieEntity> findByIdIn(List<Long> ids) {
+        return em.createQuery("""
+                SELECT m FROM MovieEntity m WHERE m.id IN :ids
+            """, MovieEntity.class)
+                .setParameter("ids", ids)
                 .getResultList();
     }
 }

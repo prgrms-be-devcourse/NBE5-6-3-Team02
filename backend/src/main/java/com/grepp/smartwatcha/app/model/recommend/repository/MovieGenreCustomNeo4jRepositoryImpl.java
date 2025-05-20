@@ -18,14 +18,14 @@ public class MovieGenreCustomNeo4jRepositoryImpl implements MovieGenreCustomNeo4
     public List<MovieGenreTagResponse> findGenresAndTagsByMovieIdList(List<Long> movieIdList) {
         return new ArrayList<>(
                 neo4jClient.query("""
-            MATCH (m:MOVIE)
-            WHERE m.id IN $movieIdList
-            OPTIONAL MATCH (m)-[:HAS_GENRE]->(g:GENRE)
-            OPTIONAL MATCH (m)-[:HAS_TAG]->(t:TAG)
-            RETURN m.id AS movieId,
-                   collect(DISTINCT g.name) AS genres,
-                   collect(DISTINCT t.name) AS tags
-        """)
+                    UNWIND $movieIdList AS movieId
+                    MATCH (m:MOVIE {id: movieId})
+                    OPTIONAL MATCH (m)-[:HAS_GENRE]->(g:GENRE)
+                    OPTIONAL MATCH (m)-[:HAS_TAG]->(t:TAG)
+                    RETURN m.id AS movieId,
+                           collect(DISTINCT g.name) AS genres,
+                           collect(DISTINCT t.name) AS tags
+                """)
                         .bind(movieIdList).to("movieIdList")
                         .fetchAs(MovieGenreTagResponse.class)
                         .mappedBy((typeSystem, record) ->
@@ -38,6 +38,4 @@ public class MovieGenreCustomNeo4jRepositoryImpl implements MovieGenreCustomNeo4
                         .all()
         );
     }
-
-
 }
