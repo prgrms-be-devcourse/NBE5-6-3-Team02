@@ -388,6 +388,7 @@
                                th:attr="data-score=${i}, onclick=|rateMovie(${movie.id},${i})|">
                             </i>
                         </span>
+                        <button class="icon-button" onclick="cancelRating()">평가 취소</button>
                     </div>
                     <div class="rating-center">
                         <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
@@ -552,40 +553,82 @@
                     }
                 });
             }
-
+            function cancelRating() {
+                fetch(`/movies/${movieId}/ratings`, { method: 'DELETE' })
+                    .then(res => {
+                        if (res.ok) {
+                            alert("평가가 취소되었습니다.");
+                            // 별점 UI 초기화
+                            document.querySelectorAll(".stars").forEach(s => {
+                                s.classList.remove("selected", "fa-solid");
+                                s.classList.add("fa-regular");
+                            });
+                            loadAverageScore();
+                            loadRatingBars();
+                        } else {
+                            alert("평가 취소 실패");
+                        }
+                    });
+            }
             function setInterest(status) {
                 const movieId = document.body.getAttribute("data-movie-id");
 
-                fetch(`/movies/${movieId}/interest?status=${status}`, {
-                    method: 'POST'
-                }).then(res => {
-                    if (res.ok) {
-                        // ✅ 모든 아이콘 초기화 ❌ 제거
-                        // 🔥 대신 정확히 두 개의 아이콘만 초기화
-                        const bookmarkIcon = document.querySelector("i.fa-bookmark");
-                        const eyeSlashIcon = document.querySelector("i.fa-eye-slash");
+                const bookmarkIcon = document.querySelector("i.fa-bookmark");
+                const eyeSlashIcon = document.querySelector("i.fa-eye-slash");
 
-                        // 모든 아이콘 일단 기본 상태로 초기화
-                        bookmarkIcon.classList.remove("fa-solid", "active");
-                        bookmarkIcon.classList.add("fa-regular");
+                const isBookmarkActive = bookmarkIcon.classList.contains("active");
+                const isEyeSlashActive = eyeSlashIcon.classList.contains("active");
 
-                        eyeSlashIcon.classList.remove("fa-solid", "active");
-                        eyeSlashIcon.classList.add("fa-regular");
+                const isSameClicked =
+                    (status === "WATCH_LATER" && isBookmarkActive) ||
+                    (status === "NOT_INTERESTED" && isEyeSlashActive);
 
-                        // 선택한 아이콘만 활성화
-                        const selectedIcon = status === "WATCH_LATER" ? bookmarkIcon : eyeSlashIcon;
-                        selectedIcon.classList.add("fa-solid", "active");
-                        selectedIcon.classList.remove("fa-regular");
+                if (isSameClicked) {
+                    // 👇 같은 상태 다시 클릭 → 취소 요청 (DELETE)
+                    fetch(`/movies/${movieId}/interest`, {
+                        method: 'DELETE'
+                    }).then(res => {
+                        if (res.ok) {
+                            // 아이콘 초기화
+                            bookmarkIcon.classList.remove("fa-solid", "active");
+                            bookmarkIcon.classList.add("fa-regular");
 
-                        alert(
-                            status === "WATCH_LATER"
-                                ? "보고싶어요로 등록되었습니다."
-                                : "관심없어요로 등록되었습니다."
-                        );
-                    } else {
-                        alert("관심 상태 등록에 실패했습니다.");
-                    }
-                });
+                            eyeSlashIcon.classList.remove("fa-solid", "active");
+                            eyeSlashIcon.classList.add("fa-regular");
+
+                            alert("관심 상태가 취소되었습니다.");
+                        } else {
+                            alert("관심 상태 취소에 실패했습니다.");
+                        }
+                    });
+                } else {
+                    // 👇 새로운 관심 상태 등록
+                    fetch(`/movies/${movieId}/interest?status=${status}`, {
+                        method: 'POST'
+                    }).then(res => {
+                        if (res.ok) {
+                            // 아이콘 초기화
+                            bookmarkIcon.classList.remove("fa-solid", "active");
+                            bookmarkIcon.classList.add("fa-regular");
+
+                            eyeSlashIcon.classList.remove("fa-solid", "active");
+                            eyeSlashIcon.classList.add("fa-regular");
+
+                            // 선택한 아이콘 활성화
+                            const selectedIcon = status === "WATCH_LATER" ? bookmarkIcon : eyeSlashIcon;
+                            selectedIcon.classList.add("fa-solid", "active");
+                            selectedIcon.classList.remove("fa-regular");
+
+                            alert(
+                                status === "WATCH_LATER"
+                                    ? "보고싶어요로 등록되었습니다."
+                                    : "관심없어요로 등록되었습니다."
+                            );
+                        } else {
+                            alert("관심 상태 등록에 실패했습니다.");
+                        }
+                    });
+                }
             }
 
 

@@ -18,4 +18,5 @@ public interface InterestJpaRepository extends JpaRepository<InterestEntity, Lon
 
     Optional<InterestEntity> findByUserIdAndMovieId(Long userId, Long movieId);
 
+    void deleteByUserIdAndMovieId(Long userId, Long movieId);
 }

@@ -29,5 +29,12 @@ public class InterestApiController {
         interestJpaService.saveOrUpdateInterest(userEmail, movieId, status);
         return ResponseEntity.ok().build();
     }
+    @DeleteMapping
+    public ResponseEntity<Void> deleteInterest(@PathVariable("id") Long movieId,
+                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        interestJpaService.deleteInterest(userId, movieId);
+        return ResponseEntity.noContent().build(); // 204 응답
+    }
 }
 

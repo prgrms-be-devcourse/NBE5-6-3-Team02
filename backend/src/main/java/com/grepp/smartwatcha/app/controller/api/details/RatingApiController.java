@@ -31,6 +31,13 @@ public class RatingApiController {
         ratingJpaService.addRating(dto);
         return ResponseEntity.ok("평점이 성공적으로 등록되었습니다.");
     }
+    @DeleteMapping
+    public ResponseEntity<Void> deleteRating(@PathVariable("id") Long movieId,
+                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        ratingJpaService.deleteRatingByUser(userId, movieId);
+        return ResponseEntity.noContent().build(); // 204 No Content 반환
+    }
     @GetMapping("/average")
     public ResponseEntity<Double> getAverageRating(
             @PathVariable("id") Long movieId) {
@@ -42,5 +49,6 @@ public class RatingApiController {
     public List<RatingBarDto> getRatingBars(@PathVariable("id") Long movieId) {
         return ratingJpaService.getRatingDistributionList(movieId);
     }
+
 
 }
