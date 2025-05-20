@@ -20,7 +20,7 @@ public class AdminDashboardJpaService {
   private final AdminTagJpaRespository adminTagJpaRespository;
   private final UpcomingMovieSyncTimeJpaRepository upcomingMovieSyncTimeJpaRepository;
 
-  public long getTotalUsers(){
+  public long getTotalUsers() {
     return adminUserJpaRepository.count();
   }
 
@@ -32,7 +32,7 @@ public class AdminDashboardJpaService {
     return adminUserJpaRepository.countByActivatedFalse();
   }
 
-  public long getTotalMovies(){
+  public long getTotalMovies() {
     return adminMovieJpaRepository.count();
   }
 
@@ -49,13 +49,13 @@ public class AdminDashboardJpaService {
     return adminTagJpaRespository.count();
   }
 
-  public Object getNewlyAddedMovieCount() {
+  public int getNewlyAddedMovieCount() {
     return upcomingMovieSyncTimeJpaRepository.findTopByTypeOrderBySyncTimeDesc("upcoming")
         .map(SyncTimeEntity::getNewlyAddedCount)
         .orElse(0);
   }
 
-  public Object getFailedSyncCount() {
+  public int getFailedSyncCount() {
     return upcomingMovieSyncTimeJpaRepository.findTopByTypeOrderBySyncTimeDesc("upcoming")
         .map(SyncTimeEntity::getFailedCount)
         .orElse(0);
