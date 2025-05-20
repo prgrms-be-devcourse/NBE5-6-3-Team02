@@ -2,7 +2,7 @@ package com.grepp.smartwatcha.app.model.admin;
 
 import com.grepp.smartwatcha.app.model.admin.movie.list.AdminMovieJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.jpa.UpcomingMovieSyncTimeJpaRepository;
-import com.grepp.smartwatcha.app.model.admin.tag.AdminTagJpaRespository;
+import com.grepp.smartwatcha.app.model.admin.tag.AdminTagJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.SyncTimeEntity;
@@ -17,7 +17,7 @@ public class AdminDashboardJpaService {
 
   private final AdminUserJpaRepository adminUserJpaRepository;
   private final AdminMovieJpaRepository adminMovieJpaRepository;
-  private final AdminTagJpaRespository adminTagJpaRespository;
+  private final AdminTagJpaRepository adminTagJpaRepository;
   private final UpcomingMovieSyncTimeJpaRepository upcomingMovieSyncTimeJpaRepository;
 
   public long getTotalUsers() {
@@ -46,7 +46,7 @@ public class AdminDashboardJpaService {
   }
 
   public long getTotalTags() {
-    return adminTagJpaRespository.count();
+    return adminTagJpaRepository.count();
   }
 
   public int getNewlyAddedMovieCount() {
