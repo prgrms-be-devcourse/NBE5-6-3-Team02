@@ -3,9 +3,11 @@ package com.grepp.smartwatcha.app.controller.web.admin;
 import com.grepp.smartwatcha.app.model.admin.user.dto.AdminRatingDto;
 import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserJpaService;
 import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponseDto;
-import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserRatingJpaService;
+import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
+import com.grepp.smartwatcha.infra.jpa.enums.Role;
 import com.grepp.smartwatcha.infra.response.PageResponse;
+import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,7 +35,7 @@ public class AdminUserController {
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "6") int size,
       @RequestParam(required = false) Long id,
       @RequestParam(required = false) String keyword,
-      @RequestParam(required = false) String role,
+      @RequestParam(required = false) Role role,
       @RequestParam(required = false) Boolean activated,
       Model model) {
 
@@ -41,8 +43,12 @@ public class AdminUserController {
     Page<AdminUserListResponseDto> users = adminUserJpaService.findUserByFilter(keyword, role, activated, pageable);
 
     AdminUserListResponseDto selectedUser = null;
+
     if (id != null) {
       selectedUser = adminUserJpaService.findUserById(id);
+      if(selectedUser == null) {
+        throw new CommonException(ResponseCode.BAD_REQUEST);  // 존재하지 않는 유저 ID
+      }
     }
 
     PageResponse<AdminUserListResponseDto> pageResponse = new PageResponse<>("/admin/users", users, 5);
@@ -84,9 +90,16 @@ public class AdminUserController {
 
     if(id != null) {
       selectedUser = adminUserJpaService.findUserById(id);
+      if(selectedUser == null) {
+        throw new CommonException(ResponseCode.BAD_REQUEST); // 존재하지 않는 유저 ID
+      }
       userId = id;
+
     } else if (keyword != null && !keyword.isEmpty()) {
       selectedUser = adminUserJpaService.findUserByName(keyword);
+      if(selectedUser == null) {
+        throw new CommonException(ResponseCode.BAD_REQUEST); // 검색된 유저 없음
+      }
       userId = selectedUser.getId();
     }
 
