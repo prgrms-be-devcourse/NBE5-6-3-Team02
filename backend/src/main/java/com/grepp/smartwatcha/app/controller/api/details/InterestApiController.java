@@ -34,7 +34,7 @@ public class InterestApiController {
                                                @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
         interestJpaService.deleteInterest(userId, movieId);
-        return ResponseEntity.noContent().build(); // 204 응답
+        return ResponseEntity.noContent().build();
     }
 }
 

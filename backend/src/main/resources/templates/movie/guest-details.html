@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"  lang="en" >
 <head>
     <title th:text="${movie.title}">영화 상세 페이지</title>
+    <th:block th:replace="fragments :: frg_static"></th:block>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -72,47 +73,6 @@
         .overlay {
             background-color: rgba(0, 0, 0, 0.85);
             min-height: 100vh;
-        }
-
-        nav {
-            background-color: #1e1e1e;
-            padding: 15px 30px;
-
-            display: flex;
-            justify-content: center;
-        }
-        .nav-content {
-            width: 100%;
-            max-width: 1200px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .nav-logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-            font-size: 16px;
-        }
-
-        .nav-menu a.logout {
-            color: red;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-
-        nav a:last-child {
-            color: red;
         }
 
         .main-section {
@@ -233,11 +193,19 @@
         }
 
         .tag-selection {
-            margin-top: 30px;
-            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        #tagInput {
+        .tag-selection label {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            white-space: nowrap;
+        }
+
+        input#tagInput[type="text"] {
             border: none;
             outline: none;
             box-shadow: none;
@@ -245,6 +213,14 @@
             color: black;
             padding: 6px 10px;
             border-radius: 4px;
+            width: 180px !important;
+            flex-shrink: 0;
+        }
+        #submitTag {
+            white-space: nowrap;
+            height: 30px;
+            padding: 0 5px;
+            font-size: 10px;
         }
 
         .top-tags ul {
@@ -316,10 +292,17 @@
             font-size: 28px;
             cursor: pointer;
         }
+        h3, h4 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: white;
+        }
+
     </style>
 </head>
-<body th:attr="data-movie-id=${movie.id}, data-user-id='1'">
-
+<body th:attr="data-movie-id=${movie.id}">
+<th:block th:replace="fragments :: frg_header"></th:block>
 <div id="login-banner" class="login-modal">
     <div class="login-modal-content">
         <span class="close" onclick="closeLoginBanner()">&times;</span>
@@ -331,22 +314,6 @@
 </div>
 
 <div class="overlay">
-
-    <nav>
-        <div class="nav-content">
-            <a href="/" class="nav-logo">
-                <i class="fa-solid fa-clapperboard" style="color: #a58efc;"></i> SmartMovie
-            </a>
-            <div class="nav-menu">
-                <a href="/">Home</a>
-                <a href="/search">Search</a>
-                <a href="/login" class="logout">Login</a>
-            </div>
-        </div>
-    </nav>
-
-
-
     <div class="main-section">
         <div class="poster">
             <img th:src="${movie.poster != null ? 'https://image.tmdb.org/t/p/w500' + movie.poster : '/images/default.jpg'}" alt="포스터">
@@ -407,7 +374,7 @@
 
             <div class="tag-selection">
                 <label for="tagInput"><strong>태그 남기기:</strong></label>
-                <input type="text" id="tagInput" placeholder="태그를 입력하세요..." autocomplete="off"/>
+                <input type="text" id="tagInput" class="browser-default" placeholder="태그를 입력하세요..." autocomplete="off"/>
                 <button id="submitTag">태그 남기기</button>
             </div>
 
@@ -521,5 +488,6 @@
         if (event.target === modal) closeLoginBanner();
     });
 </script>
+    <th:block th:replace="fragments :: frg_footer"></th:block>
 </body>
 </html>
