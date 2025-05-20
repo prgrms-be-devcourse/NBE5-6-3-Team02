@@ -10,6 +10,7 @@ import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
 import com.grepp.smartwatcha.infra.neo4j.node.WriterNode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -51,11 +52,10 @@ public class UpcomingMovieMapper {
     List<GenreNode> genres
   ){
     MovieNode movie = new MovieNode(dto.getId(), dto.getTitle());
-    movie.setActors(actors);
-    movie.setDirectors(directors);
-    movie.setWriters(writers);
-    movie.setGenres(genres);
-
+    movie.setActors(new ArrayList<>(actors));
+    movie.setDirectors(new ArrayList<>(directors));
+    movie.setWriters(new ArrayList<>(writers));
+    movie.setGenres(new ArrayList<>(genres));
     return movie;
   }
 }
