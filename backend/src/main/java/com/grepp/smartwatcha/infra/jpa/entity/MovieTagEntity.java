@@ -1,10 +1,10 @@
 package com.grepp.smartwatcha.infra.jpa.entity;
 
+import com.grepp.smartwatcha.infra.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,22 +13,22 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "movie_tag")
-public class MovieTagEntity {
+public class MovieTagEntity extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private MovieEntity movie;
-
-    @ManyToOne
     private TagEntity tag;
 
-    @ManyToOne
-    private UserEntity user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "movie_id")
+    private MovieEntity movie;
 
-    private LocalDateTime createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
     public MovieTagEntity(UserEntity user, MovieEntity movie, TagEntity tag) {
         this.user = user;
