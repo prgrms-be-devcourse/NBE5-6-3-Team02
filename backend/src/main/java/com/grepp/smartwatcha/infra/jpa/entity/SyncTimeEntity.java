@@ -1,5 +1,6 @@
 package com.grepp.smartwatcha.infra.jpa.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -27,5 +28,6 @@ public class SyncTimeEntity {
 
   private int failedCount;
 
-  private Integer enrichFailedCount;
+  @Column(nullable = false)
+  private int enrichFailedCount;
 }
