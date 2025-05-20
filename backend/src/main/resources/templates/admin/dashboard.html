@@ -25,7 +25,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
 
         .card {
@@ -74,6 +74,7 @@
         .half-section {
             flex: 1;
             min-width: 280px;
+            margin-bottom: 25px;
         }
     </style>
 </head>
@@ -100,7 +101,15 @@
             <h5>🕒 Recent Upcoming Sync</h5>
             <p>📅 Last Sync Time: <span th:text="${#temporals.format(lastSyncTime, 'yyyy-MM-dd HH:mm:ss')}">N/A</span></p>
             <p>📥 New Movies Added: <strong th:text="${newlyAddedCount}">0</strong></p>
-            <p>⚠️ Failed: <strong th:text="${failedCount}">0</strong></p>
+            <p>
+                ⚠️ Failed:
+                <strong th:class="${failedCount > 0} ? 'red-text' : ''" th:text="${failedCount}">0</strong>
+            </p>
+
+            <p>🔍 Enrich Failed: <strong th:text="${enrichFailedCount}">0</strong></p>
+            <button type="button" class="waves-effect" onclick="syncUpcomingMovies()" style="background-color: #ff6262; color: white; border: none; padding: 6px 12px; border-radius: 4px;
+        font-size: 0.95rem; line-height: 1.2; display: flex; align-items: center; gap: 6px;"><i class="material-icons" style="font-size: 1.1rem;">cached</i>Manual Sync
+            </button>
         </div>
 
         <!-- 🎬 공개 예정 영화 목록 -->
@@ -147,7 +156,7 @@
                     </div>
                 </li>
             </ul>
-            <a href="/admin/movies/upcoming" style="margin-top:1rem; display:inline-block; color: lightcoral;">➕ More</a>
+            <a href="/admin/movies/upcoming" style="display:inline-block; color: lightcoral;">➕ More</a>
         </div>
     </div>
 
@@ -168,6 +177,25 @@
         var elems = document.querySelectorAll('.modal');
         M.Modal.init(elems);
     });
+
+    function syncUpcomingMovies() {
+        fetch('/admin/movies/upcoming/sync-manual-test', {
+            method: 'GET'
+        })
+        .then(res => {
+            console.log("응답 상태:", res.status);
+            if (res.ok) {
+                alert("✅ Sync completed successfully!");
+                window.location.href = '/admin/movies/upcoming?v=' + new Date().getTime();
+            } else {
+                alert("❌ Sync failed! (" + res.status + ")");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("⚠️ An error occurred!");
+        });
+    }
 </script>
 </section>
 </body>
