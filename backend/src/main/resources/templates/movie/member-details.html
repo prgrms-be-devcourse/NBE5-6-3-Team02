@@ -520,12 +520,13 @@
         });
     }
 
-    function rateMovie(movieId, score) {
-        fetch(`/movies/${movieId}/ratings`, {
+    async function rateMovie(movieId, score) {
+        const res = await fetch(`/movies/${movieId}/ratings`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({movieId, score})
-        }).then(res => {
+        });
+
             if (res.ok) {
                 document.querySelectorAll(".stars").forEach(s => {
                     s.classList.remove("selected", "fa-solid");
@@ -544,12 +545,12 @@
                 //loadMyTags();
                 //loadTopTags();
             } else {
-                alert("An error occurred!");
+                const error = await res.json();
+                alert(error.message || "An error occurred!");
             }
-        });
     }
 
-    function cancelRating() {
+    async function cancelRating() {
         const ratedStars = document.querySelectorAll(".stars.selected");
 
         if (ratedStars.length === 0) {
@@ -557,22 +558,21 @@
             return;
         }
 
-        fetch(`/movies/${movieId}/ratings`, {method: 'DELETE'})
-            .then(res => {
+        const res = await fetch(`/movies/${movieId}/ratings`, {method: 'DELETE'});
                 if (res.ok) {
                     alert("The evaluation has been cancelled.");
                     document.querySelectorAll(".stars").forEach(s => {
                         s.classList.remove("selected", "fa-solid");
                         s.classList.add("fa-regular");
                     });
-                    loadAverageScore();
-                    loadRatingBars();
+                    await loadAverageScore();
+                    await loadRatingBars();
                 } else {
-                    alert("Failed to cancel evaluation");
+                    const error = await res.json();
+                    alert(error.message ||"Failed to cancel evaluation");
                 }
-            });
     }
-    function setInterest(status) {
+     async function setInterest(status) {
         const movieId = document.body.getAttribute("data-movie-id");
 
         const bookmarkIcon = document.querySelector("i.fa-bookmark");
@@ -587,9 +587,9 @@
 
         if (isSameClicked) {
             // 👇 같은 상태 다시 클릭 → 취소 요청 (DELETE)
-            fetch(`/movies/${movieId}/interest`, {
+            const res = await fetch(`/movies/${movieId}/interest`, {
                 method: 'DELETE'
-            }).then(res => {
+            });
                 if (res.ok) {
                     // 아이콘 초기화
                     bookmarkIcon.classList.remove("fa-solid", "active");
@@ -600,14 +600,16 @@
 
                     alert("Your interest has been cancelled.");
                 } else {
-                    alert("Failed to cancel interest status.");
+                    const error = await res.json();
+                    alert(error.message || "Failed to cancel interest status.");
                 }
-            });
+
         } else {
             // 👇 새로운 관심 상태 등록
-            fetch(`/movies/${movieId}/interest?status=${status}`, {
+            const res = await fetch(`/movies/${movieId}/interest?status=${status}`, {
                 method: 'POST'
-            }).then(res => {
+            });
+
                 if (res.ok) {
                     // 아이콘 초기화
                     bookmarkIcon.classList.remove("fa-solid", "active");
@@ -627,9 +629,9 @@
                             : "Registered as not interested."
                     );
                 } else {
-                    alert("Failed to register interest status.");
+                    const error = await res.json();
+                    alert(error.message || "Failed to register interest status.");
                 }
-            });
         }
     }
 
@@ -651,20 +653,20 @@
         return li;
     }
 
-    function deleteTag(tagName) {
+    async function deleteTag(tagName) {
         if (!confirm(`'${tagName}' Should I delete this tag?`)) return;
 
-        fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
+        const res = await fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
             method: 'DELETE'
-        }).then(res => {
+        });
             if (res.ok) {
                 alert("It has been deleted.");
                 loadMyTags();   // 내 태그 다시 불러오기
                 loadTopTags();  // Top 태그도 다시 반영
             } else {
-                alert("Deletion failed.");
+                const error = await res.json();
+                alert( error.message || "Deletion failed.");
             }
-        });
     }
 
     function scrollToLeft(button) {
@@ -731,14 +733,9 @@
             method: 'POST'
         });
 
-        if (res.status === 409) {
-            const message = await res.text();
-            alert(message);
-            return
-        }
-
         if (!res.ok) {
-            alert("Tag registration failed");
+            const error = await res.json();
+            alert(error.message || "Tag registration failed");
             return;
         }
 

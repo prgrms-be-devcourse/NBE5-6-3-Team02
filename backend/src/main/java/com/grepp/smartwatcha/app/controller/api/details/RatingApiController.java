@@ -4,6 +4,8 @@ import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingRequestDto;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
+import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
+import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +21,7 @@ public class RatingApiController {
     private final RatingJpaService ratingJpaService;
 
     @PostMapping
-    public ResponseEntity<String> addRating(
+    public void addRating(
             @PathVariable("id") Long movieId,
             @RequestBody RatingRequestDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -27,22 +29,24 @@ public class RatingApiController {
         Long userId = userDetails.getId();
         dto.setUserId(userId);
         dto.setMovieId(movieId);
-
+        if(userId == null || movieId == null) {
+            throw new CommonException(ResponseCode.BAD_REQUEST);
+        }
         ratingJpaService.addRating(dto);
-        return ResponseEntity.ok("평점이 성공적으로 등록되었습니다.");
     }
     @DeleteMapping
-    public ResponseEntity<Void> deleteRating(@PathVariable("id") Long movieId,
+    public void deleteRating(@PathVariable("id") Long movieId,
                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
+        if(userId == null){
+            throw new CommonException(ResponseCode.BAD_REQUEST);
+        }
         ratingJpaService.deleteRatingByUser(userId, movieId);
-        return ResponseEntity.noContent().build(); // 204 No Content 반환
     }
     @GetMapping("/average")
-    public ResponseEntity<Double> getAverageRating(
+    public void getAverageRating(
             @PathVariable("id") Long movieId) {
-        double average = ratingJpaService.getAverageRating(movieId);
-        return ResponseEntity.ok(average);
+        ratingJpaService.getAverageRating(movieId);
     }
 
     @GetMapping("/bars")

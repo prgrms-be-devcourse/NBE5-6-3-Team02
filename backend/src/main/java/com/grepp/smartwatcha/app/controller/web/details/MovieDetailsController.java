@@ -11,9 +11,11 @@ import com.grepp.smartwatcha.app.model.details.service.jpaservice.MovieJpaServic
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.MovieNeo4jService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
+import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.infra.jpa.enums.Status;
 import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
+import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -40,7 +42,7 @@ public class MovieDetailsController {
 
     @GetMapping("/{id}")
     public String getMovieDetail(
-            @PathVariable Long id, Model model,@AuthenticationPrincipal CustomUserDetails userDetails) {
+            @PathVariable Long id, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         MovieDetailsDTO movie = movieJpaService.getMovieDetail(id);
         Double averageScore = movieJpaService.getAverageScore(id);
@@ -66,24 +68,25 @@ public class MovieDetailsController {
         model.addAttribute("directors", neo4jMovie.getDirectors());
         model.addAttribute("topTags", topTags);
 
-
-        if (userDetails != null) {
-            UserEntity userEntity = userDetails.getUser();
-            Long userId = userEntity.getId();
-
-            Integer userRating = ratingJpaService.getUserRating(userId,id);
-            Status interestStatus = interestJpaService.getInterestStatus(userId,id);
-
-            model.addAttribute("userRating", userRating);
-            model.addAttribute("interestStatus", interestStatus);
-
-            model.addAttribute("userId", userId);
-            model.addAttribute("user", userDetails);
-
-            return "movie/member-details";  // 로그인한 사용자용 페이지
-        } else {
-            return "movie/guest-details";   // 비로그인 사용자용 페이지
+        if (userDetails == null) {
+            return "movie/guest-details"; // 비로그인 사용자용 페이지
         }
+
+        UserEntity userEntity = userDetails.getUser();
+        if (userEntity == null || userEntity.getId() == null) {
+            throw new CommonException(ResponseCode.UNAUTHORIZED);
+        }
+
+
+        Long userId = userEntity.getId();
+        Integer userRating = ratingJpaService.getUserRating(userId, id);
+        Status interestStatus = interestJpaService.getInterestStatus(userId, id);
+        model.addAttribute("userRating", userRating);
+        model.addAttribute("interestStatus", interestStatus);
+        model.addAttribute("userId", userId);
+        model.addAttribute("user", userDetails);
+        return "movie/member-details";  // 로그인한 사용자용 페이지
     }
 }
+
 
