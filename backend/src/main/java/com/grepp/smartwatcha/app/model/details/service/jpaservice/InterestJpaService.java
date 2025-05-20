@@ -39,4 +39,7 @@ public class InterestJpaService {
                 .map(InterestEntity::getStatus)
                 .orElse(null);
     }
+    public void deleteInterest(Long userId, Long movieId) {
+        interestJpaRepository.deleteByUserIdAndMovieId(userId, movieId);
+    }
 }

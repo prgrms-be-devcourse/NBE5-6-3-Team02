@@ -78,4 +78,10 @@ public class RatingJpaService {
                 .map(r -> r.getScore() != null ? r.getScore().intValue() : null)
                 .orElse(null);
     }
+
+    public void deleteRatingByUser(Long userId, Long movieId) {
+        ratingJpaRepository.deleteByUserIdAndMovieId(userId, movieId);
+    }
+
+
 }

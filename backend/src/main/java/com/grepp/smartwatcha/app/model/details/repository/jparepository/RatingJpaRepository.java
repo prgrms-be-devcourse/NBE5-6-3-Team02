@@ -27,4 +27,7 @@ public interface RatingJpaRepository extends JpaRepository<RatingEntity, Long> {
 
     @Query("SELECT r FROM RatingEntity r WHERE r.user.id = :userId AND r.movie.id = :movieId")
     Optional<RatingEntity> findRatingByUserAndMovie(@Param("userId") Long userId, @Param("movieId") Long movieId);
+
+    void deleteByUserIdAndMovieId(Long userId, Long movieId);
+
 }
