@@ -8,31 +8,54 @@ import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingM
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieReleaseDateApiResponse;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UpcomingMovieAsyncFetchService {
 
-  //비동기 병렬 호출 서비스(실제 병렬 호출을 수행하는 비동기 서비스)
+  //비동기 병렬 호출 서비스
   private final UpcomingMovieCreditApi creditApi;
   private final UpcomingMovieReleaseDateApi releaseDateApi;
   private final UpcomingMovieDetailApi detailApi;
 
   @Async
   public CompletableFuture<UpcomingMovieCreditApiResponse> fetchCredits(Long movieId, String apiKey) {
-    return CompletableFuture.completedFuture(creditApi.getCredits(movieId, apiKey));
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        return creditApi.getCredits(movieId, apiKey);
+      } catch (Exception e) {
+        log.error("❌ [fetchCredits] 실패 - movieId: {}", movieId, e);
+        return null;
+      }
+    });
   }
 
   @Async
   public CompletableFuture<UpcomingMovieReleaseDateApiResponse> fetchReleaseDates(Long movieId,
       String apiKey) {
-    return CompletableFuture.completedFuture(releaseDateApi.getReleaseDates(movieId, apiKey));
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        return releaseDateApi.getReleaseDates(movieId, apiKey);
+      } catch (Exception e) {
+        log.error("❌ [fetchReleaseDates] 실패 - movieId: {}", movieId, e);
+        return null;
+      }
+    });
   }
 
   @Async
   public CompletableFuture<UpcomingMovieDetailApiResponse> fetchDetails(Long movieId, String apiKey) {
-    return CompletableFuture.completedFuture(detailApi.getDetails(movieId, apiKey));
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        return detailApi.getDetails(movieId, apiKey);
+      } catch (Exception e) {
+        log.error("❌ [fetchDetails] 실패 - movieId: {}", movieId, e);
+        return null;
+      }
+    });
   }
 }
