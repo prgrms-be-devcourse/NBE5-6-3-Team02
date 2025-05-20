@@ -8,6 +8,7 @@ import java.util.List;
 
 public class AdminUserMapper {
   public static AdminUserListResponseDto toDto(UserEntity user, List<AdminSimpleRatingDto> recentRatings) {
+    LocalDateTime now = LocalDateTime.now();
     AdminUserListResponseDto dto = AdminUserListResponseDto.builder()
         .id(user.getId())
         .name(user.getName())
@@ -20,8 +21,8 @@ public class AdminUserMapper {
         .recentRatings(recentRatings)
         .build();
 
-    boolean isRecentlyModified = user.getModifiedAt() != null && user.getModifiedAt().isAfter(LocalDateTime.now().minusDays(3));
-    dto.setUpdatedRecently(isRecentlyModified);
+    boolean isRecentlyModified = user.getModifiedAt() != null &&
+        user.getModifiedAt().isAfter(now.minusDays(3));
 
     return dto;
   }

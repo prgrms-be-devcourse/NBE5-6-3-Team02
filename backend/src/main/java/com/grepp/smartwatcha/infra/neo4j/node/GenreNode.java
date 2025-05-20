@@ -14,4 +14,17 @@ public class GenreNode {
 
     @Id
     private final String name;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GenreNode)) return false;
+        GenreNode that = (GenreNode) o;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

@@ -5,9 +5,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
+@Builder
 public class UpcomingMovieDto {
   private Long id;
   private String title;
@@ -24,7 +28,7 @@ public class UpcomingMovieDto {
   private String originalLanguage;
 
   @JsonProperty("genre_ids")
-  private List<Integer> genreIds;
+  private List<Long> genreIds;
 
   @JsonProperty("release_type")
   private Integer releaseType;
@@ -39,6 +43,16 @@ public class UpcomingMovieDto {
   private List<String> writerNames = new ArrayList<>();
 
   public LocalDateTime getReleaseDateTime() {
-    return LocalDate.parse(releaseDate).atStartOfDay(); // 00:00
+    if (releaseDate == null || releaseDate.isBlank()){
+      log.warn("📅 releaseDate가 비어 있어 LocalDateTime으로 변환할 수 없습니다. [title: {}]", title);
+      return null;
+    }
+
+    try {
+      return LocalDate.parse(releaseDate).atStartOfDay(); // 00:00
+    } catch (Exception e) {
+      log.warn("📅 releaseDate 파싱 실패: '{}' [title: {}]", releaseDate, title);
+      return null;
+    }
   }
 }

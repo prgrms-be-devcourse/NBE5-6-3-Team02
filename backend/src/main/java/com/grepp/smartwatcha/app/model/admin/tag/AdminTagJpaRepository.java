@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AdminTagJpaRespository extends JpaRepository<TagEntity, Long> {
+public interface AdminTagJpaRepository extends JpaRepository<TagEntity, Long> {
   List<TagEntity> findAll();
   Page<TagEntity> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 }

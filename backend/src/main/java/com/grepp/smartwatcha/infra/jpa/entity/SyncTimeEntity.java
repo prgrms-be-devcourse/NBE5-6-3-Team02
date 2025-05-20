@@ -24,5 +24,8 @@ public class SyncTimeEntity {
   private LocalDateTime syncTime;
 
   private int newlyAddedCount;
+
   private int failedCount;
+
+  private Integer enrichFailedCount;
 }

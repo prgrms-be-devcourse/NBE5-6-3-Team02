@@ -1,6 +1,7 @@
 package com.grepp.smartwatcha.app.model.admin.user.code;
 
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
+import com.grepp.smartwatcha.infra.jpa.enums.Role;
 import org.springframework.data.jpa.domain.Specification;
 
 public class AdminUserSpecifications {
@@ -10,9 +11,9 @@ public class AdminUserSpecifications {
             cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
   }
 
-  public static Specification<UserEntity> hasRole(String role){
+  public static Specification<UserEntity> hasRole(Role role){
     return (root, query, cb) ->
-        (role == null || role.isBlank()) ? null :
+        (role == null) ? null :
             cb.equal(root.get("role"), role);
   }
 

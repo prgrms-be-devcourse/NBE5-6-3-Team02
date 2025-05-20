@@ -34,6 +34,7 @@ public class UpcomingMovieSyncScheduler {
     int success = 0;
     int skipped = 0;
     int failed = 0;
+    int enrichFailed = 0;
 
     List<String> skippedTitles = new ArrayList<>();
     List<String> skippedReasons = new ArrayList<>();
@@ -41,7 +42,13 @@ public class UpcomingMovieSyncScheduler {
     for (UpcomingMovieDto baseDto : allMovies) {
       try {
         UpcomingMovieDto enrichedDto = fetchService.buildEnrichedDto(baseDto, apiKey);
-        // enrich 후 releaseType 체크
+
+        if (enrichedDto == null) {
+          enrichFailed++;
+          log.warn("⚠️ enrich 결과가 null이어서 해당 영화 건너뜀: {}", baseDto.getTitle());
+          continue;
+        }
+
         Integer type = enrichedDto.getReleaseType();
         if (type == null || !(type == 1 || type == 3 || type == 4)) {
           skippedTitles.add(enrichedDto.getTitle());
@@ -60,17 +67,22 @@ public class UpcomingMovieSyncScheduler {
         success++;
 
       } catch (Exception e) {
+        log.error("❌ [{}] 저장 실패: {}", baseDto.getTitle(), e.getMessage(), e);
         failed++;
       }
     }
-    syncTimeService.update("upcoming", success, failed);
+
+    syncTimeService.update("upcoming", success, failed, enrichFailed);
 
     // 요약 로그
+    log.info("=========================================================================");
     log.info("📊 [공개 예정작 동기화 요약]");
     log.info("✅ 저장 성공: {}건", success);
     log.info("⏭️ 스킵된 항목: {}건", skipped);
+    log.info("⚠️ enrich 실패: {}건", enrichFailed);
     log.info("❌ 저장 실패: {}건", failed);
     log.info("🎬 총 시도된 영화 수: {}건", total);
+    log.info("=========================================================================");
 
     for (int i = 0; i < skippedTitles.size(); i++) {
       log.info("⏭️ [{}] 스킵 사유: {}", skippedTitles.get(i), skippedReasons.get(i));

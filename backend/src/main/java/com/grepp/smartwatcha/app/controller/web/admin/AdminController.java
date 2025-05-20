@@ -40,9 +40,10 @@ public class AdminController {
 
     // Sync 정보
     SyncTimeEntity upcomingSyncTime = upcomingMovieSyncTimeJpaRepository.findById("upcoming").orElse(null);
-    model.addAttribute("lastSyncTime", syncTime != null ? upcomingSyncTime.getSyncTime() : null);
-    model.addAttribute("newlyAddedCount", syncTime != null ? upcomingSyncTime.getNewlyAddedCount() : 0);
-    model.addAttribute("failedCount", syncTime != null ? upcomingSyncTime.getFailedCount() : 0);
+    model.addAttribute("lastSyncTime", upcomingSyncTime != null ? upcomingSyncTime.getSyncTime() : null);
+    model.addAttribute("newlyAddedCount", upcomingSyncTime != null ? upcomingSyncTime.getNewlyAddedCount() : 0);
+    model.addAttribute("failedCount", upcomingSyncTime != null ? upcomingSyncTime.getFailedCount() : 0);
+    model.addAttribute("enrichFailedCount", syncTime != null ? upcomingSyncTime.getEnrichFailedCount() : 0);
 
     // 최근 등록된 공개 예정작 (5개)
     List<MovieEntity> recentUpcoming = adminDashboardJpaService

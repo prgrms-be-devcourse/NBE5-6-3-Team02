@@ -3,11 +3,16 @@ package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.neo4j;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper.UpcomingMovieMapper;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.neo4j.UpcomingMovieNeo4jRepository;
-import com.grepp.smartwatcha.infra.neo4j.node.*;
+import com.grepp.smartwatcha.infra.neo4j.node.ActorNode;
+import com.grepp.smartwatcha.infra.neo4j.node.DirectorNode;
+import com.grepp.smartwatcha.infra.neo4j.node.GenreNode;
+import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
+import com.grepp.smartwatcha.infra.neo4j.node.WriterNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,59 +29,54 @@ public class UpcomingMovieSaveNeo4jService {
   public void saveToNeo4j(UpcomingMovieDto dto) {
     Optional<MovieNode> optional = movieRepository.findById(dto.getId());
 
+    MovieNode toSave;
     if (optional.isPresent()) {
+      // 기존 노드 + 관계 읽어오기
       MovieNode existing = optional.get();
+      log.info("🔁[saveToNeo4j] 병합 저장 시도: {}", dto.getTitle());
 
-      existing.setActors(mergeActors(existing.getActors(), dto.getActorNames()));
-      existing.setDirectors(mergeDirectors(existing.getDirectors(), dto.getDirectorNames()));
-      existing.setWriters(mergeWriters(existing.getWriters(), dto.getWriterNames()));
+      // merge logic
+      existing.setActors(mergeNames(existing.getActors(), dto.getActorNames(), ActorNode::new));
+      existing.setDirectors(mergeNames(existing.getDirectors(), dto.getDirectorNames(), DirectorNode::new));
+      existing.setWriters(mergeNames(existing.getWriters(), dto.getWriterNames(), WriterNode::new));
       existing.setGenres(genreMergeHelper.mergeGenres(existing.getGenres(), dto.getGenreIds()));
 
-      //log.info("🔁 [Neo4j 병합 저장 시도] 영화 ID: {}, 제목: {}, 인증등급: {}, 타입: {}, 국가: {}", dto.getId(), dto.getTitle(), dto.getCertification(), dto.getReleaseType(), dto.getCountry());
-      movieRepository.save(existing);
-      //log.info("✅ [Neo4j 병합 저장 완료] 영화 ID: {}", dto.getId());
+      toSave = existing;
+
     } else {
-      List<GenreNode> genreNodes = genreMergeHelper.mergeGenres(new ArrayList<>(), dto.getGenreIds());
+      // 새 노드 + 관계 생성
+      log.info("🆕 [saveToNeo4j] 신규 저장 시도: {}", dto.getTitle());
+      List<ActorNode>   actors   = dto.getActorNames().stream().map(ActorNode::new).toList();
+      List<DirectorNode> directors = dto.getDirectorNames().stream().map(DirectorNode::new).toList();
+      List<WriterNode>   writers  = dto.getWriterNames().stream().map(WriterNode::new).toList();
+      List<GenreNode>    genres   = genreMergeHelper.mergeGenres(Collections.emptyList(), dto.getGenreIds());
 
-      MovieNode node = upcomingMovieMapper.toNeo4jNode(
-          dto,
-          dto.getActorNames().stream().map(ActorNode::new).toList(),
-          dto.getDirectorNames().stream().map(DirectorNode::new).toList(),
-          dto.getWriterNames().stream().map(WriterNode::new).toList(),
-          genreNodes
-      );
-
-      //log.info("🔁 [Neo4j 저장 시도] 영화 ID: {}, 제목: {}, 인증등급: {}, 타입: {}, 국가: {}", dto.getId(), dto.getTitle(), dto.getCertification(), dto.getReleaseType(), dto.getCountry());
-      movieRepository.save(node);
-      //log.info("✅ [Neo4j 저장 완료] 영화 ID: {}", dto.getId());
+      toSave = upcomingMovieMapper.toNeo4jNode(dto, actors, directors, writers, genres);
     }
+
+    // MovieNode 하나만 save — 관계까지 전부 반영
+    movieRepository.save(toSave);
+    log.info("✅ [saveToNeo4j] 저장 완료: {} (ID={})", toSave.getTitle(), toSave.getId());
   }
 
-  private List<ActorNode> mergeActors(List<ActorNode> existing, List<String> incoming) {
-    Set<String> names = existing.stream().map(ActorNode::getName).collect(Collectors.toSet());
-    for (String name : incoming) {
-      if (!names.contains(name)) {
-        existing.add(new ActorNode(name));
-      }
-    }
-    return existing;
-  }
+  // Generic merge helper
+  private <N> List<N> mergeNames(
+      List<N> existing, List<String> incoming, java.util.function.Function<String, N> ctor
+  ) {
+    Set<String> names = existing.stream()
+        .map(n -> {
+          try {
+            // ActorNode#getName(), DirectorNode#getName() 등
+            return (String) n.getClass().getMethod("getName").invoke(n);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        })
+        .collect(Collectors.toSet());
 
-  private List<DirectorNode> mergeDirectors(List<DirectorNode> existing, List<String> incoming) {
-    Set<String> names = existing.stream().map(DirectorNode::getName).collect(Collectors.toSet());
     for (String name : incoming) {
       if (!names.contains(name)) {
-        existing.add(new DirectorNode(name));
-      }
-    }
-    return existing;
-  }
-
-  private List<WriterNode> mergeWriters(List<WriterNode> existing, List<String> incoming) {
-    Set<String> names = existing.stream().map(WriterNode::getName).collect(Collectors.toSet());
-    for (String name : incoming) {
-      if (!names.contains(name)) {
-        existing.add(new WriterNode(name));
+        existing.add(ctor.apply(name));
       }
     }
     return existing;
