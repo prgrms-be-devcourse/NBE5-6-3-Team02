@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"  lang="en" >
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <title th:text="${movie.title}">영화 상세 페이지</title>
     <th:block th:replace="fragments :: frg_static"></th:block>
@@ -11,6 +11,7 @@
             background-color: #121212;
             color: #ffffff;
         }
+
         .genre-recommend-container {
             padding: 20px 0;
         }
@@ -29,6 +30,7 @@
             padding: 10px 0;
             margin: 0 40px;
         }
+
         .recommend-list::-webkit-scrollbar {
             display: none;
         }
@@ -216,11 +218,12 @@
             width: 180px !important;
             flex-shrink: 0;
         }
+
         #submitTag {
             white-space: nowrap;
             height: 30px;
             padding: 0 5px;
-            font-size: 10px;
+            font-size: 14px;
         }
 
         .top-tags ul {
@@ -292,6 +295,7 @@
             font-size: 28px;
             cursor: pointer;
         }
+
         h3, h4 {
             font-size: 18px;
             font-weight: bold;
@@ -299,6 +303,18 @@
             color: white;
         }
 
+        /* 모든 버튼 기본 focus 효과 제거 (불필요한 초록 테두리 제거) */
+        button:focus,
+        .icon-button:focus {
+            outline: none;
+            box-shadow: none;
+            background-color: transparent;
+        }
+
+        /* 슬라이더 버튼만 focus 시 초록색 배경 유지 */
+        .slider-button:focus {
+            background-color: #27c29c;
+        }
     </style>
 </head>
 <body th:attr="data-movie-id=${movie.id}">
@@ -312,11 +328,11 @@
         <button onclick="location.href='/user/signup'">회원가입</button>
     </div>
 </div>
-
 <div class="overlay">
     <div class="main-section">
         <div class="poster">
-            <img th:src="${movie.poster != null ? 'https://image.tmdb.org/t/p/w500' + movie.poster : '/images/default.jpg'}" alt="포스터">
+            <img th:src="${movie.poster != null ? 'https://image.tmdb.org/t/p/w500' + movie.poster : '/images/default.jpg'}"
+                 alt="포스터">
             <div class="graph">
                 <div th:each="bar : ${ratingBars}" class="bar-group">
                     <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
@@ -324,7 +340,6 @@
                 </div>
             </div>
         </div>
-
         <div class="info-section">
             <div class="movie-title" th:text="${movie.title}">영화 제목</div>
             <div class="info-text">
@@ -332,7 +347,8 @@
                 <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
             </div>
             <div class="info-text">
-                <span th:text="'개봉일: ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : '정보없음')"></span> |
+                <span th:text="'개봉일: ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : '정보없음')"></span>
+                |
                 <span th:text="'국가: ' + (${movie.country} != null ? ${movie.country} : '정보없음')"></span> |
                 <span th:text="'관람등급: ' + (${movie.certification} != null ? ${movie.certification} : '정보없음')"></span> |
                 <span th:text="'공개 여부: ' + (${movie.isReleased} ? '공개됨' : '미공개')"></span>
@@ -352,16 +368,13 @@
                     <div class="rating-left">
                         <strong>평가하기:</strong>
                         <span th:each="i : ${#numbers.sequence(1,5)}">
-                <i class="fa-regular fa-star stars" th:attr="data-score=${i}"></i>
-            </span>
+                        <i class="fa-regular fa-star stars" th:attr="data-score=${i}"></i></span>
                     </div>
-
                     <!-- 가운데: 평균 별점 -->
                     <div class="rating-center">
                         <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
                         <div style="font-size: 14px; color: #ccc;">평균 별점</div>
                     </div>
-
                     <!-- 오른쪽: 아이콘 버튼 -->
                     <div class="rating-right">
                         <button class="icon-button"><i class="fa-solid fa-bookmark"></i> 보고싶어요</button>
@@ -410,24 +423,25 @@
     </div>
     <div class="section-divider"></div>
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
-    <div class="genre-recommend-container">
-        <h3 class="recommend-title">장르가 비슷한 작품:</h3>
-        <div class="slider-wrapper">
-            <button class="slider-button left" onclick="scrollToLeft(this)">&#10094;</button>
-            <div class="recommend-list" style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none;">
-                <div class="recommend-item" th:each="sim : ${similarMovies}">
-                    <a th:href="@{'/movies/' + ${sim.id}}">
-                        <img th:src="${sim.poster != null ? 'https://image.tmdb.org/t/p/w500' + sim.poster : '/images/default.jpg'}"
-                             alt="포스터" class="recommend-poster" />
-                    </a>
-                    <p class="recommend-title" th:text="${sim.title}">영화 제목</p>
+        <div class="genre-recommend-container">
+            <h3 class="recommend-title">장르가 비슷한 작품:</h3>
+            <div class="slider-wrapper">
+                <button class="slider-button left" onclick="scrollToLeft(this)">&#10094;</button>
+                <div class="recommend-list"
+                     style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none;">
+                    <div class="recommend-item" th:each="sim : ${similarMovies}">
+                        <a th:href="@{'/movies/' + ${sim.id}}">
+                            <img th:src="${sim.poster != null ? 'https://image.tmdb.org/t/p/w500' + sim.poster : '/images/default.jpg'}"
+                                 alt="포스터" class="recommend-poster"/>
+                        </a>
+                        <p class="recommend-title" th:text="${sim.title}">영화 제목</p>
+                    </div>
                 </div>
+                <button class="slider-button right" onclick="scrollToRight(this)">&#10095;</button>
             </div>
-            <button class="slider-button right" onclick="scrollToRight(this)">&#10095;</button>
         </div>
     </div>
 </div>
-
 <script>
     function showLoginBanner() {
         document.getElementById("login-banner").style.display = "flex";
@@ -436,16 +450,18 @@
     function closeLoginBanner() {
         document.getElementById("login-banner").style.display = "none";
     }
+
     function scrollToLeft(button) {
         const list = button.parentElement.querySelector(".recommend-list");
-        list.scrollBy({ left: -300, behavior: 'smooth' });
+        list.scrollBy({left: -300, behavior: 'smooth'});
+        button.blur();
     }
 
     function scrollToRight(button) {
         const list = button.parentElement.querySelector(".recommend-list");
-        list.scrollBy({ left: 300, behavior: 'smooth' });
+        list.scrollBy({left: 300, behavior: 'smooth'});
+        button.blur();
     }
-
 
     document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".stars").forEach(star => {
@@ -478,7 +494,6 @@
         document.getElementById("submitTag").onclick = showLoginBanner;
         document.getElementById("tagInput").onclick = showLoginBanner;
     });
-
     document.addEventListener('keydown', function (event) {
         if (event.key === "Escape") closeLoginBanner();
     });
@@ -488,6 +503,6 @@
         if (event.target === modal) closeLoginBanner();
     });
 </script>
-    <th:block th:replace="fragments :: frg_footer"></th:block>
+<th:block th:replace="fragments :: frg_footer"></th:block>
 </body>
 </html>
