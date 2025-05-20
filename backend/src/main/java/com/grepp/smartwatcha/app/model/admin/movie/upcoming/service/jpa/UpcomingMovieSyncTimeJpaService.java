@@ -11,15 +11,16 @@ import org.springframework.stereotype.Service;
 public class UpcomingMovieSyncTimeJpaService {
   private final UpcomingMovieSyncTimeJpaRepository upcomingMovieSyncTimeJpaRepository;
 
-  public void update(String type, int newlyAddedCount, int failedCount){
-    upcomingMovieSyncTimeJpaRepository.save(
-        SyncTimeEntity.builder()
-            .type(type)
-            .syncTime(LocalDateTime.now())
-            .newlyAddedCount(newlyAddedCount)
-            .failedCount(failedCount)
-            .build()
-    );
+  public void update(String type, int newlyAddedCount, int failedCount, int enrichFailed){
+    SyncTimeEntity entity = upcomingMovieSyncTimeJpaRepository.findById(type)
+        .orElse(SyncTimeEntity.builder().type(type).build());
+
+    entity.setSyncTime(LocalDateTime.now());
+    entity.setNewlyAddedCount(newlyAddedCount);
+    entity.setFailedCount(failedCount);
+    entity.setEnrichFailedCount(enrichFailed);
+
+    upcomingMovieSyncTimeJpaRepository.save(entity);
   }
 
   public LocalDateTime getLastSyncTime(String type){
