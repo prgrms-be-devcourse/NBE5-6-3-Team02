@@ -6,20 +6,24 @@ import java.time.LocalDateTime;
 
 public class AdminMovieMapper {
   public static AdminMovieListResponseDto toDto(MovieEntity movie) {
-   AdminMovieListResponseDto dto = AdminMovieListResponseDto.builder()
-       .id(movie.getId())
-       .title(movie.getTitle())
-       .releaseDate(movie.getReleaseDate())
-       .country(movie.getCountry())
-       .poster(movie.getPoster())
-       .isReleased(movie.getIsReleased())
-       .certification(movie.getCertification())
-       .overview(movie.getOverview())
-       .build();
+    LocalDateTime now = LocalDateTime.now();
 
-   boolean isRecentlyModified = movie.getModifiedAt() != null && movie.getModifiedAt().isAfter(LocalDateTime.now().minusDays(3));
-   dto.setUpdatedRecently(isRecentlyModified);
+    AdminMovieListResponseDto dto = AdminMovieListResponseDto.builder()
+        .id(movie.getId())
+        .title(movie.getTitle())
+        .releaseDate(movie.getReleaseDate())
+        .country(movie.getCountry())
+        .poster(movie.getPoster())
+        .isReleased(movie.getIsReleased())
+        .certification(movie.getCertification())
+        .overview(movie.getOverview())
+        .build();
 
-   return dto;
+    boolean isRecentlyModified = movie.getModifiedAt() != null &&
+        movie.getModifiedAt().isAfter(now.minusDays(3));
+
+    dto.setUpdatedRecently(isRecentlyModified);
+
+    return dto;
   }
 }

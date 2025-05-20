@@ -16,8 +16,8 @@ public class UpcomingMovieGenreMergeHelper {
 
   private final UpcomingMovieGenreFetchNeo4jService genreFetchService;
 
-  public List<GenreNode> mergeGenres(List<GenreNode> existing, List<Integer> incomingGenreIds) {
-    Map<Integer, String> genreMap = genreFetchService.getGenreMap();
+  public List<GenreNode> mergeGenres(List<GenreNode> existing, List<Long> incomingGenreIds) {
+    Map<Long, String> genreMap = genreFetchService.getGenreMap();
 
     Set<String> incomingNames = incomingGenreIds.stream()
         .map(genreMap::get)

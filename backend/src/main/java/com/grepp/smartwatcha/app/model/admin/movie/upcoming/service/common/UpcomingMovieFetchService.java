@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UpcomingMovieFetchService { // "영화 1편"의 정보를 한 DTO 에 채워주는 흐름 관리용 서비스
@@ -32,20 +34,34 @@ public class UpcomingMovieFetchService { // "영화 1편"의 정보를 한 DTO �
     CompletableFuture<UpcomingMovieReleaseDateApiResponse> releaseFuture = asyncService.fetchReleaseDates(movieId, apiKey);
     CompletableFuture<UpcomingMovieDetailApiResponse> detailFuture = asyncService.fetchDetails(movieId, apiKey);
 
-    // 병령 완료 대기
+    // 모든 호출 완료될 때까지 대기
     CompletableFuture.allOf(creditsFuture,releaseFuture, detailFuture).join();
 
-    // 결과 꺼내기
-    UpcomingMovieCreditApiResponse credits = creditsFuture.get();
-    UpcomingMovieReleaseDateApiResponse releaseDate = releaseFuture.get();
-    UpcomingMovieDetailApiResponse details = detailFuture.get();
+    // 결과 꺼내기 - 실패한 항목은 null 처리
+    UpcomingMovieCreditApiResponse credits = safeGet(creditsFuture, "credits", movieId);
+    UpcomingMovieReleaseDateApiResponse releaseDate = safeGet(releaseFuture, "releaseDates", movieId);
+    UpcomingMovieDetailApiResponse details = safeGet(detailFuture, "details", movieId);
 
-    // DTO 채우기
-    dtoEnricher.enrichCredits(baseDto, credits);
-    dtoEnricher.enrichCertification(baseDto, releaseDate);
-    dtoEnricher.enrichCountry(baseDto, details);
-
+    // enrich 단계 - null 허용 (일부 enrich 실패해도 계속 진행)
+    if(credits != null) {
+      dtoEnricher.enrichCredits(baseDto, credits);
+    }
+    if(releaseDate != null) {
+      dtoEnricher.enrichCertification(baseDto, releaseDate);
+    }
+    if(details != null) {
+      dtoEnricher.enrichCountry(baseDto, details);
+    }
     return baseDto;
+  }
+
+  private <T> T safeGet(CompletableFuture<T> future, String apiName, Long movieId) {
+    try {
+      return future.get();
+    } catch (InterruptedException | ExecutionException e) {
+      log.warn("⚠️ [{}] API 실패 - movieId: {} → enrich 생략됨", apiName, movieId);
+      return null;
+    }
   }
 
   public List<UpcomingMovieDto> fetchUpcomingMovies() {

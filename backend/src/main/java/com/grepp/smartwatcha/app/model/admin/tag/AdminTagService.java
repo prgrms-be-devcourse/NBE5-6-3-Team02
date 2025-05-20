@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AdminTagService {
 
-  private final AdminTagJpaRespository adminTagJpaRespository;
+  private final AdminTagJpaRepository adminTagJpaRepository;
 
   public Page<TagEntity> findTagsByKeyword(String keyword, Pageable pageable) {
     if  (keyword == null || keyword.isBlank()){
-      return adminTagJpaRespository.findAll(pageable);
+      return adminTagJpaRepository.findAll(pageable);
     } else {
-      return adminTagJpaRespository.findByNameContainingIgnoreCase(keyword, pageable);
+      return adminTagJpaRepository.findByNameContainingIgnoreCase(keyword, pageable);
     }
   }
 }
