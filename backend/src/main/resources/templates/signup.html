@@ -47,7 +47,7 @@
     <!-- 인증 코드 전송 시 팝업 -->
     <script>
     function showVerificationPopup() {
-        alert('메일로 전송된 인증코드 6자리를 입력해주세요.');
+        alert('Please enter the 6 digits of the authentication code sent by e-mail.');
     }
     </script>
 </head>
@@ -60,7 +60,7 @@
                     <div class="card-content white-text">
                         <!-- 타이틀: codeSent 값에 따라 분기 -->
                         <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;"
-                              th:text="${codeSent} ? '인증 코드 입력' : '회원가입'"></span>
+                              th:text="${codeSent} ? 'Enter authentication code': 'Membership registration'"></span>
                         <div th:if="${message}" class="center-align green-text" th:text="${message}"></div>
                         <div th:if="${error}" class="center-align red-text" th:text="${error}"></div>
                         <!-- 인증 코드 전송 전 -->
@@ -88,7 +88,7 @@
                             <div class="center-align">
                                 <button type="submit" id="sendCodeBtn" class="btn waves-effect waves-light" style="background-color: #e53935;"
                                         th:disabled="${remainingTime > 0}"
-                                        th:text="${remainingTime > 0 ? '재전송 (' + remainingTime + '초)' : '인증 코드 전송'}">
+                                        th:text="${remainingTime > 0 ? 'retransmission (' + remainingTime + 'Sec)' : 'Send authentication code'}">
                                     인증 코드 전송
                                 </button>
                             </div>
@@ -101,7 +101,7 @@
                                 if (sendCodeForm && sendCodeBtn) {
                                     sendCodeForm.addEventListener('submit', function(e) {
                                         sendCodeBtn.disabled = true;
-                                        alert('메일로 전송된 인증코드 6자리를 입력해주세요.');
+                                        alert('Please enter the 6 digits of the authentication code sent by e-mail.');
                                     });
                                 }
                             });
@@ -116,18 +116,18 @@
                             <input type="hidden" name="confirmPassword" th:value="${signupRequestDto.confirmPassword}">
                             <div class="input-field" style="display: flex; align-items: center;">
                                 <input type="text" id="verificationCode" name="verificationCode" required style="flex: 1;">
-                                <button type="button" id="resendBtn" class="resend-btn" style="margin-left:8px;">재전송</button>
+                                <button type="button" id="resendBtn" class="resend-btn" style="margin-left:8px;">retransmission</button>
                             </div>
                             <div style="text-align: left; color: #e53935; font-size: 0.9em; margin-bottom: 10px;" id="timerText"></div>
                             <div class="center-align">
                                 <button type="submit" class="btn waves-effect waves-light" style="background-color: #e53935;">
-                                    인증 확인 및 회원가입
+                                    Certification verification and membership registration
                                 </button>
                             </div>
                         </form>
                     </div>
                     <div class="card-action center-align">
-                        <a th:href="@{/login}" style="color: #e53935;">이미 계정이 있으신가요? 로그인</a>
+                        <a th:href="@{/login}" style="color: #e53935;">Do you already have an account? Login</a>
                     </div>
                 </div>
             </div>
@@ -142,7 +142,7 @@
     var timerText = document.getElementById('timerText');
     function updateTimer() {
         if (remainingTime > 0) {
-            timerText.textContent = '재전송까지 남은 시간 : ' + remainingTime + '초';
+            timerText.textContent = 'Time remaining for retransmission : ' + remainingTime + 'Sec';
         } else {
             timerText.textContent = '';
         }
@@ -158,10 +158,10 @@
         }
         resendBtn && resendBtn.addEventListener('click', function() {
             if (remainingTime > 0) {
-                alert('잠시 뒤에 다시 시도해주세요');
+                alert('Please try again in a moment');
                 return;
             }
-            alert('인증 코드가 전송되었습니다. 메일을 확인해주세요.');
+            alert('The authentication code has been sent, please check your mail.');
             var form = document.createElement('form');
             form.method = 'POST';
             form.action = '/user/signup/send-code';

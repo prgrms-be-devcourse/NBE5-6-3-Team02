@@ -68,7 +68,7 @@
 <main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
   <!-- Section: 새로 나온 영화 -->
   <div class="movie-section">
-    <div class="section-title">📽 새로 나온 영화</div>
+    <div class="section-title">📽 New Movies</div>
     <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
       <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
 
@@ -91,7 +91,7 @@
 
   <!-- Section: 이건 어때요? -->
   <div class="movie-section">
-    <div class="section-title">🎲 이건 어때요?</div>
+    <div class="section-title">🎲 How About These?</div>
     <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
       <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
 
@@ -115,7 +115,7 @@
 
   <!-- Section: 랭킹 TOP 10 -->
   <div class="movie-section">
-    <div class="section-title">🏆 랭킹 TOP 10</div>
+    <div class="section-title">🏆 Ranking TOP 10</div>
     <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
       <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
 
@@ -139,7 +139,7 @@
   <!-- Section: 예상별점이 높은 콘텐츠 -->
   <div sec:authorize="isAuthenticated()" class="movie-section">
     <div th:if="${#lists.isEmpty(personalTop10Movies) == false}">
-      <div class="section-title">🔮 예상별점이 높은 콘텐츠</div>
+      <div class="section-title">🔮 Content With High Prediction Ratings</div>
       <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
         <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
 
@@ -164,7 +164,7 @@
   <!-- Section: 보고싶어요 한 영화 -->
   <div sec:authorize="isAuthenticated()" class="movie-section">
     <div th:if="${#lists.isEmpty(interestedMovie) == false}">
-      <div class="section-title">💜 보고싶어요 한 영화</div>
+      <div class="section-title">💜 Movies You Interested In</div>
       <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
         <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
 
@@ -187,10 +187,36 @@
     </div>
   </div>
 
+  <!-- Section: 비슷한 취향의 사용자 추천 -->
+  <div sec:authorize="isAuthenticated()" class="movie-section">
+    <div th:if="${#lists.isEmpty(userMovies) == false}">
+      <div class="section-title">💕 User Recommendations with Similar Tastes</div>
+      <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+        <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+
+        <div class="horizontal-scroll">
+          <div th:each="movie : ${userMovies}" class="movie-card card black">
+            <a th:href="@{/movies/{id}(id=${movie.id})}">
+              <div class="card-image">
+                <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
+                <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />
+              </div>
+              <div class="card-content">
+                <span th:text="${movie.title}" class="white-text truncate"></span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Section: 가볍게 즐기기 좋은 콘텐츠 -->
   <div class="movie-section">
-    <div class="section-title">☕ 가볍게 즐기기 좋은 콘텐츠</div>
+    <div class="section-title">☕ Light Movies</div>
     <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
       <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
 
@@ -210,7 +236,7 @@
       <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
     </div>
   </div>
-  
+
 
   <script>
     function scrollLeftBy(btn) {

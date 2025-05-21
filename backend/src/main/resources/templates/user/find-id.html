@@ -37,34 +37,35 @@
             <div class="col s12 m6 offset-m3">
                 <div class="card" style="background-color: #1e1e1e; padding: 20px;">
                     <div class="card-content white-text">
-                        <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;">아이디 찾기</span>
+                        <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;">Find Email</span>
                         <div th:if="${error}" class="center-align red-text" th:text="${error}"></div>
                         <div th:if="${foundEmail}" class="center-align">
-                            <p>찾은 이메일: <span th:text="${foundEmail}" style="color: #e53935;"></span></p>
+                            <p>Found email: <span th:text="${foundEmail}" style="color: #e53935;"></span></p>
                         </div>
                         <form th:action="@{/user/find-id}" method="post" th:unless="${foundEmail}">
                             <div class="input-field">
                                 <input type="text" id="name" name="name" required>
-                                <label for="name">이름</label>
+                                <label for="name">Name</label>
                             </div>
                             <div class="input-field">
                                 <input type="text" id="phoneNumber" name="phoneNumber" required>
-                                <label for="phoneNumber">전화번호</label>
+                                <label for="phoneNumber">Phone Number</label>
                             </div>
                             <div class="center-align">
                                 <button type="submit" class="btn waves-effect waves-light" style="background-color: #e53935;">
-                                    아이디 찾기
+                                    Find Email
                                 </button>
                             </div>
                         </form>
                     </div>
                     <div class="card-action center-align">
-                        <a th:href="@{/login}" style="color: #e53935;">로그인 페이지로 돌아가기</a>
+                        <a th:href="@{/login}" style="color: #e53935;">Back to Login Page</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </main>
+
 </body>
 </html> 

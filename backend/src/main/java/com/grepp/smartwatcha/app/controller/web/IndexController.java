@@ -2,10 +2,13 @@ package com.grepp.smartwatcha.app.controller.web;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendPersonalResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendUserBasedResponse;
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.index.IndexService;
 import com.grepp.smartwatcha.app.model.index.dto.IndexMovieDto;
+import com.grepp.smartwatcha.app.model.notification.NotificationService;
 import com.grepp.smartwatcha.app.model.recommend.RecommendPersonalMovieService;
+import com.grepp.smartwatcha.app.model.recommend.RecommendUserBasedMovieService;
 import com.grepp.smartwatcha.app.model.recommend.service.RecommendHighestRatedJpaService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,8 @@ public class IndexController {
     private final IndexService indexService;
     private final RecommendHighestRatedJpaService recommendService;
     private final RecommendPersonalMovieService personalMovieService;
+    private final RecommendUserBasedMovieService userBasedMovieService;
+    private final NotificationService notificationService;
     
     @GetMapping("/")
     public String index(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
@@ -36,7 +41,12 @@ public class IndexController {
             List<MovieRecommendPersonalResponse> personalTol10Movies = personalMovieService.getTop10PersonalMovies(
                     userDetails.getId());
             List<IndexMovieDto> interestedMovie = indexService.findByInterest(userDetails.getId());
+            List<MovieRecommendUserBasedResponse> userMovies = userBasedMovieService.getTop10UserBasedMovies(
+                    userDetails.getId());
 
+            Long unreadCount = notificationService.countUnread(userDetails.getId());
+            model.addAttribute("unreadCount", unreadCount);
+            model.addAttribute("userMovies", userMovies);
             model.addAttribute("personalTop10Movies", personalTol10Movies);
             model.addAttribute("interestedMovie", interestedMovie);
         }

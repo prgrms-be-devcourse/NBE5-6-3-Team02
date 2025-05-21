@@ -67,4 +67,11 @@ public class NotificationJpaService {
     public void deactivateAllNotifications(Long userId) {
         notificationJpaRepository.deactivateAllNotifications(userId);
     }
+
+    public Long countUnread(Long id) {
+
+
+
+        return (Long) notificationJpaRepository.countByUserIdAndIsReadFalse(id);
+    }
 }

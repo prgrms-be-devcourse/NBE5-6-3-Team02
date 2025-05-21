@@ -31,4 +31,8 @@ public class NotificationService {
     public void deactivateAllNotifications(Long userId) {
         notificationJpaService.deactivateAllNotifications(userId);
     }
+
+    public Long countUnread(Long id) {
+        return notificationJpaService.countUnread(id);
+    }
 }

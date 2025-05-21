@@ -31,4 +31,6 @@ public interface NotificationJpaRepository extends JpaRepository<NotificationEnt
     @Modifying
     @Query("UPDATE NotificationEntity n SET n.activated = false WHERE n.user.id = :userId")
     void deactivateAllNotifications(@Param("userId") Long userId);
+
+    Object countByUserIdAndIsReadFalse(Long id);
 }
