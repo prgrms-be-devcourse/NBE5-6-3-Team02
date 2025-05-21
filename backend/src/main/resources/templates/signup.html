@@ -67,29 +67,29 @@
                         <form th:action="@{/user/signup/send-code}" method="post" th:if="${codeSent == false}" id="sendCodeForm">
                             <div class="input-field">
                                 <input type="text" id="name" name="name" th:value="${signupRequestDto.name}" required>
-                                <label for="name">이름</label>
+                                <label for="name">Name</label>
                             </div>
                             <div class="input-field">
                                 <input type="email" id="email" name="email" th:value="${signupRequestDto.email}" required>
-                                <label for="email">이메일</label>
+                                <label for="email">Email(ID)</label>
                             </div>
                             <div class="input-field">
                                 <input type="text" id="phoneNumber" name="phoneNumber" th:value="${signupRequestDto.phoneNumber}" required>
-                                <label for="phoneNumber">전화번호</label>
+                                <label for="phoneNumber">PhoneNumber</label>
                             </div>
                             <div class="input-field">
                                 <input type="password" id="password" name="password" required>
-                                <label for="password">비밀번호</label>
+                                <label for="password">Password</label>
                             </div>
                             <div class="input-field">
                                 <input type="password" id="confirmPassword" name="confirmPassword" required>
-                                <label for="confirmPassword">비밀번호 확인</label>
+                                <label for="confirmPassword">Password Confirm</label>
                             </div>
                             <div class="center-align">
                                 <button type="submit" id="sendCodeBtn" class="btn waves-effect waves-light" style="background-color: #e53935;"
                                         th:disabled="${remainingTime > 0}"
                                         th:text="${remainingTime > 0 ? 'retransmission (' + remainingTime + 'Sec)' : 'Send authentication code'}">
-                                    인증 코드 전송
+                                    Send Verification Code
                                 </button>
                             </div>
                         </form>
@@ -127,7 +127,7 @@
                         </form>
                     </div>
                     <div class="card-action center-align">
-                        <a th:href="@{/login}" style="color: #e53935;">Do you already have an account? Login</a>
+                        <a th:href="@{/login}" style="color: #e53935;">Already have an account? Login</a>
                     </div>
                 </div>
             </div>
