@@ -85,7 +85,7 @@ public class UserController {
         }
         try {
             userJpaService.signup(signupRequestDto);
-            redirectAttributes.addFlashAttribute("message", "회원가입이 완료되었습니다. 로그인해주세요.");
+            redirectAttributes.addFlashAttribute("message", "Registration completed. Please log in.");
             return "redirect:/login";
         } catch (IllegalArgumentException e) {
             model.addAttribute("signupRequestDto", signupRequestDto);
