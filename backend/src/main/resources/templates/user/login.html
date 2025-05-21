@@ -78,7 +78,7 @@
     /* 회원가입 성공 메시지가 있으면 alert로 안내 */
     /*[[${message}]]*/
     var message = /*[[${message}]]*/ null;
-    if (message && message.indexOf('Registration Comfirmed') !== -1) {
+    if (message && message.indexOf('Registration completed. Please log in.') !== -1) {
         setTimeout(function() {
             alert(message);
         }, 100); // 약간의 딜레이 후 alert
