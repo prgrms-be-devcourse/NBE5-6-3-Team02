@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.recommend.service;
+package com.grepp.smartwatcha.app.model.recommend.service.highestrated;
 
 import com.grepp.smartwatcha.infra.neo4j.node.GenreNode;
 import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
@@ -15,6 +15,7 @@ public class RecommendHighestRatedNeo4jService {
 
     private final MovieGenreNeo4jRepository genreRepo;
 
+    //movieId로 영화 노드 찾아 장르 노드들의 이름을 리스트로 반환
     @Transactional("neo4jTransactionManager")
     public List<String> getGenresByMovieId(Long movieId) {
         return genreRepo.findById(movieId)

@@ -25,6 +25,7 @@ public class RecommendApiController {
     private final RecommendUserBasedMovieService recommendUserBasedMovieService;
 
 
+    // 별점 상위 10개 영화 반환
     @GetMapping("/highest-rated")
     public List<MovieRecommendHighestRatedResponse> getTopRated() {
         return recommendService1.getTop10HighestRatedMovies();

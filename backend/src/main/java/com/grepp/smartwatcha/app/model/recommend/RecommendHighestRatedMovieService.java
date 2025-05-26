@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.model.recommend;
 
-import com.grepp.smartwatcha.app.model.recommend.service.RecommendHighestRatedJpaService;
+import com.grepp.smartwatcha.app.model.recommend.service.highestrated.RecommendHighestRatedJpaService;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
