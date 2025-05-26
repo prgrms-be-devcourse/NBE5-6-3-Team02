@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @Builder
+// Admin User List 페이지에서 사용되는 유저 정보 응답 DTO
+// 사용 위치 : /admin/users
 public class AdminUserListResponseDto {
   private Long id;
   private String name;
@@ -20,6 +22,6 @@ public class AdminUserListResponseDto {
   private LocalDateTime modifiedAt;
   private Boolean activated;
   private String role;
-  private boolean updatedRecently;
-  private List<AdminSimpleRatingDto> recentRatings;
+  private boolean updatedRecently; // 최근 정보 수정 여부(3일 동안 update 표시)
+  private List<AdminSimpleRatingDto> recentRatings; // 유저가 평가한 최근 기록 표시
 }
