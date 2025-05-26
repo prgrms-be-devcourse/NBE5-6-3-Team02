@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
+// Admin User Ratings 페이지에서 유저의 평가(Rating) 정보를 조회하기 위한 서비스 클래스
 public class AdminUserRatingJpaService {
 
   private final AdminUserRatingJpaRepository ratingRepository;
 
+  // 특정 유저의 평가 목록을 조회하거나, userId가 없을 경우 전체 유저의 평가 목록을 조회
   public Page<AdminRatingDto> getRatings(Long userId, Pageable pageable) {
     Page<RatingEntity> ratingPage = (userId != null)
         ? ratingRepository.findAllByUserId(userId, pageable)
@@ -24,6 +26,7 @@ public class AdminUserRatingJpaService {
     return ratingPage.map(this::toDto);
   }
 
+  // RatingEntity 를 AdminRatingDto 로 변환
   private AdminRatingDto toDto(RatingEntity rating) {
     return AdminRatingDto.builder()
         .title(rating.getMovie().getTitle())
