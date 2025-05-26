@@ -1,6 +1,4 @@
 package com.grepp.smartwatcha.app.controller.api.recommend;
-
-
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendLatestResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendPersonalResponse;
@@ -11,7 +9,6 @@ import com.grepp.smartwatcha.app.model.recommend.RecommendPersonalMovieService;
 import com.grepp.smartwatcha.app.model.recommend.RecommendUserBasedMovieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -23,8 +20,6 @@ public class RecommendApiController {
     private final RecommendHighestRatedMovieService recommendService1;
     private final RecommendLatestMovieService recommendService2;
     private final RecommendUserBasedMovieService recommendUserBasedMovieService;
-
-
     // 별점 상위 10개 영화 반환
     @GetMapping("/highest-rated")
     public List<MovieRecommendHighestRatedResponse> getTopRated() {
@@ -58,6 +53,4 @@ public class RecommendApiController {
     public List<MovieRecommendUserBasedResponse> getUserBasedRecommendationsForTest(@PathVariable Long userId) {
         return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
     }
-
-
 }

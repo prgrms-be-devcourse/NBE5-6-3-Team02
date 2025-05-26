@@ -1,5 +1,4 @@
 package com.grepp.smartwatcha.app.model.recommend.repository;
-
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

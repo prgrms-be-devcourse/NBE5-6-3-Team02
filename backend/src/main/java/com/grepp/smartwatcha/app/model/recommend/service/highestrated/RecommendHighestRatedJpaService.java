@@ -1,5 +1,4 @@
 package com.grepp.smartwatcha.app.model.recommend.service.highestrated;
-
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
 import com.grepp.smartwatcha.app.model.recommend.repository.RecommendHighestRatedMovieJpaRepository;
@@ -9,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -47,6 +45,5 @@ public class RecommendHighestRatedJpaService {
         List<String> genres = genreService.getGenresByMovieId(movieId);
         return MovieRecommendHighestRatedResponse.from(movie, avgScore, genres);
     }
-
 }
 
