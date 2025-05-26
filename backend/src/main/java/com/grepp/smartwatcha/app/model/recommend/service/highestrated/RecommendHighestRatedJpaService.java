@@ -46,4 +46,3 @@ public class RecommendHighestRatedJpaService {
         return MovieRecommendHighestRatedResponse.from(movie, avgScore, genres);
     }
 }
-
