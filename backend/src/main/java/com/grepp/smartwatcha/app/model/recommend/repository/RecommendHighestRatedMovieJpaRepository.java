@@ -14,4 +14,3 @@ public interface RecommendHighestRatedMovieJpaRepository extends JpaRepository<R
             "ORDER BY avgScore DESC")
     List<Object[]> findTop10ByAverageRating(Pageable pageable);
 }
-

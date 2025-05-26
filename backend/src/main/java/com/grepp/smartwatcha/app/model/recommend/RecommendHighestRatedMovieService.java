@@ -14,4 +14,3 @@ public class RecommendHighestRatedMovieService {
         return jpaService.getTop10RatedMovies();
     }
 }
-
