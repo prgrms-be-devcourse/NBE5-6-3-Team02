@@ -48,7 +48,6 @@ public class RecommendApiController {
 //        return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
 //    }
 
-
     @GetMapping("/collaboration/{userId}")
     public List<MovieRecommendUserBasedResponse> getUserBasedRecommendationsForTest(@PathVariable Long userId) {
         return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
