@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.web.admin.user;
 
 import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserJpaService;
-import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponseDto;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.enums.Role;
 import com.grepp.smartwatcha.infra.response.PageResponse;
@@ -44,9 +44,9 @@ public class AdminUserController {
 
     // 생성일 내림차순으로 정렬된 유저 페이지 조회
     Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 가입일 기준으로 desc
-    Page<AdminUserListResponseDto> users = adminUserJpaService.findUserByFilter(keyword, role, activated, pageable);
+    Page<AdminUserListResponse> users = adminUserJpaService.findUserByFilter(keyword, role, activated, pageable);
 
-    AdminUserListResponseDto selectedUser = null;
+    AdminUserListResponse selectedUser = null;
 
     // 선택된 유저 ID가 있다면 상세 정보 조회
     if (id != null) {
@@ -58,7 +58,7 @@ public class AdminUserController {
     }
 
     // 페이지네이션 응답 포맷 생성
-    PageResponse<AdminUserListResponseDto> pageResponse = new PageResponse<>("/admin/users", users, 5);
+    PageResponse<AdminUserListResponse> pageResponse = new PageResponse<>("/admin/users", users, 5);
 
     // 뷰에 데이터 전달
     model.addAttribute("pageResponse", pageResponse);

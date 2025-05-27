@@ -13,7 +13,7 @@ import lombok.Setter;
 @Builder
 // Admin User List 페이지에서 사용되는 유저 정보 응답 DTO
 // 사용 위치 : /admin/users
-public class AdminUserListResponseDto {
+public class AdminUserListResponse {
   private Long id;
   private String name;
   private String email;

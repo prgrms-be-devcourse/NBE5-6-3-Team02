@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.model.admin.user.service;
 
 import com.grepp.smartwatcha.app.model.admin.user.dto.AdminSimpleRatingDto;
-import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponseDto;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
 import com.grepp.smartwatcha.app.model.admin.user.mapper.AdminUserMapper;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
@@ -29,21 +29,21 @@ public class AdminUserJpaService {
   private final UserJpaRepository userJpaRepository;
 
   // 유저 필터 조회(이름, 역할, 활성화 여부)
-  public Page<AdminUserListResponseDto> findUserByFilter(String keyword, Role role, Boolean activated, Pageable pageable) {
+  public Page<AdminUserListResponse> findUserByFilter(String keyword, Role role, Boolean activated, Pageable pageable) {
     return adminUserJpaRepository.findUserByFilter(keyword, role, activated, pageable)
         .map(user -> AdminUserMapper.toDto(user, getRecentRatings(user.getId())));
   }
 
   // 입력된 이름(keyword)이 포함된 유저 전체를 대소문자 구분 없이 조회하고,
   // 각 유저의 최근 평점을 포함한 DTO 리스트 반환
-  public List<AdminUserListResponseDto> findUserByName(String name) {
+  public List<AdminUserListResponse> findUserByName(String name) {
     return adminUserJpaRepository.findAllByNameContainingIgnoreCase(name).stream()
         .map(user -> AdminUserMapper.toDto(user, getRecentRatings(user.getId())))
         .collect(Collectors.toList());
   }
 
   // 유저 ID로 유저 정보를 조회하고, 최근 평가 정보를 포함한 DTO 로 반환하여 반환
-  public AdminUserListResponseDto findUserById(Long id) {
+  public AdminUserListResponse findUserById(Long id) {
     return adminUserJpaRepository.findById(id)
         .map(user -> AdminUserMapper.toDto(user, getRecentRatings(user.getId())))
         .orElse(null);
