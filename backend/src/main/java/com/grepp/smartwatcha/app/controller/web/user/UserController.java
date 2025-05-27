@@ -1,25 +1,23 @@
 package com.grepp.smartwatcha.app.controller.web.user;
 
-import com.grepp.smartwatcha.app.model.user.dto.SignupRequestDto;
-import com.grepp.smartwatcha.app.model.user.dto.EmailVerificationRequestDto;
-import com.grepp.smartwatcha.app.model.user.dto.EmailCodeVerifyRequestDto;
-import com.grepp.smartwatcha.app.model.user.dto.FindIdRequestDto;
-import com.grepp.smartwatcha.app.model.user.dto.ResetPasswordRequestDto;
+import com.grepp.smartwatcha.app.controller.web.user.annotation.NonAdmin;
+import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
+import com.grepp.smartwatcha.app.model.user.dto.*;
 import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import com.grepp.smartwatcha.app.model.user.service.EmailVerificationJpaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Slf4j
 @Controller
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -31,17 +29,17 @@ public class UserController {
         return "user/login";
     }
 
-    @GetMapping("/user/find-id")
+    @GetMapping("/find-id")
     public String findIdForm() {
         return "user/find-id";
     }
 
-    @GetMapping("/user/find-password")
+    @GetMapping("/find-password")
     public String findPasswordForm() {
         return "user/find-password";
     }
 
-    @GetMapping("/user/signup")
+    @GetMapping("/signup")
     public String signupForm(Model model) {
         if (!model.containsAttribute("signupRequestDto")) {
             model.addAttribute("signupRequestDto", new SignupRequestDto());
@@ -52,7 +50,7 @@ public class UserController {
         return "signup";
     }
 
-    @PostMapping("/user/signup/send-code")
+    @PostMapping("/signup/send-code")
     public String sendCode(@ModelAttribute SignupRequestDto signupRequestDto, Model model) {
         try {
             emailVerificationJpaService.sendVerificationCode(
@@ -65,30 +63,30 @@ public class UserController {
             model.addAttribute("remainingTime", remaining);
         } catch (IllegalArgumentException e) {
             model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true); // 반드시 true로 고정
+            model.addAttribute("codeSent", true);
             long remaining = emailVerificationJpaService.getRemainingCooldownTime(signupRequestDto.getEmail());
             model.addAttribute("remainingTime", remaining);
         }
         return "signup";
     }
 
-    @PostMapping("/user/signup/verify")
+    @PostMapping("/signup/verify")
     public String verifyAndSignup(@ModelAttribute SignupRequestDto signupRequestDto,
-                                  @RequestParam String verificationCode,
-                                  Model model, RedirectAttributes redirectAttributes) {
+                                @RequestParam String verificationCode,
+                                Model model, RedirectAttributes redirectAttributes) {
         boolean verified = emailVerificationJpaService.verifyCode(
             new EmailCodeVerifyRequestDto(signupRequestDto.getEmail(), verificationCode)
         );
         if (!verified) {
             model.addAttribute("signupRequestDto", signupRequestDto);
             model.addAttribute("codeSent", true);
-            model.addAttribute("error", "인증 코드가 올바르지 않거나 만료되었습니다.");
+            model.addAttribute("error", "Invalid or expired verification code.");
             return "signup";
         }
         try {
             userJpaService.signup(signupRequestDto);
             redirectAttributes.addFlashAttribute("message", "Registration completed. Please log in.");
-            return "redirect:/login";
+            return "redirect:/user/login";
         } catch (IllegalArgumentException e) {
             model.addAttribute("signupRequestDto", signupRequestDto);
             model.addAttribute("codeSent", true);
@@ -97,7 +95,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/find-id")
+    @PostMapping("/find-id")
     public String findId(@ModelAttribute FindIdRequestDto findIdRequestDto, Model model) {
         try {
             String email = userJpaService.findIdByName(findIdRequestDto);
@@ -108,31 +106,77 @@ public class UserController {
         return "user/find-id";
     }
 
-    @PostMapping("/user/find-password/send-code")
+    @PostMapping("/find-password/send-code")
     public String sendPasswordResetCode(@RequestParam String email, Model model) {
         try {
             userJpaService.sendPasswordResetCode(email);
             model.addAttribute("codeSent", true);
             model.addAttribute("email", email);
-            model.addAttribute("message", "인증 코드가 이메일로 전송되었습니다.");
+            model.addAttribute("message", "Verification code has been sent to your email.");
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
         }
         return "user/find-password";
     }
 
-    @PostMapping("/user/find-password/verify")
+    @PostMapping("/find-password/verify")
     public String resetPassword(@ModelAttribute ResetPasswordRequestDto resetPasswordRequestDto,
                               Model model, RedirectAttributes redirectAttributes) {
         try {
             userJpaService.resetPassword(resetPasswordRequestDto);
-            redirectAttributes.addFlashAttribute("message", "비밀번호가 성공적으로 변경되었습니다. 새 비밀번호로 로그인해주세요.");
-            return "redirect:/login";
+            redirectAttributes.addFlashAttribute("message", "Password has been successfully changed. Please sign in with your new password.");
+            return "redirect:/user/login";
         } catch (IllegalArgumentException e) {
             model.addAttribute("codeSent", true);
             model.addAttribute("email", resetPasswordRequestDto.getEmail());
             model.addAttribute("error", e.getMessage());
             return "user/find-password";
         }
+    }
+
+    @NonAdmin
+    @GetMapping("/profile")
+    public String userProfile(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        UserInfoDto userDto = userJpaService.findUserInfoById(userDetails.getUser().getId());
+        model.addAttribute("user", userDto);
+        return "user/mypage-info";
+    }
+
+    @NonAdmin
+    @PostMapping("/profile/update")
+    public String updateProfile(@ModelAttribute UserUpdateRequestDto requestDto,
+                           @AuthenticationPrincipal CustomUserDetails userDetails,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            userJpaService.updateUser(userDetails.getUser().getId(), requestDto);
+            redirectAttributes.addFlashAttribute("message", "Profile has been successfully updated.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/user/profile";
+    }
+
+    @NonAdmin
+    @PostMapping("/profile/delete")
+    public String deleteProfile(@AuthenticationPrincipal CustomUserDetails userDetails,
+                           RedirectAttributes redirectAttributes) {
+        try {
+            userJpaService.deleteUser(userDetails.getUser().getId());
+            return "redirect:/logout";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/user/profile";
+        }
+    }
+
+    @NonAdmin
+    @GetMapping("/activity")
+    public String userActivity(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        Long userId = userDetails.getUser().getId();
+        List<RatedMovieDto> ratedMovies = userJpaService.findRatedMoviesByUserId(userId);
+        List<WishlistMovieDto> wishlistMovies = userJpaService.findWishlistMoviesByUserId(userId);
+        model.addAttribute("ratedMovies", ratedMovies);
+        model.addAttribute("wishlistMovies", wishlistMovies);
+        return "user/mypage-activity";
     }
 }
