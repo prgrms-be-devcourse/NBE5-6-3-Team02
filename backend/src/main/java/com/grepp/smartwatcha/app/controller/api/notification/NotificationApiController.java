@@ -21,7 +21,8 @@ public class NotificationApiController {
 
     @PostMapping("read")
     @ResponseBody
-    /* 단일 알림 읽음 처리
+    /*
+     * 단일 알림 읽음 처리
      * 입력: userId, notificationId
      * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
      * 로직: userId, notificationId로 접근, 해당하는 알림의 isRead를 true로 전환
@@ -40,7 +41,8 @@ public class NotificationApiController {
 
     @PostMapping("delete")
     @ResponseBody
-    /* 단일 알림 삭제 처리
+    /*
+     * 단일 알림 삭제 처리
      * 입력: userId, notificationId
      * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
      * 로직: userId, notificationId로 접근, 해당하는 알림의 activated를 false로 전환
@@ -59,7 +61,8 @@ public class NotificationApiController {
 
     @PostMapping("readAll")
     @ResponseBody
-    /* 단일 알림 삭제 처리
+    /*
+     * 단일 알림 삭제 처리
      * 입력: userId
      * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
      * 로직: userId로 접근, 해당하는 모든 알림의 isRead를 true로 전환
@@ -76,7 +79,8 @@ public class NotificationApiController {
 
     @PostMapping("deleteAll")
     @ResponseBody
-    /* 단일 알림 삭제 처리
+    /*
+     * 단일 알림 삭제 처리
      * 입력: userId
      * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
      * 로직: userId로 접근, 해당하는 모든 알림의 activated를 false로 전환
