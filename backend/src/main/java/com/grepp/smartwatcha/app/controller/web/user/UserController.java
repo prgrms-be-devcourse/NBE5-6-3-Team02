@@ -8,6 +8,7 @@ import com.grepp.smartwatcha.app.model.user.dto.ResetPasswordRequestDto;
 import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import com.grepp.smartwatcha.app.model.user.service.EmailVerificationJpaService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class UserController {
@@ -59,7 +61,7 @@ public class UserController {
             model.addAttribute("signupRequestDto", signupRequestDto);
             model.addAttribute("codeSent", true);
             long remaining = emailVerificationJpaService.getRemainingCooldownTime(signupRequestDto.getEmail());
-            System.out.println("DEBUG remainingTime: " + remaining);
+            log.debug("Remaining cooldown time: {}", remaining);
             model.addAttribute("remainingTime", remaining);
         } catch (IllegalArgumentException e) {
             model.addAttribute("signupRequestDto", signupRequestDto);

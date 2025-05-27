@@ -5,6 +5,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -12,5 +14,7 @@ import lombok.Builder;
 @AllArgsConstructor
 @Builder
 public class EmailVerificationRequestDto {
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.format}")
     private String email;
 } 
