@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.web.details;
 
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
-import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDTO;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDto;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.SimilarMovieDto;
 import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
@@ -44,7 +44,7 @@ public class MovieDetailsController {
     public String getMovieDetail(
             @PathVariable Long id, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        MovieDetailsDTO movie = movieJpaService.getMovieDetail(id);
+        MovieDetailsDto movie = movieJpaService.getMovieDetail(id);
         Double averageScore = movieJpaService.getAverageScore(id);
         List<RatingBarDto> ratingList = ratingJpaService.getRatingDistributionList(id);
         Map<Integer, Integer> ratingDistribution = ratingJpaService.getRatingDistribution(id);

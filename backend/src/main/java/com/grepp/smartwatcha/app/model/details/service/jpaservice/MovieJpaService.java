@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.model.details.service.jpaservice;
 
-import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDTO;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDto;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.RequiredArgsConstructor;
@@ -14,11 +14,11 @@ public class MovieJpaService {
 
     private final MovieDetailsJpaRepository movieRepository;
 
-    public MovieDetailsDTO getMovieDetail(Long movieId) {
+    public MovieDetailsDto getMovieDetail(Long movieId) {
         MovieEntity movie = movieRepository.findById(movieId)
                 .orElseThrow(() -> new IllegalArgumentException("영화를 찾을 수 없습니다."));
 
-        return new MovieDetailsDTO(
+        return new MovieDetailsDto(
                 movie.getId(),
                 movie.getTitle(),
                 movie.getReleaseDate(),
