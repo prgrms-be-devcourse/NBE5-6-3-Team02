@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.web.admin.user;
 
 import com.grepp.smartwatcha.app.model.admin.user.dto.AdminRatingDto;
-import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponseDto;
+import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
 import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserJpaService;
 import com.grepp.smartwatcha.app.model.admin.user.service.AdminUserRatingJpaService;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
@@ -50,7 +50,7 @@ public class AdminUserRatingController {
 
     Pageable pageable = PageRequest.of(page, size, sort);
 
-    AdminUserListResponseDto selectedUser = null;
+    AdminUserListResponse selectedUser = null;
     Long userId = null;
 
     // ID로 유저 조회
@@ -64,7 +64,7 @@ public class AdminUserRatingController {
 
       // keyword(이름)로 유저 검색
     } else if (keyword != null && !keyword.isEmpty()) {
-      List<AdminUserListResponseDto> matchedUsers = adminUserJpaService.findUserByName(keyword);
+      List<AdminUserListResponse> matchedUsers = adminUserJpaService.findUserByName(keyword);
       if(matchedUsers.isEmpty()) {
         // (예외처리) 검색된 유저가 없을 경우, 명시적으로 던지기
         throw new CommonException(ResponseCode.BAD_REQUEST);
