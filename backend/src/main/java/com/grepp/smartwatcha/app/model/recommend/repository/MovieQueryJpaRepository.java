@@ -1,4 +1,5 @@
 package com.grepp.smartwatcha.app.model.recommend.repository;
+
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,8 @@ public interface MovieQueryJpaRepository extends JpaRepository<MovieEntity, Long
     // 여러개의 id를 조회
     @Query("SELECT m FROM MovieEntity m WHERE m.id IN :ids")
     List<MovieEntity> findByIdIn(@Param("ids") List<Long> ids);
+
+    // 영화 id 기준으로 별점에 대한 평균 계산
+    @Query("SELECT AVG(r.score) FROM RatingEntity r WHERE r.movie.id = :movieId")
+    Double findAverageScoreByMovieId(@Param("movieId") Long movieId);
 }

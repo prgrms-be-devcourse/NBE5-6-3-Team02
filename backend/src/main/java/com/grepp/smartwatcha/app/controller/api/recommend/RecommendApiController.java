@@ -1,4 +1,5 @@
 package com.grepp.smartwatcha.app.controller.api.recommend;
+
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendLatestResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendPersonalResponse;
@@ -16,19 +17,19 @@ import java.util.List;
 @RequestMapping("/recommend")
 public class RecommendApiController {
 
-    private final RecommendPersonalMovieService recommendService;
-    private final RecommendHighestRatedMovieService recommendService1;
-    private final RecommendLatestMovieService recommendService2;
-    private final RecommendUserBasedMovieService recommendUserBasedMovieService;
+    private final RecommendPersonalMovieService personalService;
+    private final RecommendHighestRatedMovieService ratedService;
+    private final RecommendLatestMovieService LatestService;
+    private final RecommendUserBasedMovieService UserBasedService;
     // 별점 상위 10개 영화 반환
     @GetMapping("/highest-rated")
     public List<MovieRecommendHighestRatedResponse> getTopRated() {
-        return recommendService1.getTop10HighestRatedMovies();
+        return ratedService.getTop10HighestRatedMovies();
     }
 
     @GetMapping("/latest-movies")
     public List<MovieRecommendLatestResponse> getLatestMovies() {
-        return recommendService2.getTop10LatestMovies();
+        return LatestService.getTop10LatestMovies();
     }
 
 //    @GetMapping("/personal")
@@ -39,7 +40,7 @@ public class RecommendApiController {
 
     @GetMapping("/content/{userId}")
     public List<MovieRecommendPersonalResponse> getPersonalRecommendations(@PathVariable Long userId) {
-        return recommendService.getTop10PersonalMovies(userId);
+        return personalService.getTop10PersonalMovies(userId);
     }
 
 //    @GetMapping("/collaboration")
@@ -50,6 +51,6 @@ public class RecommendApiController {
 
     @GetMapping("/collaboration/{userId}")
     public List<MovieRecommendUserBasedResponse> getUserBasedRecommendationsForTest(@PathVariable Long userId) {
-        return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
+        return UserBasedService.getTop10UserBasedMovies(userId);
     }
 }
