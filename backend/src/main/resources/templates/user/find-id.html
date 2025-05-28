@@ -4,68 +4,50 @@
       layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
-    <title>Find ID - SmartMovie</title>
-    <style>
-        .input-field input[type=text],
-        .input-field input[type=email],
-        .input-field input[type=password],
-        .input-field input[type=tel] {
-            color: white;
-        }
-        .input-field label {
-            color: #9e9e9e;
-        }
-        .input-field input[type=text]:focus + label,
-        .input-field input[type=email]:focus + label,
-        .input-field input[type=password]:focus + label,
-        .input-field input[type=tel]:focus + label {
-            color: #e53935;
-        }
-        .input-field input[type=text]:focus,
-        .input-field input[type=email]:focus,
-        .input-field input[type=password]:focus,
-        .input-field input[type=tel]:focus {
-            border-bottom: 1px solid #e53935;
-            box-shadow: 0 1px 0 0 #e53935;
-        }
-    </style>
+    <title th:text="#{login.findEmail}">Find Email</title>
+    <link rel="stylesheet" th:href="@{/css/user/form.css}">
 </head>
 <body>
-<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
-    <div class="container">
-        <div class="row">
-            <div class="col s12 m6 offset-m3">
-                <div class="card" style="background-color: #1e1e1e; padding: 20px;">
-                    <div class="card-content white-text">
-                        <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;">Find Email</span>
-                        <div th:if="${error}" class="center-align red-text" th:text="${error}"></div>
-                        <div th:if="${foundEmail}" class="center-align">
-                            <p>Found email: <span th:text="${foundEmail}" style="color: #e53935;"></span></p>
-                        </div>
-                        <form th:action="@{/user/find-id}" method="post" th:unless="${foundEmail}">
-                            <div class="input-field">
-                                <input type="text" id="name" name="name" required>
-                                <label for="name">Name</label>
-                            </div>
-                            <div class="input-field">
-                                <input type="text" id="phoneNumber" name="phoneNumber" required>
-                                <label for="phoneNumber">Phone Number</label>
-                            </div>
-                            <div class="center-align">
-                                <button type="submit" class="btn waves-effect waves-light" style="background-color: #e53935;">
-                                    Find Email
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card-action center-align">
-                        <a th:href="@{/login}" style="color: #e53935;">Back to Login Page</a>
-                    </div>
+<main layout:fragment="content" class="container form-container">
+    <div class="card grey darken-4 auth-card">
+        <div class="card-content">
+            <span class="card-title center-align highlight" th:text="#{login.findEmail}">Find Email</span>
+
+            <div th:if="${error}" class="center-align">
+                <span class="red-text text-lighten-2" th:text="${error}"></span>
+            </div>
+
+            <div th:if="${foundEmail}" class="center-align">
+                <p>Found email: <span th:text="${foundEmail}" class="auth-link"></span></p>
+            </div>
+
+            <form th:action="@{/user/find-id}" method="post" th:unless="${foundEmail}" onsubmit="return validateForm(this);">
+                <div class="input-field">
+                    <input type="text" id="name" name="name" required>
+                    <label for="name" th:text="#{validation.name.required}">Name</label>
                 </div>
+
+                <div class="input-field">
+                    <input type="text" id="phoneNumber" name="phoneNumber" required>
+                    <label for="phoneNumber" th:text="#{validation.phone.required}">Phone Number</label>
+                </div>
+
+                <div class="center-align">
+                    <button type="submit" class="btn auth-btn waves-effect waves-light" th:text="#{login.findEmail}">
+                        Find Email
+                    </button>
+                </div>
+            </form>
+
+            <div class="card-action center-align">
+                <a th:href="@{/login}" class="auth-link" th:text="#{login.title}">Back to Login Page</a>
             </div>
         </div>
     </div>
 </main>
 
+<th:block layout:fragment="script">
+    <script th:src="@{/js/user/messages.js}"></script>
+</th:block>
 </body>
 </html> 

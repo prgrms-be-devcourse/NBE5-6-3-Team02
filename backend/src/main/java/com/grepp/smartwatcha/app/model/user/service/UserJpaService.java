@@ -1,11 +1,14 @@
 package com.grepp.smartwatcha.app.model.user.service;
 
+import com.grepp.smartwatcha.app.model.user.dto.RatedMovieDto;
 import com.grepp.smartwatcha.app.model.user.dto.SignupRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.FindIdRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.ResetPasswordRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.EmailVerificationRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.EmailCodeVerifyRequestDto;
+import com.grepp.smartwatcha.app.model.user.dto.UserInfoDto;
 import com.grepp.smartwatcha.app.model.user.dto.UserUpdateRequestDto;
+import com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
 import com.grepp.smartwatcha.app.model.user.repository.EmailVerificationJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.RatingJpaRepository;
@@ -25,6 +28,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(transactionManager = "jpaTransactionManager")
 public class UserJpaService {
     private final UserJpaRepository userJpaRepository;
     private final EmailVerificationJpaRepository emailVerificationJpaRepository;
@@ -33,7 +37,6 @@ public class UserJpaService {
     private final RatingJpaRepository ratingJpaRepository;
     private final InterestJpaRepository interestJpaRepository;
 
-    @Transactional(transactionManager = "jpaTransactionManager")
     public Long signup(SignupRequestDto requestDto) {
         // 활성화된 계정 중에서만 이메일 중복 검사
         UserEntity existingUser = userJpaRepository.findByEmail(requestDto.getEmail())
@@ -76,6 +79,7 @@ public class UserJpaService {
         return userJpaRepository.save(user).getId();
     }
 
+    @Transactional(readOnly = true)
     public String findIdByName(FindIdRequestDto findIdRequestDto) {
         return userJpaRepository.findByNameAndPhoneNumber(findIdRequestDto.getName(), findIdRequestDto.getPhoneNumber())
             .map(UserEntity::getEmail)
@@ -117,12 +121,12 @@ public class UserJpaService {
         userJpaRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public UserEntity findById(Long id) {
         return userJpaRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager")
     public void updateUser(Long userId, UserUpdateRequestDto requestDto) {
         UserEntity user = findById(userId);
 
@@ -149,22 +153,21 @@ public class UserJpaService {
         userJpaRepository.save(user);
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager")
     public void deleteUser(Long userId) {
         UserEntity user = findById(userId);
         user.unActivated();
         userJpaRepository.save(user);
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
-    public com.grepp.smartwatcha.app.model.user.dto.UserInfoDto findUserInfoById(Long id) {
+    @Transactional(readOnly = true)
+    public UserInfoDto findUserInfoById(Long id) {
         UserEntity user = userJpaRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return com.grepp.smartwatcha.app.model.user.dto.UserInfoDto.from(user);
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
-    public java.util.List<com.grepp.smartwatcha.app.model.user.dto.RatedMovieDto> findRatedMoviesByUserId(Long userId) {
+    @Transactional(readOnly = true)
+    public List<RatedMovieDto> findRatedMoviesByUserId(Long userId) {
         UserEntity user = userJpaRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return ratingJpaRepository.findByUser(user).stream()
@@ -172,8 +175,8 @@ public class UserJpaService {
             .toList();
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
-    public java.util.List<com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto> findWishlistMoviesByUserId(Long userId) {
+    @Transactional(readOnly = true)
+    public List<WishlistMovieDto> findWishlistMoviesByUserId(Long userId) {
         UserEntity user = userJpaRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return interestJpaRepository.findByUserAndStatus(user, Status.WATCH_LATER).stream()
