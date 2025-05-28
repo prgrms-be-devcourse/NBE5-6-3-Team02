@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/admin/tags")
 @RequiredArgsConstructor
-public class AdminTagController {
+public class AdminTagController { // 태그 목록 페이지
 
   private final AdminTagService adminTagService;
 
+  // 태그 목록 페이지 반환
+  // 입력: page(페이지 번호), size(페이지 크기), keyword(검색 키워드, nullable), model(뷰 모델)
+  // 출력: admin/tag/list (태그 목록 뷰)
   @GetMapping
   public String getAllTags(
       @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "8") int size,
