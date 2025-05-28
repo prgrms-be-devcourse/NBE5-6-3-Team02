@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.controller.api.notification;
 
-import com.grepp.smartwatcha.app.model.notification.NotificationService;
+import com.grepp.smartwatcha.app.model.notification.NotificationJpaService;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.response.ApiResponse;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 // 알림 읽음, 삭제용 api 컨트롤러
 public class NotificationApiController {
 
-    private final NotificationService notificationService;
+    private final NotificationJpaService notificationService;
 
     @PostMapping("read")
     @ResponseBody

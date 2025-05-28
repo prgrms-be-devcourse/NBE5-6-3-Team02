@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.web.notification;
 
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
-import com.grepp.smartwatcha.app.model.notification.NotificationService;
+import com.grepp.smartwatcha.app.model.notification.NotificationJpaService;
 import com.grepp.smartwatcha.app.model.notification.dto.NotificationDto;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/notifications")
+@RequestMapping("notifications")
 // 알림 관련 Web 컨트롤러
 public class NotificationController {
 
-    private final NotificationService notificationService;
+    private final NotificationJpaService notificationService;
 
-    @GetMapping("/")
+    @GetMapping("")
     /*
      * 기본 진입점
      * 입력: userDetail, Model
@@ -39,7 +39,7 @@ public class NotificationController {
         return "redirect:/notifications/" + userId;
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("{userId}")
     /*
      * redirect 진입점
      * 입력: userId, userDetail, Model
