@@ -8,6 +8,7 @@ import lombok.Builder;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import com.grepp.smartwatcha.app.model.user.validation.ValidationPatterns;
 
 @Getter
 @Setter
@@ -15,22 +16,21 @@ import jakarta.validation.constraints.Pattern;
 @AllArgsConstructor
 @Builder
 public class SignupRequestDto {
-    @NotBlank(message = "이메일은 필수 입력값입니다")
-    @Email(message = "이메일 형식이 올바르지 않습니다")
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.format}")
     private String email;
 
-    @NotBlank(message = "비밀번호는 필수 입력값입니다")
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
-            message = "비밀번호는 8자 이상이며, 영문자, 숫자, 특수문자를 포함해야 합니다")
+    @NotBlank(message = "{validation.password.required}")
+    @Pattern(regexp = ValidationPatterns.PASSWORD_PATTERN, message = "{validation.password.format}")
     private String password;
 
-    @NotBlank(message = "비밀번호 확인은 필수 입력값입니다")
+    @NotBlank(message = "{validation.password.required}")
     private String confirmPassword;
 
-    @NotBlank(message = "이름은 필수 입력값입니다")
+    @NotBlank(message = "{validation.name.required}")
     private String name;
 
-    @NotBlank(message = "전화번호는 필수 입력값입니다")
-    @Pattern(regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 올바르지 않습니다")
+    @NotBlank(message = "{validation.phone.required}")
+    @Pattern(regexp = ValidationPatterns.PHONE_NUMBER_PATTERN, message = "{validation.phone.format}")
     private String phoneNumber;
 } 

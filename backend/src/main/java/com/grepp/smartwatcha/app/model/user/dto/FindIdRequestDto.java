@@ -14,7 +14,7 @@ import jakarta.validation.constraints.Pattern;
 @AllArgsConstructor
 @Builder
 public class FindIdRequestDto {
-    @NotBlank(message = "이름은 필수 입력값입니다")
+    @NotBlank(message = "{validation.name.required}")
     private String name;
 
     @NotBlank(message = "전화번호는 필수 입력값입니다")
