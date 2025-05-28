@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.controller.web.admin;
 
-import com.grepp.smartwatcha.app.model.admin.tag.AdminTagService;
+import com.grepp.smartwatcha.app.model.admin.tag.AdminTagJpaService;
 import com.grepp.smartwatcha.infra.jpa.entity.TagEntity;
 import com.grepp.smartwatcha.infra.response.PageResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 public class AdminTagController { // 태그 목록 페이지
 
-  private final AdminTagService adminTagService;
+  private final AdminTagJpaService adminTagJpaService;
 
   // 태그 목록 페이지 반환
   // 입력: page(페이지 번호), size(페이지 크기), keyword(검색 키워드, nullable), model(뷰 모델)
@@ -30,7 +30,7 @@ public class AdminTagController { // 태그 목록 페이지
       @RequestParam(required = false) String keyword, Model model) {
 
     Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
-    Page<TagEntity> tags = adminTagService.findTagsByKeyword(keyword, pageable);
+    Page<TagEntity> tags = adminTagJpaService.findTagsByKeyword(keyword, pageable);
 
     PageResponse<TagEntity> pageResponse = new PageResponse<>("/admin/tags", tags, 5);
 
