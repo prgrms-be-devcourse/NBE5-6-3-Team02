@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Neo4jTagDto {
+public class TagCountRequestDto {
     private final String name;
     private final Long count;
 }

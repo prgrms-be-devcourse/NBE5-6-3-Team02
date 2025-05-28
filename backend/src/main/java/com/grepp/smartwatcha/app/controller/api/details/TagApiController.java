@@ -1,15 +1,13 @@
 package com.grepp.smartwatcha.app.controller.api.details;
 
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
-import com.grepp.smartwatcha.app.model.details.dto.jpadto.JpaTagDto;
-import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.TagDto;
+import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.TagCountRequestDto;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.TagJpaService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +36,7 @@ public class TagApiController {
                 .toList();
     }
     @GetMapping("/search")
-    public List<JpaTagDto> searchTags(@RequestParam String keyword) {
+    public List<TagDto> searchTags(@RequestParam String keyword) {
         return tagJpaService.searchTags(keyword);
     }
 
@@ -65,7 +63,7 @@ public class TagApiController {
     }
 
     @GetMapping("/top6")
-    public List<Neo4jTagDto> top6Tags(@RequestParam Long movieId) {
+    public List<TagCountRequestDto> top6Tags(@RequestParam Long movieId) {
         return tagService.getTop6Tags(movieId);
     }
 

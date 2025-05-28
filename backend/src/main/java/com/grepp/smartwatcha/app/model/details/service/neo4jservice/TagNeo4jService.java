@@ -1,7 +1,6 @@
 package com.grepp.smartwatcha.app.model.details.service.neo4jservice;
 
-import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
-import com.grepp.smartwatcha.app.model.details.repository.neo4jrepository.TagNeo4jRepository;
+import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.TagCountRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,7 @@ public class TagNeo4jService {
                 .run();
     }
 
-    public List<Neo4jTagDto> getTop6Tags(Long movieId) {
+    public List<TagCountRequestDto> getTop6Tags(Long movieId) {
 
         String query = """
             MATCH (:USER)-[r:TAGGED {movieId: $movieId}]->(t:TAG)
@@ -45,9 +44,9 @@ public class TagNeo4jService {
 
         return new ArrayList<>(neo4jClient.query(query)
                 .bind(movieId).to("movieId")
-                .fetchAs(Neo4jTagDto.class)
+                .fetchAs(TagCountRequestDto.class)
                 .mappedBy((typeSystem, record) ->
-                        new Neo4jTagDto(
+                        new TagCountRequestDto(
                                 record.get("name").asString(),
                                 record.get("count").asLong()
                         )
