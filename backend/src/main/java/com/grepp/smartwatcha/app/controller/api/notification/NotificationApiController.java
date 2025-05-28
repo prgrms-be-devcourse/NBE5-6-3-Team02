@@ -1,6 +1,9 @@
 package com.grepp.smartwatcha.app.controller.api.notification;
 
-import com.grepp.smartwatcha.app.model.notification.NotificationService;
+import com.grepp.smartwatcha.app.model.notification.NotificationJpaService;
+import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
+import com.grepp.smartwatcha.infra.response.ApiResponse;
+import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,35 +14,84 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
+// 알림 읽음, 삭제용 api 컨트롤러
 public class NotificationApiController {
 
-    private final NotificationService notificationService;
+    private final NotificationJpaService notificationService;
 
     @PostMapping("read")
     @ResponseBody
-    public void markAsRead(
+    /*
+     * 단일 알림 읽음 처리
+     * 입력: userId, notificationId
+     * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
+     * 로직: userId, notificationId로 접근, 해당하는 알림의 isRead를 true로 전환
+     */
+    public ApiResponse<Object> markAsRead(
             @RequestParam("id") Long notificationId,
             @RequestParam("user") Long userId) {
-        notificationService.markAsRead(notificationId, userId);
+        try {
+            notificationService.markAsRead(notificationId, userId);
+
+            return ApiResponse.noContent();
+        } catch (Exception e) {
+            throw new CommonException(ResponseCode.BAD_REQUEST);
+        }
     }
 
     @PostMapping("delete")
     @ResponseBody
-    public void deleteNotification(
+    /*
+     * 단일 알림 삭제 처리
+     * 입력: userId, notificationId
+     * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
+     * 로직: userId, notificationId로 접근, 해당하는 알림의 activated를 false로 전환
+     */
+    public ApiResponse<Object> deleteNotification(
             @RequestParam("id") Long notificationId,
             @RequestParam("user") Long userId) {
-        notificationService.deactivateNotification(notificationId, userId);
+        try {
+            notificationService.deactivateNotification(notificationId, userId);
+
+            return ApiResponse.noContent();
+        } catch (Exception e) {
+            throw new CommonException(ResponseCode.BAD_REQUEST);
+        }
     }
 
     @PostMapping("readAll")
     @ResponseBody
-    public void markAllAsRead(@RequestParam("user") Long userId) {
-        notificationService.markAllAsRead(userId);
+    /*
+     * 단일 알림 삭제 처리
+     * 입력: userId
+     * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
+     * 로직: userId로 접근, 해당하는 모든 알림의 isRead를 true로 전환
+     */
+    public ApiResponse<Object> markAllAsRead(@RequestParam("user") Long userId) {
+        try{
+            notificationService.markAllAsRead(userId);
+
+            return ApiResponse.noContent();
+        } catch (Exception e) {
+            throw new CommonException(ResponseCode.BAD_REQUEST);
+        }
     }
 
     @PostMapping("deleteAll")
     @ResponseBody
-    public void deleteAllNotifications(@RequestParam("user") Long userId) {
-        notificationService.deactivateAllNotifications(userId);
+    /*
+     * 단일 알림 삭제 처리
+     * 입력: userId
+     * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
+     * 로직: userId로 접근, 해당하는 모든 알림의 activated를 false로 전환
+     */
+    public ApiResponse<Object> deleteAllNotifications(@RequestParam("user") Long userId) {
+        try{
+            notificationService.deactivateAllNotifications(userId);
+
+            return ApiResponse.noContent();
+        } catch (Exception e) {
+            throw new CommonException(ResponseCode.BAD_REQUEST);
+        }
     }
 }

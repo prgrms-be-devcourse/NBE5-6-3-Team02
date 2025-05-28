@@ -6,7 +6,7 @@ import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommend
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.index.IndexService;
 import com.grepp.smartwatcha.app.model.index.dto.IndexMovieDto;
-import com.grepp.smartwatcha.app.model.notification.NotificationService;
+import com.grepp.smartwatcha.app.model.notification.NotificationJpaService;
 import com.grepp.smartwatcha.app.model.recommend.RecommendHighestRatedMovieService;
 import com.grepp.smartwatcha.app.model.recommend.RecommendPersonalMovieService;
 import com.grepp.smartwatcha.app.model.recommend.RecommendUserBasedMovieService;
@@ -32,7 +32,7 @@ public class IndexController {
     private final RecommendHighestRatedMovieService recommendService;
     private final RecommendPersonalMovieService personalMovieService;
     private final RecommendUserBasedMovieService userBasedMovieService;
-    private final NotificationService notificationService;
+    private final NotificationJpaService notificationService;
     
     @GetMapping("/")
     public String index(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
