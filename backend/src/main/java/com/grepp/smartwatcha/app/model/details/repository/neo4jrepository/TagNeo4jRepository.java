@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.model.details.repository.neo4jrepository;
 
-import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.TagCountRequestDto;
 import com.grepp.smartwatcha.infra.neo4j.node.TagNode;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -28,5 +28,5 @@ public interface TagNeo4jRepository extends Neo4jRepository<TagNode, String> {
             "RETURN t.name AS name, count(*) AS count " +
             "ORDER BY count DESC " +
             "LIMIT 6")
-    List<Neo4jTagDto> findTop6TagsByMovieId(@Param("movieId") Long movieId);
+    List<TagCountRequestDto> findTop6TagsByMovieId(@Param("movieId") Long movieId);
 }

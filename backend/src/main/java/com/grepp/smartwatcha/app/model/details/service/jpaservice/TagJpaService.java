@@ -1,9 +1,9 @@
 package com.grepp.smartwatcha.app.model.details.service.jpaservice;
 
-import com.grepp.smartwatcha.app.model.details.dto.jpadto.JpaTagDto;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.TagDto;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
-import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieTagRepository;
-import com.grepp.smartwatcha.app.model.details.repository.jparepository.TagJapRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.UserTagJpaRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.TagJpaRepository;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieTagEntity;
@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 @Transactional(transactionManager = "jpaTransactionManager")
 public class TagJpaService {
 
-    private final MovieTagRepository movieTagRepository;
+    private final UserTagJpaRepository userTagJpaRepository;
     private final MovieDetailsJpaRepository movieDetailsJpaRepository;
-    private final TagJapRepository tagRepository;
+    private final TagJpaRepository tagRepository;
     private final TagNeo4jService tagNeo4jService;
 
     public void selectTag(UserEntity user, Long movieId, String tagName) {
@@ -35,12 +35,12 @@ public class TagJpaService {
 
         TagEntity tag = tagList.get(0);// 같으이름이면 첫번재꺼
 
-        boolean exists = movieTagRepository.existsByUserAndMovieAndTag(user, movie, tag);
+        boolean exists = userTagJpaRepository.existsByUserAndMovieAndTag(user, movie, tag);
         if (exists) {
             throw new IllegalArgumentException("이미 남긴 태그입니다.");
         }
         MovieTagEntity entity = new MovieTagEntity(user, movie, tag);
-        movieTagRepository.save(entity);
+        userTagJpaRepository.save(entity);
 
         // Neo4j Tagged 관계 저장 해줘야함
         tagNeo4jService.saveTaggedRelation(user.getId(), movieId, tagName);
@@ -50,22 +50,22 @@ public class TagJpaService {
         MovieEntity movie = movieDetailsJpaRepository.findById(movieId)
                 .orElseThrow(() -> new RuntimeException("영화 없음"));
 
-        return movieTagRepository.findByUserAndMovie(user, movie);
+        return userTagJpaRepository.findByUserAndMovie(user, movie);
     }
 
 
-    public List<JpaTagDto> searchTags(String keyword) {
+    public List<TagDto> searchTags(String keyword) {
         return tagRepository.findByNameContainingIgnoreCase(keyword).stream()
-                .map(tagEntity -> new JpaTagDto(tagEntity.getId(), tagEntity.getName()))
+                .map(tagEntity -> new TagDto(tagEntity.getId(), tagEntity.getName()))
                 .collect(Collectors.toList());
     }
 
     public void deleteUserTag(UserEntity user, Long movieId, String tagName) {
-        MovieTagEntity entity = movieTagRepository
+        MovieTagEntity entity = userTagJpaRepository
                 .findByUserAndMovieIdAndTag_Name(user,movieId,tagName)
                 .orElseThrow(() -> new IllegalArgumentException("해당 태그 없음"));
 
-        movieTagRepository.delete(entity);
+        userTagJpaRepository.delete(entity);
         tagNeo4jService.deletTaggedRelation(user.getId(), movieId, tagName);
 
     }

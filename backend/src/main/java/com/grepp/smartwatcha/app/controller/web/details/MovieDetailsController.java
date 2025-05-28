@@ -4,7 +4,7 @@ import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.MovieDetailsDto;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.SimilarMovieDto;
-import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.Neo4jTagDto;
+import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.TagCountRequestDto;
 import com.grepp.smartwatcha.app.model.details.service.GenreRecommendService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.InterestJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.MovieJpaService;
@@ -49,7 +49,7 @@ public class MovieDetailsController {
         List<RatingBarDto> ratingList = ratingJpaService.getRatingDistributionList(id);
         Map<Integer, Integer> ratingDistribution = ratingJpaService.getRatingDistribution(id);
         MovieNode neo4jMovie = movieNeo4jService.getMovieWithAllRelations(id);
-        List<Neo4jTagDto> topTags = tagNeo4jService.getTop6Tags(id);
+        List<TagCountRequestDto> topTags = tagNeo4jService.getTop6Tags(id);
 
         List<SimilarMovieDto> similarMovies = genreRecommendService.getGenreSimilarMovies(id);
 
