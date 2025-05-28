@@ -1,24 +1,16 @@
 package com.grepp.smartwatcha.app.model.recommend.repository;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import org.springframework.stereotype.Repository;
-
+import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
-@Repository
-public class RecommendHighestRatedMovieJpaRepository {
+public interface RecommendHighestRatedMovieJpaRepository extends JpaRepository<RatingEntity, Long> {
 
-    @PersistenceContext
-    private EntityManager em;
-
-    public List<Object[]> findTop10ByAverageRating() {
-        return em.createQuery(
-                        "SELECT r.movie.id, AVG(r.score) as avgScore " +
-                                "FROM RatingEntity r " +
-                                "GROUP BY r.movie.id " +
-                                "ORDER BY avgScore DESC", Object[].class)
-                .setMaxResults(10)
-                .getResultList();
-    }
+    //각 영화별로 평균 점수 계산 후 높은 순으로 정렬
+    @Query("SELECT r.movie.id, AVG(r.score) as avgScore " +
+            "FROM RatingEntity r " +
+            "GROUP BY r.movie.id " +
+            "ORDER BY avgScore DESC")
+    List<Object[]> findTop10ByAverageRating(Pageable pageable);
 }
