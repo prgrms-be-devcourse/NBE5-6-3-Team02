@@ -162,7 +162,7 @@ public class UserController {
                            RedirectAttributes redirectAttributes) {
         try {
             userJpaService.deleteUser(userDetails.getUser().getId());
-            return "redirect:/logout";
+            return "redirect:/user/logout";
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/user/profile";
