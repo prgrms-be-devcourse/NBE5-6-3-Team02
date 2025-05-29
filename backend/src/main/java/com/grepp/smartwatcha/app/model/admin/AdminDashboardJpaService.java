@@ -20,42 +20,42 @@ public class AdminDashboardJpaService {
   private final AdminTagJpaRepository adminTagJpaRepository;
   private final UpcomingMovieSyncTimeJpaRepository upcomingMovieSyncTimeJpaRepository;
 
-  public long getTotalUsers() {
+  public long getTotalUsers() { // 전체 유저 수 반환
     return adminUserJpaRepository.count();
   }
 
-  public long getActiveUsers() {
+  public long getActiveUsers() { // 활성 유저 수 반환
     return adminUserJpaRepository.countByActivatedTrue();
   }
 
-  public long getInactiveUsers() {
+  public long getInactiveUsers() { // 비활성 유저 수 반환
     return adminUserJpaRepository.countByActivatedFalse();
   }
 
-  public long getTotalMovies() {
+  public long getTotalMovies() { // 전체 영화 수 반환
     return adminMovieJpaRepository.count();
   }
 
-  public long getUpcomingMovies() {
+  public long getUpcomingMovies() { // 현재 시점 이후 공개 예정 영화 수 반환
     return adminMovieJpaRepository.countByReleaseDateAfter(LocalDateTime.now());
   }
 
-  public List<MovieEntity> getRecentUpcomingMovies() {
+  public List<MovieEntity> getRecentUpcomingMovies() { // 최근 등록된 공개 예정작 5개 반환
     return adminMovieJpaRepository
         .findTop5ByReleaseDateAfterOrderByReleaseDateAsc(LocalDateTime.now());
   }
 
-  public long getTotalTags() {
+  public long getTotalTags() { // 전체 태그 수 반환
     return adminTagJpaRepository.count();
   }
 
-  public int getNewlyAddedMovieCount() {
+  public int getNewlyAddedMovieCount() { // 최근 동기화에서 새로 추가된 영화 수 반환
     return upcomingMovieSyncTimeJpaRepository.findTopByTypeOrderBySyncTimeDesc("upcoming")
         .map(SyncTimeEntity::getNewlyAddedCount)
         .orElse(0);
   }
 
-  public int getFailedSyncCount() {
+  public int getFailedSyncCount() { // 최근 동기화에서 실패한 영화 수 반환
     return upcomingMovieSyncTimeJpaRepository.findTopByTypeOrderBySyncTimeDesc("upcoming")
         .map(SyncTimeEntity::getFailedCount)
         .orElse(0);
