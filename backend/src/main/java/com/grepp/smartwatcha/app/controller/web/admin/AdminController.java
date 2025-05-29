@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminController { // 관리자 대시보드 페이지
 
   private final AdminDashboardJpaService adminDashboardJpaService;
   private final UpcomingMovieSyncTimeJpaService upcomingMovieSyncTimeJpaService;
@@ -32,22 +32,32 @@ public class AdminController {
     model.addAttribute("upcomingMovies", adminDashboardJpaService.getUpcomingMovies());
     model.addAttribute("totalTags", adminDashboardJpaService.getTotalTags());
 
-    // 최근 동기화 시간 (형식: yyyy-MM-dd HH:mm)
-    LocalDateTime syncTime = upcomingMovieSyncTimeJpaService.getLastSyncTime("upcoming");
-    String formattedSyncTime = (syncTime != null) ?
-        syncTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "N/A";
-    model.addAttribute("lastSyncTime", formattedSyncTime);
+    // 동기화 정보 조회
+    SyncTimeEntity sync = upcomingMovieSyncTimeJpaRepository.findById("upcoming").orElse(null);
 
-    // Sync 정보
-    SyncTimeEntity upcomingSyncTime = upcomingMovieSyncTimeJpaRepository.findById("upcoming").orElse(null);
-    model.addAttribute("lastSyncTime", upcomingSyncTime != null ? upcomingSyncTime.getSyncTime() : null);
-    model.addAttribute("newlyAddedCount", upcomingSyncTime != null ? upcomingSyncTime.getNewlyAddedCount() : 0);
-    model.addAttribute("failedCount", upcomingSyncTime != null ? upcomingSyncTime.getFailedCount() : 0);
-    model.addAttribute("enrichFailedCount", syncTime != null ? upcomingSyncTime.getEnrichFailedCount() : 0);
+    if (sync != null) {
+      // 최근 동기화 시간: yyyy-MM-dd HH:mm 형식으로 포맷
+      model.addAttribute("lastSyncTime", sync.getSyncTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+
+      // 동기화에서 새로 추가된 영화 수
+      model.addAttribute("newlyAddedCount", sync.getNewlyAddedCount());
+
+      // TMDB API 호출 실패 등으로 인해 저장 실패한 영화 수
+      model.addAttribute("failedCount", sync.getFailedCount());
+
+      // 상세 정보 보강(enrich) 중 예외 발생 → 저장 롤백된 영화 수
+      model.addAttribute("enrichFailedCount", sync.getEnrichFailedCount());
+
+    } else {
+      // 동기화 정보가 없는 경우 기본값 설정
+      model.addAttribute("lastSyncTime", "N/A");
+      model.addAttribute("newlyAddedCount", 0);
+      model.addAttribute("failedCount", 0);
+      model.addAttribute("enrichFailedCount", 0);
+    }
 
     // 최근 등록된 공개 예정작 (5개)
-    List<MovieEntity> recentUpcoming = adminDashboardJpaService
-        .getRecentUpcomingMovies();
+    List<MovieEntity> recentUpcoming = adminDashboardJpaService.getRecentUpcomingMovies();
     model.addAttribute("recentUpcomingMovies", recentUpcoming);
 
     return "admin/dashboard";
