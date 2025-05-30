@@ -94,7 +94,7 @@ public class RecommendPersonalMovieService {
         return result;
     }
 
-    // 장르화 태그에 해당하는 점수 평균 계산
+    // 장르와 태그에 해당하는 점수 평균 계산
     private double calculateAverage(List<String> keys, Map<String, Double> scores) {
         if (keys.isEmpty()) return 0.0;
 

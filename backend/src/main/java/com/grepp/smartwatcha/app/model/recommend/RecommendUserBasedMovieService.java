@@ -3,14 +3,12 @@ package com.grepp.smartwatcha.app.model.recommend;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendUserBasedResponse;
 import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
-import com.grepp.smartwatcha.app.model.recommend.service.RecommendUserBasedRatedJpaService;
-import com.grepp.smartwatcha.app.model.recommend.service.RecommendUserBasedRatedNeo4jService;
+import com.grepp.smartwatcha.app.model.recommend.service.userbased.RecommendUserBasedRatedJpaService;
+import com.grepp.smartwatcha.app.model.recommend.service.userbased.RecommendUserBasedRatedNeo4jService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,37 +18,70 @@ public class RecommendUserBasedMovieService {
     private final RecommendUserBasedRatedNeo4jService graphService;
     private final MovieQueryJpaRepository movieQueryRepository;
 
+    // 협업 필터링 기반 10개 영화 추천
     public List<MovieRecommendUserBasedResponse> getTop10UserBasedMovies(Long userId) {
         Map<Long, Double> finalScores = ratingService.calculateUserBasedScores(userId);
-
-        List<Long> topMovieIds = finalScores.entrySet().stream()
-                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
-                .limit(10)
-                .map(Map.Entry::getKey)
-                .toList();
+        List<Long> topMovieIds = getTop10MovieIds(finalScores);
 
         if (topMovieIds.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Map<Long, MovieEntity> movieMap = movieQueryRepository.findByIdIn(topMovieIds).stream()
-                .collect(Collectors.toMap(MovieEntity::getId, movie -> movie));
+        Map<Long, MovieEntity> movieMap = getMovieMap(topMovieIds);
+        Map<Long, List<String>> genreMap = new HashMap<>();
+        Map<Long, List<String>> tagMap = new HashMap<>();
+        buildGenreAndTagMaps(topMovieIds, genreMap, tagMap);
 
-        List<MovieGenreTagResponse> genreTagResponseList =
-                graphService.getGenreTagInfoByMovieIdList(topMovieIds);
+        return buildResponseList(topMovieIds, finalScores, movieMap, genreMap, tagMap);
+    }
 
-        Map<Long, List<String>> genreMap = genreTagResponseList.stream()
-                .collect(Collectors.toMap(MovieGenreTagResponse::getMovieId, MovieGenreTagResponse::getGenres));
-        Map<Long, List<String>> tagMap = genreTagResponseList.stream()
-                .collect(Collectors.toMap(MovieGenreTagResponse::getMovieId, MovieGenreTagResponse::getTags));
+    // 예측 점수 내림차순 정렬
+    private List<Long> getTop10MovieIds(Map<Long, Double> scoreMap) {
+        List<Map.Entry<Long, Double>> sortedEntries = new ArrayList<>(scoreMap.entrySet());
+        sortedEntries.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
 
-        return topMovieIds.stream()
-                .map(movieId -> MovieRecommendUserBasedResponse.from(
-                        movieMap.get(movieId),
-                        finalScores.get(movieId),
-                        genreMap.getOrDefault(movieId, List.of()),
-                        tagMap.getOrDefault(movieId, List.of())
-                ))
-                .toList();
+        List<Long> result = new ArrayList<>();
+        int count = Math.min(10, sortedEntries.size());
+        for (int i = 0; i < count; i++) {
+            result.add(sortedEntries.get(i).getKey());
+        }
+        return result;
+    }
+
+    private Map<Long, MovieEntity> getMovieMap(List<Long> movieIds) {
+        List<MovieEntity> movies = movieQueryRepository.findByIdIn(movieIds);
+        Map<Long, MovieEntity> map = new HashMap<>();
+        for (MovieEntity movie : movies) {
+            map.put(movie.getId(), movie);
+        }
+        return map;
+    }
+
+    private void buildGenreAndTagMaps(List<Long> movieIds, Map<Long, List<String>> genreMap, Map<Long, List<String>> tagMap) {
+        List<MovieGenreTagResponse> responses = graphService.getGenreTagInfoByMovieIdList(movieIds);
+        for (MovieGenreTagResponse response : responses) {
+            genreMap.put(response.getMovieId(), response.getGenres());
+            tagMap.put(response.getMovieId(), response.getTags());
+        }
+    }
+
+    private List<MovieRecommendUserBasedResponse> buildResponseList(
+            List<Long> movieIds,
+            Map<Long, Double> scoreMap,
+            Map<Long, MovieEntity> movieMap,
+            Map<Long, List<String>> genreMap,
+            Map<Long, List<String>> tagMap
+    ) {
+        List<MovieRecommendUserBasedResponse> responses = new ArrayList<>();
+        for (Long movieId : movieIds) {
+            MovieEntity movie = movieMap.get(movieId);
+            double score = scoreMap.getOrDefault(movieId, 0.0);
+            List<String> genres = genreMap.getOrDefault(movieId, List.of());
+            List<String> tags = tagMap.getOrDefault(movieId, List.of());
+
+            MovieRecommendUserBasedResponse response = MovieRecommendUserBasedResponse.from(movie, score, genres, tags);
+            responses.add(response);
+        }
+        return responses;
     }
 }

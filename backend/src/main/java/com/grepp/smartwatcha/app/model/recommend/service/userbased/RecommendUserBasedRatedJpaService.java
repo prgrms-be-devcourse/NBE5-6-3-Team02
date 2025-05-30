@@ -1,15 +1,13 @@
-package com.grepp.smartwatcha.app.model.recommend.service;
+package com.grepp.smartwatcha.app.model.recommend.service.userbased;
 
 import com.grepp.smartwatcha.app.model.recommend.repository.RatingRecommendJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-
 
 @Service
 @RequiredArgsConstructor
@@ -19,18 +17,12 @@ public class RecommendUserBasedRatedJpaService {
     private final RatingRecommendJpaRepository ratingRepository;
     private static final int K = 10;
 
-
     public Map<Long, Double> calculateUserBasedScores(Long userId) {
         List<RatingEntity> myRatings = ratingRepository.findByUserId(userId);
         if (myRatings.isEmpty()) return Map.of();
 
-        Map<Long, Double> targetRatingMap = new HashMap<>();
-        List<Long> targetMovieIds = new ArrayList<>();
-        for (RatingEntity rating : myRatings) {
-            Long movieId = rating.getMovie().getId();
-            targetRatingMap.put(movieId, rating.getScore());
-            targetMovieIds.add(movieId);
-        }
+        Map<Long, Double> targetRatingMap = buildRatingMap(myRatings);
+        List<Long> targetMovieIds = extractMovieIds(myRatings);
 
         List<Long> candidateUserIds = ratingRepository.findUsersWithCommonRatedMovies(userId, targetMovieIds);
         if (candidateUserIds.isEmpty()) return Map.of();
@@ -38,36 +30,75 @@ public class RecommendUserBasedRatedJpaService {
         List<Long> userIdList = new ArrayList<>(candidateUserIds);
         userIdList.add(userId);
 
-        List<RatingEntity> ratings = ratingRepository.findByUserIdIn(userIdList);
+        Map<Long, List<RatingEntity>> userRatingsMap = groupRatingsByUser(ratingRepository.findByUserIdIn(userIdList));
+        Map<Long, Double> similarityMap = calculateSimilarities(candidateUserIds, targetRatingMap, userRatingsMap);
 
+        List<Long> topKUserIds = getTopKSimilarUsers(similarityMap);
+
+        return predictScores(topKUserIds, targetRatingMap, userRatingsMap, similarityMap);
+    }
+
+    private Map<Long, Double> buildRatingMap(List<RatingEntity> ratings) {
+        Map<Long, Double> ratingMap = new HashMap<>();
+        for (RatingEntity rating : ratings) {
+            ratingMap.put(rating.getMovie().getId(), rating.getScore());
+        }
+        return ratingMap;
+    }
+
+    private List<Long> extractMovieIds(List<RatingEntity> ratings) {
+        List<Long> ids = new ArrayList<>();
+        for (RatingEntity rating : ratings) {
+            ids.add(rating.getMovie().getId());
+        }
+        return ids;
+    }
+
+    private Map<Long, List<RatingEntity>> groupRatingsByUser(List<RatingEntity> ratings) {
         Map<Long, List<RatingEntity>> userRatingsMap = new HashMap<>();
         for (RatingEntity rating : ratings) {
-            userRatingsMap
-                    .computeIfAbsent(rating.getUser().getId(), k -> new ArrayList<>())
-                    .add(rating);
+            userRatingsMap.computeIfAbsent(rating.getUser().getId(), k -> new ArrayList<>()).add(rating);
         }
+        return userRatingsMap;
+    }
+
+    private Map<Long, Double> calculateSimilarities(
+            List<Long> candidateUserIds,
+            Map<Long, Double> targetRatingMap,
+            Map<Long, List<RatingEntity>> userRatingsMap) {
 
         Map<Long, Double> similarityMap = new HashMap<>();
+
         for (Long otherUserId : candidateUserIds) {
             List<RatingEntity> otherRatings = userRatingsMap.get(otherUserId);
             if (otherRatings == null) continue;
 
-            Map<Long, Double> otherRatingMap = new HashMap<>();
-            for (RatingEntity rating : otherRatings) {
-                otherRatingMap.put(rating.getMovie().getId(), rating.getScore());
-            }
-
+            Map<Long, Double> otherRatingMap = buildRatingMap(otherRatings);
             double similarity = cosineSimilarity(targetRatingMap, otherRatingMap);
             if (similarity > 0) {
                 similarityMap.put(otherUserId, similarity);
             }
         }
 
-        List<Long> topKUserIds = similarityMap.entrySet().stream()
-                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
-                .limit(K)
-                .map(Map.Entry::getKey)
-                .toList();
+        return similarityMap;
+    }
+
+    private List<Long> getTopKSimilarUsers(Map<Long, Double> similarityMap) {
+        List<Map.Entry<Long, Double>> sorted = new ArrayList<>(similarityMap.entrySet());
+        sorted.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
+
+        List<Long> topK = new ArrayList<>();
+        for (int i = 0; i < Math.min(K, sorted.size()); i++) {
+            topK.add(sorted.get(i).getKey());
+        }
+        return topK;
+    }
+
+    private Map<Long, Double> predictScores(
+            List<Long> topKUserIds,
+            Map<Long, Double> targetRatingMap,
+            Map<Long, List<RatingEntity>> userRatingsMap,
+            Map<Long, Double> similarityMap) {
 
         Map<Long, Double> predictedScores = new HashMap<>();
         Map<Long, Double> similaritySums = new HashMap<>();
@@ -95,8 +126,6 @@ public class RecommendUserBasedRatedJpaService {
             finalScores.put(movieId, score);
         }
 
-
-
         return finalScores;
     }
 
@@ -106,14 +135,10 @@ public class RecommendUserBasedRatedJpaService {
         if (common.isEmpty()) return 0.0;
 
         double dotProduct = 0, normA = 0, normB = 0;
-        for (Long key : common) {
-            dotProduct += a.get(key) * b.get(key);
-        }
+        for (Long key : common) dotProduct += a.get(key) * b.get(key);
         for (double v : a.values()) normA += v * v;
         for (double v : b.values()) normB += v * v;
 
         return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-
-
     }
 }
