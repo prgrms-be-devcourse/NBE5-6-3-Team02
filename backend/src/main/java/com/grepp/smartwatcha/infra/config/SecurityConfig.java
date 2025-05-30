@@ -54,18 +54,18 @@ public class SecurityConfig {
 
             // 로그인 설정
             .formLogin(form -> form
-                .loginPage("/login")                // 사용자 정의 로그인 페이지
-                .loginProcessingUrl("/login")       // 로그인 form action 경로
+                .loginPage("/user/login")                // 사용자 정의 로그인 페이지
+                .loginProcessingUrl("/user/login")       // 로그인 form action 경로
                 .usernameParameter("email")         // 아이디 파라미터 이름
                 .passwordParameter("password")      // 비밀번호 파라미터 이름
                 .successHandler(new CustomLoginSuccessHandler())  // 로그인 성공 핸들러
-                .failureHandler(new CustomLoginFailureHandler())  // 로그인 성공 핸들러
+                .failureHandler(new CustomLoginFailureHandler())  // 로그인 실패 핸들러
                 .permitAll()
             )
 
             // 로그아웃 설정
             .logout(logout -> logout
-                .logoutUrl("/logout")                   // 로그아웃 요청 URL
+                .logoutUrl("/user/logout")                   // 로그아웃 요청 URL
                 .logoutSuccessUrl("/")                  // 로그아웃 성공 시 이동할 URL
                 .invalidateHttpSession(true)            // 세션 무효화
                 .deleteCookies("JSESSIONID", "remember-me") // 쿠키 삭제
@@ -87,8 +87,22 @@ public class SecurityConfig {
             // 요청 URL 별 접근 권한 설정
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/admin/**").hasRole("ADMIN")  // 관리자만 접근 가능
-                .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**", "/error").permitAll() // 전체 공개
-                .anyRequest().permitAll()                        // 그 외 요청도 기본적으로 허용
+                .requestMatchers(
+                    "/",
+                    "/user/login",
+                    "/user/signup",
+                    "/user/signup/send-code",
+                    "/user/signup/verify",
+                    "/user/find-id",
+                    "/user/find-password",
+                    "/user/find-password/send-code",
+                    "/user/find-password/verify",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/error"
+                ).permitAll()                // 인증 없이 접근 가능
+                .anyRequest().authenticated() // 그 외 요청은 인증 필요
             );
 
         return http.build();
