@@ -97,9 +97,13 @@ public class SecurityConfig {
                     "/user/find-password",
                     "/user/find-password/send-code",
                     "/user/find-password/verify",
+                    "/movies/**",           // 영화 관련 페이지 접근 허용
+                    "/recommend/**",        // 추천 관련 페이지 접근 허용
                     "/css/**",
                     "/js/**",
                     "/images/**",
+                    "/fonts/**",           // 폰트 파일 접근 허용
+                    "/webjars/**",         // WebJars 리소스 접근 허용
                     "/error"
                 ).permitAll()                // 인증 없이 접근 가능
                 .anyRequest().authenticated() // 그 외 요청은 인증 필요
