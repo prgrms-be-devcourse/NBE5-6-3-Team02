@@ -3,11 +3,11 @@ package com.grepp.smartwatcha.app.controller.api.details;
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.TagDto;
 import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.TagCountRequestDto;
-import com.grepp.smartwatcha.app.model.details.service.jpaservice.TagJpaService;
-import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
+import com.grepp.smartwatcha.app.model.details.service.TagService;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,14 +15,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/movies/{id}/tags")
+@RequiredArgsConstructor
 public class TagApiController {
-    private final TagNeo4jService tagService;
-    private final TagJpaService tagJpaService;
 
-    public TagApiController(TagNeo4jService tagService, TagJpaService tagJpaService) {
-        this.tagService = tagService;
-        this.tagJpaService = tagJpaService;
-    }
+    private final TagService tagService;
 
     @GetMapping("/user")
     public List<String> getUserTags(
@@ -30,14 +26,14 @@ public class TagApiController {
             @PathVariable("id") Long movieId
     ) {
         UserEntity user = userDetails.getUser();
-        return tagJpaService.getUserTags(user, movieId)
+        return tagService.getUserTags(user, movieId)
                 .stream()
                 .map(tag -> tag.getTag().getName())
                 .toList();
     }
     @GetMapping("/search")
     public List<TagDto> searchTags(@RequestParam String keyword) {
-        return tagJpaService.searchTags(keyword);
+        return tagService.searchTags(keyword);
     }
 
     @PostMapping("/select")
@@ -47,11 +43,9 @@ public class TagApiController {
             @RequestParam String tagName
     ) {
         UserEntity user = userDetails.getUser();
-        try {
-            tagJpaService.selectTag(user, movieId, tagName);
-        } catch (IllegalStateException e) {
-            throw new CommonException(ResponseCode.BAD_REQUEST);
-        }
+
+        tagService.saveUserTag(user, movieId, tagName);
+
     }
     @DeleteMapping("/delete")
     public void deleteUserTag(
@@ -59,7 +53,7 @@ public class TagApiController {
             @PathVariable("id") Long movieId,
             @RequestParam String tagName
     ) {
-        tagJpaService.deleteUserTag(userDetails.getUser(), movieId, tagName);
+        tagService.deleteUserTag(userDetails.getUser(), movieId, tagName);
     }
 
     @GetMapping("/top6")

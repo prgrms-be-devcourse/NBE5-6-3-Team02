@@ -1,6 +1,7 @@
 package com.grepp.smartwatcha.app.model.details.service.neo4jservice;
 
 import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.TagCountRequestDto;
+import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import java.util.Map;
 public class TagNeo4jService {
     private final Neo4jClient neo4jClient;
 
-    public void saveTagSelection(Long userId, Long movieId, String tagName) {
+    public void saveTagSelection(UserEntity user, Long movieId, String tagName) {
         String query = """
             MERGE (u:USER {id: $userId})
             WITH u
@@ -26,7 +27,7 @@ public class TagNeo4jService {
 
         neo4jClient.query(query)
                 .bindAll(Map.of(
-                        "userId", userId,
+                        "userId", user.getId(),
                         "movieId", movieId,
                         "tagName", tagName
                 ))
@@ -54,7 +55,7 @@ public class TagNeo4jService {
                 .all());
     }
 
-    public void saveTaggedRelation(Long userId, Long movieId, String tagName) {
+    public void saveTaggedRelation(UserEntity user, Long movieId, String tagName) {
         String query = "MERGE (u:USER {id: $userId}) " +
                 "MERGE (m:MOVIE {id: $movieId}) " +
                 "MERGE (t:TAG {name: $tagName}) " +
@@ -62,17 +63,17 @@ public class TagNeo4jService {
 
         neo4jClient.query(query)
                 .bindAll(Map.of(
-                        "userId", userId,
+                        "userId", user.getId(),
                         "movieId", movieId,
                         "tagName", tagName
                 ))
                 .run();
     }
-    public void deletTaggedRelation(Long userId, Long movieId, String tagName) {
+    public void deletTaggedRelation(UserEntity user, Long movieId, String tagName) {
         String query = "MATCH (u:USER {id: $userId})-[r:TAGGED {movieId: $movieId}]->(t:TAG {name: $tagName}) DELETE r";
         neo4jClient.query(query)
                 .bindAll(Map.of(
-                        "userId", userId,
+                        "userId", user.getId(),
                         "movieId", movieId,
                         "tagName", tagName
                 ))
