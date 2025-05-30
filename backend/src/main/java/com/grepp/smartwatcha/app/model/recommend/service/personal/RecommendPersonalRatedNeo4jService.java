@@ -11,9 +11,10 @@ import java.util.List;
 @Service
 @Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
 public class RecommendPersonalRatedNeo4jService {
-
+    
     private final MovieGenreCustomNeo4jRepository movieGenreCustomRepository;
 
+    // 각 영화의 장르 와 태그 가져옴 
     public List<MovieGenreTagResponse> getGenreTagInfoByMovieIdList(List<Long> movieIdList) {
         return movieGenreCustomRepository.findGenresAndTagsByMovieIdList(movieIdList);
     }
