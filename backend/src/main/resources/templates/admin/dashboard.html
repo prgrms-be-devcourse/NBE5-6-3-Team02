@@ -99,7 +99,7 @@
     <div class="flex-two-column">
         <div class="half-section" style="flex: 0 0 50%;">
             <h5>🕒 Recent Upcoming Sync</h5>
-            <p>📅 Last Sync Time: <span th:text="${#temporals.format(lastSyncTime, 'yyyy-MM-dd HH:mm:ss')}">N/A</span></p>
+            <p>📅 Last Sync Time: <span th:text="${lastSyncTime}">N/A</span></p>
             <p>📥 New Movies Added: <strong th:text="${newlyAddedCount}">0</strong></p>
             <p>
                 ⚠️ Failed:
@@ -136,18 +136,18 @@
                                 <div style="flex: 1; margin-top: 0px">
                                     <p><strong>ID:</strong> <span th:text="${movie.id}">N/A</span></p>
                                     <p><strong>Release Date:</strong>
-                                        <span th:text="${movie.releaseDate != null} ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : 'null'">null</span>
+                                        <span th:text="${movie.releaseDate != null ? #temporals.format(movie.releaseDate, 'yyyy-MM-dd') : 'null'}">null</span>
                                     </p>
                                     <p><strong>Certification:</strong>
-                                        <span th:text="${movie.certification != null} ? ${movie.certification} : 'null'">null</span>
+                                        <span th:text="${movie.certification != null ? movie.certification : 'null'}">null</span>
                                     </p>
                                     <p><strong>Country:</strong>
-                                        <span th:text="${movie.country != null} ? ${movie.country} : 'null'">null</span>
+                                        <span th:text="${movie.country != null ? movie.country : 'null'}">null</span>
                                     </p>
                                 </div>
                             </div>
                             <p><strong>Overview:</strong>
-                                <span th:text="${movie.overview != null} ? ${movie.overview} : 'null'">null</span>
+                                <span th:text="${movie.overview != null ? movie.overview : 'null'}">null</span>
                             </p>
                         </div>
                         <div class="modal-footer" style="background-color: #1e1e1e">
@@ -172,31 +172,39 @@
         </div>
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var elems = document.querySelectorAll('.modal');
-        M.Modal.init(elems);
-    });
-
-    function syncUpcomingMovies() {
-        fetch('/admin/movies/upcoming/sync-manual-test', {
-            method: 'GET'
-        })
-        .then(res => {
-            console.log("응답 상태:", res.status);
-            if (res.ok) {
-                alert("✅ Sync completed successfully!");
-                window.location.href = '/admin/movies/upcoming?v=' + new Date().getTime();
-            } else {
-                alert("❌ Sync failed! (" + res.status + ")");
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("⚠️ An error occurred!");
+    <script>
+        // 페이지가 완전히 로딩된 후 실행될 초기화 코드
+        document.addEventListener('DOMContentLoaded', function () {
+            // 모든 .modal 클래스를 가진 요소를 찾아서 Materialize 모달로 초기화
+            var elems = document.querySelectorAll('.modal');
+            M.Modal.init(elems);
         });
-    }
-</script>
+
+        // "Manual Sync" 버튼 클릭 시 실행될 함수
+        function syncUpcomingMovies() {
+            // 비동기 GET 요청: 수동 동기화 API 호출
+            fetch('/admin/movies/upcoming/sync-manual-test', {
+                method: 'GET'
+            })
+            .then(res => {
+                console.log("응답 상태:", res.status); // 응답 상태 코드 출력
+
+                if (res.ok) {
+                    // 200 OK 응답이면 알림 후 페이지 리로드 (캐시 방지를 위한 타임스탬프 추가)
+                    alert("✅ Sync completed successfully!");
+                    window.location.href = '/admin/movies/upcoming?v=' + new Date().getTime();
+                } else {
+                    // 4xx, 5xx 에러 처리
+                    alert("❌ Sync failed! (" + res.status + ")");
+                }
+            })
+            .catch(err => {
+                // 네트워크 오류 등 예외 발생 시 처리
+                console.error(err);
+                alert("⚠️ An error occurred!");
+            });
+        }
+    </script>
 </section>
 </body>
 </html>
