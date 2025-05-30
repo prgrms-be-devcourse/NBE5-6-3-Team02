@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,59 +19,85 @@ public class RecommendPersonalRatedJpaService {
     private final RatingRecommendJpaRepository ratingRepository;
     private final MovieQueryJpaRepository movieQueryRepository;
 
-
+    // 공개된 영화 조회
     public List<MovieEntity> findAllReleasedMovies() {
         return movieQueryRepository.findAllReleased();
     }
 
+    // 장르별 선호 점수 계산 후 평균값을 맵으로 생성
     public Map<String, Double> calculateGenrePreferences(Long userId, Map<Long, List<String>> genreMap) {
         List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
         Map<String, List<Double>> genreScores = new HashMap<>();
 
         for (RatingEntity rating : ratings) {
-            double weight = 1.0 / Math.sqrt(Duration.between(rating.getCreatedAt(), LocalDateTime.now()).toDays() + 1);
-            double weightedScore = rating.getScore() * weight;
+            double weightedScore = getWeightedScore(rating);
             List<String> genres = genreMap.getOrDefault(rating.getMovie().getId(), List.of());
 
             for (String genre : genres) {
-                genreScores.computeIfAbsent(genre, k -> new ArrayList<>()).add(weightedScore);
+                genreScores.computeIfAbsent(genre, key -> new ArrayList<>()).add(weightedScore);
             }
         }
+        
+        Map<String, Double> result = new HashMap<>();
+        for (Map.Entry<String, List<Double>> entry : genreScores.entrySet()) {
+            double average = calculateAverage(entry.getValue());
+            result.put(entry.getKey(), average);
+        }
 
-        return genreScores.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> e.getValue().stream().mapToDouble(Double::doubleValue).average().orElse(0.0)
-                ));
+        return result;
     }
 
+    // 태그별 선호 점수 계산 후 평균값을 맵으로 생성
     public Map<String, Double> calculateTagPreferences(Long userId, Map<Long, List<String>> tagMap) {
         List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
         Map<String, List<Double>> tagScores = new HashMap<>();
 
         for (RatingEntity rating : ratings) {
-            double weight = 1.0 / Math.sqrt(Duration.between(rating.getCreatedAt(), LocalDateTime.now()).toDays() + 1);
-            double weightedScore = rating.getScore() * weight;
+            double weightedScore = getWeightedScore(rating);
             List<String> tags = tagMap.getOrDefault(rating.getMovie().getId(), List.of());
 
             for (String tag : tags) {
-                tagScores.computeIfAbsent(tag, k -> new ArrayList<>()).add(weightedScore);
+                tagScores.computeIfAbsent(tag, key -> new ArrayList<>()).add(weightedScore);
             }
         }
 
-        return tagScores.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> e.getValue().stream().mapToDouble(Double::doubleValue).average().orElse(0.0)
-                ));
+        Map<String, Double> result = new HashMap<>();
+        for (Map.Entry<String, List<Double>> entry : tagScores.entrySet()) {
+            double average = calculateAverage(entry.getValue());
+            result.put(entry.getKey(), average);
+        }
+
+        return result;
     }
 
-    @Transactional(transactionManager = "jpaTransactionManager", readOnly = true)
+    // 사용자가 평가한 id 목록 반환
     public List<Long> getRatedMovieIdsByUser(Long userId) {
-        return ratingRepository.findByUserId(userId).stream()
-                .map(r -> r.getMovie().getId())
-                .distinct()
-                .toList();
+        List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
+        Set<Long> movieIds = new HashSet<>();
+
+        for (RatingEntity rating : ratings) {
+            movieIds.add(rating.getMovie().getId());
+        }
+
+        return new ArrayList<>(movieIds);
     }
 
+    // 시간에 따른 가중치 적용 후 점수 계산
+    private double getWeightedScore(RatingEntity rating) {
+        long daysSince = Duration.between(rating.getCreatedAt(), LocalDateTime.now()).toDays();
+        double weight = 1.0 / Math.sqrt(daysSince + 1);
+        return rating.getScore() * weight;
+    }
+
+    // 리스트의 평균값 계산
+    private double calculateAverage(List<Double> values) {
+        if (values.isEmpty()) return 0.0;
+
+        double sum = 0.0;
+        for (Double v : values) {
+            sum += v;
+        }
+
+        return sum / values.size();
+    }
 }
