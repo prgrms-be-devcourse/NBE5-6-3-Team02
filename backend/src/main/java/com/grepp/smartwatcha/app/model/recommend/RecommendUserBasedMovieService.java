@@ -48,6 +48,7 @@ public class RecommendUserBasedMovieService {
         return result;
     }
 
+    // movieEntity 조회하여 map으로 매핑
     private Map<Long, MovieEntity> getMovieMap(List<Long> movieIds) {
         List<MovieEntity> movies = movieQueryRepository.findByIdIn(movieIds);
         Map<Long, MovieEntity> map = new HashMap<>();
@@ -57,6 +58,7 @@ public class RecommendUserBasedMovieService {
         return map;
     }
 
+    // 장르와 태그 조회하여 map으로 저장
     private void buildGenreAndTagMaps(List<Long> movieIds, Map<Long, List<String>> genreMap, Map<Long, List<String>> tagMap) {
         List<MovieGenreTagResponse> responses = graphService.getGenreTagInfoByMovieIdList(movieIds);
         for (MovieGenreTagResponse response : responses) {
@@ -65,6 +67,7 @@ public class RecommendUserBasedMovieService {
         }
     }
 
+    // 영화별로 점수,장르태그 조합하여 DTO로 변환
     private List<MovieRecommendUserBasedResponse> buildResponseList(
             List<Long> movieIds,
             Map<Long, Double> scoreMap,
