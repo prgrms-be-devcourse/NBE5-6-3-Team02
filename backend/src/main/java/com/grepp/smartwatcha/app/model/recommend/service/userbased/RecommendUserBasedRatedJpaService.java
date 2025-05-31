@@ -17,6 +17,7 @@ public class RecommendUserBasedRatedJpaService {
     private final RatingRecommendJpaRepository ratingRepository;
     private static final int K = 10;
 
+    // 유저와 유사한 사용자의 별점 바탕으로 영화별 예측 점수 계산
     public Map<Long, Double> calculateUserBasedScores(Long userId) {
         List<RatingEntity> myRatings = ratingRepository.findByUserId(userId);
         if (myRatings.isEmpty()) return Map.of();
@@ -38,6 +39,7 @@ public class RecommendUserBasedRatedJpaService {
         return predictScores(topKUserIds, targetRatingMap, userRatingsMap, similarityMap);
     }
 
+    // 별점 리스트를 id 기준으로 map으로 변환
     private Map<Long, Double> buildRatingMap(List<RatingEntity> ratings) {
         Map<Long, Double> ratingMap = new HashMap<>();
         for (RatingEntity rating : ratings) {
@@ -46,6 +48,7 @@ public class RecommendUserBasedRatedJpaService {
         return ratingMap;
     }
 
+    // 영화 id만 리스트로 반환
     private List<Long> extractMovieIds(List<RatingEntity> ratings) {
         List<Long> ids = new ArrayList<>();
         for (RatingEntity rating : ratings) {
@@ -54,6 +57,7 @@ public class RecommendUserBasedRatedJpaService {
         return ids;
     }
 
+    // 리스트들 그룹핑하여 map으로 반환
     private Map<Long, List<RatingEntity>> groupRatingsByUser(List<RatingEntity> ratings) {
         Map<Long, List<RatingEntity>> userRatingsMap = new HashMap<>();
         for (RatingEntity rating : ratings) {
@@ -62,6 +66,7 @@ public class RecommendUserBasedRatedJpaService {
         return userRatingsMap;
     }
 
+    // 유사 사용자 후보와 유사도 계산하여 map으로 반환
     private Map<Long, Double> calculateSimilarities(
             List<Long> candidateUserIds,
             Map<Long, Double> targetRatingMap,
@@ -83,6 +88,7 @@ public class RecommendUserBasedRatedJpaService {
         return similarityMap;
     }
 
+    // 상위 k(10)명의 유저 id리스트 반환
     private List<Long> getTopKSimilarUsers(Map<Long, Double> similarityMap) {
         List<Map.Entry<Long, Double>> sorted = new ArrayList<>(similarityMap.entrySet());
         sorted.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
@@ -94,6 +100,7 @@ public class RecommendUserBasedRatedJpaService {
         return topK;
     }
 
+    // 별점과 유사도 이용하여 예측 평점 계산 후 반환
     private Map<Long, Double> predictScores(
             List<Long> topKUserIds,
             Map<Long, Double> targetRatingMap,
@@ -129,6 +136,7 @@ public class RecommendUserBasedRatedJpaService {
         return finalScores;
     }
 
+    // 두 유저의 영화 별점 간의 유사도 계산
     private double cosineSimilarity(Map<Long, Double> a, Map<Long, Double> b) {
         Set<Long> common = new HashSet<>(a.keySet());
         common.retainAll(b.keySet());
