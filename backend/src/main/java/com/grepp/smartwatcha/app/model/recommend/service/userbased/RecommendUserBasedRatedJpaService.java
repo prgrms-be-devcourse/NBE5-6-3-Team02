@@ -84,7 +84,6 @@ public class RecommendUserBasedRatedJpaService {
                 similarityMap.put(otherUserId, similarity);
             }
         }
-
         return similarityMap;
     }
 
