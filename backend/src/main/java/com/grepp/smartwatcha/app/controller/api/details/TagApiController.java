@@ -63,6 +63,7 @@ public class TagApiController {
         return ResponseEntity.ok(ApiResponse.success("태그가 삭제 되었습니다."));
     }
 
+    //사용자가 tag를 남겼을 시 그 tag까지 포함하여 top6Tag를 바로 반환
     @GetMapping("/top6")
     public  ResponseEntity<ApiResponse<List<TagCountRequestDto>>>top6Tags(@RequestParam Long movieId) {
         List<TagCountRequestDto> result =  tagService.getTop6Tags(movieId);

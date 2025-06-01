@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class InterestApiController {
     private final InterestJpaService interestJpaService;
 
+    // 사용자 관심상태 클릭 시 저장 or 해당관심상태로 update 기능
     @PostMapping
     public ResponseEntity<ApiResponse<String>>  setInterestStatus(
             @PathVariable("id") Long movieId,
@@ -29,6 +30,9 @@ public class InterestApiController {
         interestJpaService.saveOrUpdateInterest(userEmail, movieId, status);
         return ResponseEntity.ok(ApiResponse.success("관심상태가 저장 되었습니다."));
     }
+
+    // 관심상태 중복 선택 시 관심상태 삭제
+    // db 에서도 삭제 됨
     @DeleteMapping
     public ResponseEntity<ApiResponse<String>> deleteInterest(
             @PathVariable("id") Long movieId,

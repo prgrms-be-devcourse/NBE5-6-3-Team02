@@ -17,6 +17,8 @@ import java.util.Map;
 public class TagNeo4jService {
     private final Neo4jClient neo4jClient;
 
+    // 사용자가 특정 영화에 대해 태그를 선택했을 때 관계를 생성
+    // 이미 존재하는 사용자/태그 노드가 있을 경우 재사용하며, TAGGED 관계만 생성
     public void saveTagSelection(UserEntity user, Long movieId, String tagName) {
         String query = """
             MERGE (u:USER {id: $userId})
@@ -34,8 +36,10 @@ public class TagNeo4jService {
                 .run();
     }
 
-    public List<TagCountRequestDto> getTop6Tags(Long movieId) {
 
+    // 특정 영화에 대해 가장 많이 선택된 태그 6개를 조회
+    // 태그 이름과 선택 횟수를 담은 상위 6개 TagCountRequestDto 리스트로 반환
+    public List<TagCountRequestDto> getTop6Tags(Long movieId) {
         String query = """
             MATCH (:USER)-[r:TAGGED {movieId: $movieId}]->(t:TAG)
             RETURN t.name AS name, count(*) AS count
@@ -55,6 +59,8 @@ public class TagNeo4jService {
                 .all());
     }
 
+//    사용자-영화-태그 간의 TAGGED 관계를 생성
+//    USER, MOVIE, TAG 노드가 모두 없을 경우 생성되며, 관계도 함께 저장
     public void saveTaggedRelation(UserEntity user, Long movieId, String tagName) {
         String query = "MERGE (u:USER {id: $userId}) " +
                 "MERGE (m:MOVIE {id: $movieId}) " +
@@ -69,6 +75,8 @@ public class TagNeo4jService {
                 ))
                 .run();
     }
+
+    //사용자-태그 간 특정 영화에 대한 TAGGED 관계를 삭제
     public void deletTaggedRelation(UserEntity user, Long movieId, String tagName) {
         String query = "MATCH (u:USER {id: $userId})-[r:TAGGED {movieId: $movieId}]->(t:TAG {name: $tagName}) DELETE r";
         neo4jClient.query(query)

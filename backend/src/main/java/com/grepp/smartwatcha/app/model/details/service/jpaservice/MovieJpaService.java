@@ -30,6 +30,8 @@ public class MovieJpaService {
         );
     }
 
+    // movieId 에 해당하는 별점에 정보를 가져와 평균으로 반환
+    // null 값일 경우 0.0 으로 반환처리 기능 추가 (null -> 0.0)
     public Double getAverageScore(Long movieId) {
         Double avg = movieRepository.findAverageScore(movieId);
         return avg != null ? avg : 0.0;
