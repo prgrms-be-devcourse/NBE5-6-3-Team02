@@ -28,7 +28,6 @@ public class InterestJpaService {
                         .user(user)
                         .movie(movie)
                         .build());
-
         interestEntity.setStatus(status);
         interestJpaRepository.save(interestEntity);
     }

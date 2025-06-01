@@ -5,6 +5,7 @@ import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.InterestJpaService;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.enums.Status;
+import com.grepp.smartwatcha.infra.response.ApiResponse;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,25 +20,22 @@ public class InterestApiController {
     private final InterestJpaService interestJpaService;
 
     @PostMapping
-    public void setInterestStatus(
+    public ResponseEntity<ApiResponse<String>>  setInterestStatus(
             @PathVariable("id") Long movieId,
             @RequestParam Status status,
             @AuthenticationPrincipal CustomUserDetails userDetails
             ){
-        if(userDetails == null){
-            throw new CommonException(ResponseCode.BAD_REQUEST);
-        }
         String userEmail = userDetails.getUsername();
         interestJpaService.saveOrUpdateInterest(userEmail, movieId, status);
+        return ResponseEntity.ok(ApiResponse.success("관심상태가 저장 되었습니다."));
     }
     @DeleteMapping
-    public void  deleteInterest(@PathVariable("id") Long movieId,
-                                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<String>> deleteInterest(
+            @PathVariable("id") Long movieId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
-        if(userId == null){
-            throw new CommonException(ResponseCode.BAD_REQUEST);
-        }
         interestJpaService.deleteInterest(userId, movieId);
+        return ResponseEntity.ok(ApiResponse.success("관심 상태가 취소 되었습니다."));
     }
 }
 
