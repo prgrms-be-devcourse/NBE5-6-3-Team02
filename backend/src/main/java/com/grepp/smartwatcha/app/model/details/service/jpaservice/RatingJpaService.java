@@ -2,12 +2,14 @@ package com.grepp.smartwatcha.app.model.details.service.jpaservice;
 
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingRequestDto;
+import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.RatingJpaRepository;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
+import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +28,9 @@ public class RatingJpaService {
 
     public void addRating(RatingRequestDto dto) {
         MovieEntity movie = movieDetailsJpaRepository.findById(dto.getMovieId())
-                .orElseThrow(() -> new IllegalArgumentException("영화를 찾을 수 없습니다."));
+                .orElseThrow(() -> new  CommonException(ResponseCode.BAD_REQUEST));
         UserEntity user = userJpaRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new  CommonException(ResponseCode.BAD_REQUEST));
 
         Optional<RatingEntity> optionalRating = ratingJpaRepository.findByUserAndMovie(user, movie);
         RatingEntity rating = optionalRating.orElseGet(RatingEntity::new);

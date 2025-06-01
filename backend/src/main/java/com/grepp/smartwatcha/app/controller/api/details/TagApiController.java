@@ -6,8 +6,10 @@ import com.grepp.smartwatcha.app.model.details.dto.neo4jdto.TagCountRequestDto;
 import com.grepp.smartwatcha.app.model.details.service.TagService;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
+import com.grepp.smartwatcha.infra.response.ApiResponse;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,44 +23,50 @@ public class TagApiController {
     private final TagService tagService;
 
     @GetMapping("/user")
-    public List<String> getUserTags(
+    public ResponseEntity<ApiResponse<List<String>>> getUserTags(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("id") Long movieId
     ) {
         UserEntity user = userDetails.getUser();
-        return tagService.getUserTags(user, movieId)
+        List<String> userTagNames =  tagService.getUserTags(user, movieId)
                 .stream()
                 .map(tag -> tag.getTag().getName())
                 .toList();
+        return ResponseEntity.ok(ApiResponse.success(userTagNames));
     }
     @GetMapping("/search")
-    public List<TagDto> searchTags(@RequestParam String keyword) {
-        return tagService.searchTags(keyword);
+    public ResponseEntity<ApiResponse<List<TagDto>>> searchTags(@RequestParam String keyword) {
+        List<TagDto> result = tagService.searchTags(keyword);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     @PostMapping("/select")
-    public void selectTag(
+    public ResponseEntity<ApiResponse<String>> selectTag(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("id") Long movieId,
             @RequestParam String tagName
     ) {
-        UserEntity user = userDetails.getUser();
 
+        UserEntity user = userDetails.getUser();
         tagService.saveUserTag(user, movieId, tagName);
+        return ResponseEntity.ok(ApiResponse.success("태그가 등록 되었습니다."));
+
 
     }
     @DeleteMapping("/delete")
-    public void deleteUserTag(
+    public ResponseEntity<ApiResponse<String>> deleteUserTag(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("id") Long movieId,
             @RequestParam String tagName
     ) {
         tagService.deleteUserTag(userDetails.getUser(), movieId, tagName);
+        return ResponseEntity.ok(ApiResponse.success("태그가 삭제 되었습니다."));
     }
 
     @GetMapping("/top6")
-    public List<TagCountRequestDto> top6Tags(@RequestParam Long movieId) {
-        return tagService.getTop6Tags(movieId);
+    public  ResponseEntity<ApiResponse<List<TagCountRequestDto>>>top6Tags(@RequestParam Long movieId) {
+        List<TagCountRequestDto> result =  tagService.getTop6Tags(movieId);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
 }

@@ -5,8 +5,10 @@ import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingBarDto;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.RatingRequestDto;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
+import com.grepp.smartwatcha.infra.response.ApiResponse;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +22,7 @@ public class RatingApiController {
     private final RatingJpaService ratingJpaService;
 
     @PostMapping
-    public void addRating(
+    public ResponseEntity<ApiResponse<String>> addRating(
             @PathVariable("id") Long movieId,
             @RequestBody RatingRequestDto dto,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -28,30 +30,31 @@ public class RatingApiController {
         Long userId = userDetails.getId();
         dto.setUserId(userId);
         dto.setMovieId(movieId);
-        if(userId == null || movieId == null) {
-            throw new CommonException(ResponseCode.BAD_REQUEST);
-        }
+
         ratingJpaService.addRating(dto);
+        return ResponseEntity.ok(ApiResponse.success("평점이 추가 되었습니다."));
     }
+
     @DeleteMapping
-    public void deleteRating(@PathVariable("id") Long movieId,
-                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<String>> deleteRating(
+            @PathVariable("id") Long movieId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getUser().getId();
-        if(userId == null){
-            throw new CommonException(ResponseCode.BAD_REQUEST);
-        }
         ratingJpaService.deleteRatingByUser(userId, movieId);
+        return ResponseEntity.ok(ApiResponse.success("평점이 삭제 되었습니다."));
+
     }
+
     @GetMapping("/average")
-    public void getAverageRating(
+    public ResponseEntity<ApiResponse<Double>> getAverageRating(
             @PathVariable("id") Long movieId) {
-        ratingJpaService.getAverageRating(movieId);
+        double average = ratingJpaService.getAverageRating(movieId);
+        return ResponseEntity.ok(ApiResponse.success(average));
     }
 
     @GetMapping("/bars")
-    public List<RatingBarDto> getRatingBars(@PathVariable("id") Long movieId) {
-        return ratingJpaService.getRatingDistributionList(movieId);
+    public ResponseEntity<ApiResponse<List<RatingBarDto>>> getRatingBars(@PathVariable("id") Long movieId) {
+        List<RatingBarDto> ratingbar = ratingJpaService.getRatingDistributionList(movieId);
+        return ResponseEntity.ok(ApiResponse.success(ratingbar));
     }
-
-
 }
