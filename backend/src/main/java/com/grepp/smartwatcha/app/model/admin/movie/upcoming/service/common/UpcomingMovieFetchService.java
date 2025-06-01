@@ -1,11 +1,11 @@
 package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.common;
 
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.api.UpcomingMovieApi;
+import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieApiResponse;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieCreditApiResponse;
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieDetailApiResponse;
 import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieReleaseDateApiResponse;
-import com.grepp.smartwatcha.app.controller.api.admin.upcoming.payload.UpcomingMovieUpcomingApiResponse;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -14,6 +14,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/*
+ * 공개 예정작 영화 정보 조회 서비스
+ * TMDB API 를 통해 영화 정보를 조회하고, 병렬로 상세 정보를 가져와 DTO 를 구성
+ * 
+ * 주요 기능:
+ * - 영화 기본 정보 조회
+ * - 병렬로 크레딧, 개봉일, 상세 정보 조회
+ * - 조회된 정보를 DTO 에 통합
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -26,6 +35,7 @@ public class UpcomingMovieFetchService { // "영화 1편"의 정보를 한 DTO �
   @Value("${tmdb.api.key}")
   private String apiKey;
 
+  // 영화의 기본 정보를 바탕으로 상세 정보를 병렬로 조회하여 DTO 를 구성
   public UpcomingMovieDto buildEnrichedDto(UpcomingMovieDto baseDto, String apiKey) throws ExecutionException, InterruptedException {
     Long movieId = baseDto.getId();
 
@@ -55,6 +65,7 @@ public class UpcomingMovieFetchService { // "영화 1편"의 정보를 한 DTO �
     return baseDto;
   }
 
+  // 안전하게 CompletableFuture 의 결과를 가져오는 유틸리티 메서드
   private <T> T safeGet(CompletableFuture<T> future, String apiName, Long movieId) {
     try {
       return future.get();
@@ -64,14 +75,15 @@ public class UpcomingMovieFetchService { // "영화 1편"의 정보를 한 DTO �
     }
   }
 
+  // TMDB API 를 통해 공개 예정작 영화 목록을 페이지네이션하여 조회
   public List<UpcomingMovieDto> fetchUpcomingMovies() {
     int page = 1;
-    UpcomingMovieUpcomingApiResponse response = upcomingMovieApi.getUpcomingMovies(apiKey, "en-US", page, "US");
+    UpcomingMovieApiResponse response = upcomingMovieApi.getUpcomingMovies(apiKey, "en-US", page, "US");
     int totalPages = response.getTotalPages();
 
     List<UpcomingMovieDto> allMovies = new java.util.ArrayList<>(response.getMovies());
     for (page = 2; page <= totalPages; page++) {
-        UpcomingMovieUpcomingApiResponse nextPage = upcomingMovieApi.getUpcomingMovies(apiKey, "en-US", page, "US");
+      UpcomingMovieApiResponse nextPage = upcomingMovieApi.getUpcomingMovies(apiKey, "en-US", page, "US");
         allMovies.addAll(nextPage.getMovies());
     }
     return allMovies;
