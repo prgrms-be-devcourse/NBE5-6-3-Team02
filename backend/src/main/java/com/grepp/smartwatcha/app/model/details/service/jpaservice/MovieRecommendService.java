@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 public class MovieRecommendService {
     private final MovieDetailsJpaRepository movieDetailsJpaRepository;
 
+    // MovieEntity에서 id,title,poster에대한 정보를 가져와
+    // SimilarMovieDto에 List형식으로 저장
     public List<SimilarMovieDto> getMoviesByIds(List<Long> ids) {
         return movieDetailsJpaRepository.findByIdIn(ids).stream()
                 .map(m -> new SimilarMovieDto(m.getId(),m.getTitle(),m.getPoster()))

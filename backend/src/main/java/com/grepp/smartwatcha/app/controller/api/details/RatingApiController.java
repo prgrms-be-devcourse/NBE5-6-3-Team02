@@ -17,6 +17,8 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/movies/{id}/ratings")
+// 평점 저장 및 삭제 기능
+// 그에따른  평균,별점 그래프 즉각 반응 api
 public class RatingApiController {
 
     private final RatingJpaService ratingJpaService;

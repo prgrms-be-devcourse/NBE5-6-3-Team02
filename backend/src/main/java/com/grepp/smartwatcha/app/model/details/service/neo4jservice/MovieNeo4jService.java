@@ -12,6 +12,7 @@ import java.util.List;
 public class MovieNeo4jService {
     private final MovieDetailsNeo4jRepository movieNeo4jRepository;
 
+
     public MovieNode getMovieWithAllRelations(Long movieId) {
         return movieNeo4jRepository.findById(movieId)
                 .orElseThrow(() -> new RuntimeException("Movie not found in Neo4j"));

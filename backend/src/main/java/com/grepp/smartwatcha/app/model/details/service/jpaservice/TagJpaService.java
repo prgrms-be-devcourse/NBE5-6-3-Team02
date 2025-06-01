@@ -28,14 +28,17 @@ public class TagJpaService {
     private final TagJpaRepository tagRepository;
     private final TagNeo4jService tagNeo4jService;
 
+
+    // 유저가 선택한 태그 기반 저장
+    // 저장 시 만약 해당 Tag exists 할경우 에러 반환
     public void selectTag(UserEntity user, Long movieId, String tagName) {
         MovieEntity movie = movieDetailsJpaRepository.findById(movieId)
                 .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
 
        List<TagEntity> tagList = tagRepository.findByName(tagName);
-        if (tagList.isEmpty()) throw new CommonException(ResponseCode.BAD_REQUEST);
+       if (tagList.isEmpty()) throw new CommonException(ResponseCode.BAD_REQUEST);
 
-        TagEntity tag = tagList.get(0);// 같으이름이면 첫번재꺼
+       TagEntity tag = tagList.get(0);// 같은 이름이면 첫번재꺼
 
         boolean exists = userTagJpaRepository.existsByUserAndMovieAndTag(user, movie, tag);
         if (exists) {
@@ -48,6 +51,7 @@ public class TagJpaService {
         tagNeo4jService.saveTaggedRelation(user, movieId, tagName);
     }
 
+    // 유저가 남긴 Tag 정보 반환
     public List<MovieTagEntity> getUserTags(UserEntity user, Long movieId) {
         MovieEntity movie = movieDetailsJpaRepository.findById(movieId)
                 .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
@@ -56,12 +60,14 @@ public class TagJpaService {
     }
 
 
+    // TagEntity에 저장된 Tag 정보 List로 반환
     public List<TagDto> searchTags(String keyword) {
         return tagRepository.findByNameContainingIgnoreCase(keyword).stream()
                 .map(tagEntity -> new TagDto(tagEntity.getId(), tagEntity.getName()))
                 .collect(Collectors.toList());
     }
 
+    // 유저가 남긴 태그 삭제
     public void deleteUserTag(UserEntity user, Long movieId, String tagName) {
         MovieTagEntity entity = userTagJpaRepository
                 .findByUserAndMovieIdAndTag_Name(user,movieId,tagName)
