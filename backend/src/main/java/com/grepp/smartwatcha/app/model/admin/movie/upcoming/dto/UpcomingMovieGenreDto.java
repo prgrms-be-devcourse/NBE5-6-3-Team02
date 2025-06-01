@@ -1,9 +1,11 @@
 package com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
-@Data
-public class UpcomingMovieGenreDto {
-  private Long id;
-  private String name;
+@Getter
+@Builder
+public class UpcomingMovieGenreDto { // 영화 장르 정보 DTO
+    private Long id;
+    private String name;
 }
