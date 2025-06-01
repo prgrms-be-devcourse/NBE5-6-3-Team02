@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.model.admin;
 
-import com.grepp.smartwatcha.app.model.admin.movie.list.AdminMovieJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.movie.list.repository.AdminMovieJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.jpa.UpcomingMovieSyncTimeJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.tag.AdminTagJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserJpaRepository;
