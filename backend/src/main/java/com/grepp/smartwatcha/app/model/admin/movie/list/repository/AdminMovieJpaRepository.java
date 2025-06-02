@@ -33,7 +33,7 @@ public interface AdminMovieJpaRepository extends JpaRepository<MovieEntity, Long
   // 현재 시각 기준으로 개봉일이 지났지만 아직 isReleased = false 인 영화 목록 조회
   @Query("""
           SELECT m FROM MovieEntity m
-          WHERE m.releaseDate < CURRENT_TIMESTAMP
+          WHERE FUNCTION('DATE', m.releaseDate) <= CURRENT_DATE
             AND m.isReleased = false
       """)
   List<MovieEntity> findPastUnreleasedMovies();
