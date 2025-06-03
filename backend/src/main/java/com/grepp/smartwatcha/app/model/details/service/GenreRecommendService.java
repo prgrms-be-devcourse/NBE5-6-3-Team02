@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 
+// Tag Jpa 와 Neo4j의 통합 service
 @Service
 @RequiredArgsConstructor
 public class GenreRecommendService {

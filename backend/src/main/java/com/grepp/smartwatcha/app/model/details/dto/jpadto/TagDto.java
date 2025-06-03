@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class JpaTagDto {
+public class TagDto {
     private Long id;
     private String name;
 }

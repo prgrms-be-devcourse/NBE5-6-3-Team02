@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface MovieTagRepository extends JpaRepository<MovieTagEntity, Long> {
+public interface UserTagJpaRepository extends JpaRepository<MovieTagEntity, Long> {
     boolean existsByUserAndMovieAndTag(UserEntity user, MovieEntity movie, TagEntity tag);
     List<MovieTagEntity> findByUserAndMovie(UserEntity user, MovieEntity movie);
 

@@ -33,7 +33,7 @@ public class IndexController {
     private final RecommendPersonalMovieService personalMovieService;
     private final RecommendUserBasedMovieService userBasedMovieService;
     private final NotificationJpaService notificationService;
-    
+
     @GetMapping("/")
     public String index(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         List<IndexMovieDto> newMovies = indexService.findByReleaseDate();

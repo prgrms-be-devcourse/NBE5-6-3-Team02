@@ -1,14 +1,16 @@
 package com.grepp.smartwatcha.app.model.details.service.jpaservice;
 
-import com.grepp.smartwatcha.app.model.details.dto.jpadto.JpaTagDto;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.TagDto;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
-import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieTagRepository;
-import com.grepp.smartwatcha.app.model.details.repository.jparepository.TagJapRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.UserTagJpaRepository;
+import com.grepp.smartwatcha.app.model.details.repository.jparepository.TagJpaRepository;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
+import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieTagEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.TagEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
+import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,52 +23,58 @@ import java.util.stream.Collectors;
 @Transactional(transactionManager = "jpaTransactionManager")
 public class TagJpaService {
 
-    private final MovieTagRepository movieTagRepository;
+    private final UserTagJpaRepository userTagJpaRepository;
     private final MovieDetailsJpaRepository movieDetailsJpaRepository;
-    private final TagJapRepository tagRepository;
+    private final TagJpaRepository tagRepository;
     private final TagNeo4jService tagNeo4jService;
 
+
+    // 유저가 선택한 태그 기반 저장
+    // 저장 시 만약 해당 Tag exists 할경우 에러 반환
     public void selectTag(UserEntity user, Long movieId, String tagName) {
         MovieEntity movie = movieDetailsJpaRepository.findById(movieId)
-                .orElseThrow(() -> new RuntimeException("영화 없음"));
+                .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
 
        List<TagEntity> tagList = tagRepository.findByName(tagName);
-        if (tagList.isEmpty()) throw new RuntimeException("태그 없음");
+       if (tagList.isEmpty()) throw new CommonException(ResponseCode.BAD_REQUEST);
 
-        TagEntity tag = tagList.get(0);// 같으이름이면 첫번재꺼
+       TagEntity tag = tagList.get(0);// 같은 이름이면 첫번재꺼
 
-        boolean exists = movieTagRepository.existsByUserAndMovieAndTag(user, movie, tag);
+        boolean exists = userTagJpaRepository.existsByUserAndMovieAndTag(user, movie, tag);
         if (exists) {
-            throw new IllegalArgumentException("이미 남긴 태그입니다.");
+            throw new CommonException(ResponseCode.BAD_REQUEST);
         }
         MovieTagEntity entity = new MovieTagEntity(user, movie, tag);
-        movieTagRepository.save(entity);
+        userTagJpaRepository.save(entity);
 
         // Neo4j Tagged 관계 저장 해줘야함
-        tagNeo4jService.saveTaggedRelation(user.getId(), movieId, tagName);
+        tagNeo4jService.saveTaggedRelation(user, movieId, tagName);
     }
 
+    // 유저가 남긴 Tag 정보 반환
     public List<MovieTagEntity> getUserTags(UserEntity user, Long movieId) {
         MovieEntity movie = movieDetailsJpaRepository.findById(movieId)
-                .orElseThrow(() -> new RuntimeException("영화 없음"));
+                .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
 
-        return movieTagRepository.findByUserAndMovie(user, movie);
+        return userTagJpaRepository.findByUserAndMovie(user, movie);
     }
 
 
-    public List<JpaTagDto> searchTags(String keyword) {
+    // TagEntity에 저장된 Tag 정보 List로 반환
+    public List<TagDto> searchTags(String keyword) {
         return tagRepository.findByNameContainingIgnoreCase(keyword).stream()
-                .map(tagEntity -> new JpaTagDto(tagEntity.getId(), tagEntity.getName()))
+                .map(tagEntity -> new TagDto(tagEntity.getId(), tagEntity.getName()))
                 .collect(Collectors.toList());
     }
 
+    // 유저가 남긴 태그 삭제
     public void deleteUserTag(UserEntity user, Long movieId, String tagName) {
-        MovieTagEntity entity = movieTagRepository
+        MovieTagEntity entity = userTagJpaRepository
                 .findByUserAndMovieIdAndTag_Name(user,movieId,tagName)
-                .orElseThrow(() -> new IllegalArgumentException("해당 태그 없음"));
+                .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
 
-        movieTagRepository.delete(entity);
-        tagNeo4jService.deletTaggedRelation(user.getId(), movieId, tagName);
+        userTagJpaRepository.delete(entity);
+        tagNeo4jService.deletTaggedRelation(user, movieId, tagName);
 
     }
 }

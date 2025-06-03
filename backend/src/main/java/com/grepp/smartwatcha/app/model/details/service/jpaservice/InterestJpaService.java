@@ -28,17 +28,18 @@ public class InterestJpaService {
                         .user(user)
                         .movie(movie)
                         .build());
-
         interestEntity.setStatus(status);
         interestJpaRepository.save(interestEntity);
     }
 
-
+    // 사용자가 남긴 관심상태의 db저장 상태를 불러오는 기능
     public Status getInterestStatus(Long userId, Long movieId) {
         return interestJpaRepository.findByUserIdAndMovieId(userId, movieId)
                 .map(InterestEntity::getStatus)
                 .orElse(null);
     }
+
+    // 관심상태를 중복 클릭 시 삭제되는 기능
     public void deleteInterest(Long userId, Long movieId) {
         interestJpaRepository.deleteByUserIdAndMovieId(userId, movieId);
     }
