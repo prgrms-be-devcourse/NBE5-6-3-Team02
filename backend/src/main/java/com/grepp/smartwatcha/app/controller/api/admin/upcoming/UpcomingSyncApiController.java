@@ -1,6 +1,8 @@
 package com.grepp.smartwatcha.app.controller.api.admin.upcoming;
 
 import com.grepp.smartwatcha.app.controller.web.admin.movie.upcoming.UpcomingMovieSync;
+import com.grepp.smartwatcha.infra.response.ApiResponse;
+import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +23,20 @@ public class UpcomingSyncApiController {
   private final UpcomingMovieSync scheduler;
 
   @PostMapping("/sync")
-  public ResponseEntity<String> syncUpcomingManually() {
+  public ResponseEntity<ApiResponse<String>> syncUpcomingManually() {
     try {
       log.info("Starting manual upcoming movies sync...");
       scheduler.syncAllUpcomingMovies();
       log.info("Manual upcoming movies sync completed successfully");
-      return ResponseEntity.ok("✅ Manual synchronization completed successfully");
+
+      return ResponseEntity.ok(ApiResponse.success("✅ Manual synchronization completed successfully"));
+
     } catch (Exception e) {
       log.error("Failed to sync upcoming movies: {}", e.getMessage(), e);
-      return ResponseEntity.internalServerError()
-          .body("❌ Synchronization failed: " + e.getMessage());
+
+      return ResponseEntity
+          .status(ResponseCode.INTERNAL_SERVER_ERROR.status())
+          .body(ApiResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "❌ Synchronization failed: " + e.getMessage()));
     }
   }
 }
