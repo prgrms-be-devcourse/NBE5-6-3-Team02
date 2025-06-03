@@ -20,7 +20,7 @@
     h5 {
       margin-top: 0;
     }
-    
+
     .dashboard-section {
       flex: 1;
       padding: 2rem;
@@ -188,7 +188,34 @@
       z-index: -1;
       pointer-events: auto;
     }
-    
+
+    .flatpickr-current-month {
+      display: flex !important;
+      visibility: visible !important;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .flatpickr-months {
+      display: block !important;
+    }
+
+    .flatpickr-monthDropdown-months {
+      display: inline-block !important;
+      color: black !important;
+    }
+
+    /* flatpickr 월 텍스트 표시 색상 수정 */
+    .flatpickr-current-month .cur-month {
+      color: black !important;
+    }
+
+    /* 혹시 연도도 흰색이면 같이 처리 */
+    .flatpickr-current-month input.cur-year {
+      color: black !important;
+    }
+
     form.user-controls {
       display: flex;
       flex-wrap: wrap;
@@ -228,11 +255,12 @@
       font-weight: 400;
       vertical-align: middle;
     }
-    
+
     @media (max-width: 900px) {
       .user-layout {
         flex-direction: column;
       }
+
       .input-field {
         width: 100%;
       }
@@ -259,76 +287,96 @@
 
       <!-- Create Movie Modal -->
       <button type="button" data-target="createMovieModal" class="modal-trigger"
-        style="height: 40px; width: 130px; padding: 0 1rem; background-color: steelblue; color: white;
-        border: none; border-radius: 4px; cursor: pointer;">Create Movie</button>
+              style="height: 40px; width: 130px; padding: 0 1rem; background-color: steelblue; color: white;
+        border: none; border-radius: 4px; cursor: pointer;">Create Movie
+      </button>
 
       <select name="isReleased" class="browser-default" style="flex: 1 1 140px;">
         <option value="">All Status</option>
-        <option value="true" th:selected="${isReleased == true or isReleased == 'true'}">Released</option>
-        <option value="false" th:selected="${isReleased == false or isReleased == 'false'}">Upcoming</option>
+        <option value="true" th:selected="${isReleased == true or isReleased == 'true'}">Released
+        </option>
+        <option value="false" th:selected="${isReleased == false or isReleased == 'false'}">
+          Upcoming
+        </option>
       </select>
-      
-      <input type="text" name="keyword" placeholder="Search by title or date" th:value="${keyword}" style="flex: 2 1 200px;" />
-      
+
+      <input type="text" name="keyword" placeholder="Search by title or date" th:value="${keyword}"
+             style="flex: 2 1 200px;"/>
+
       <div id="calendarWrapper" class="date-icon-wrapper">
-        <input type="text" id="releaseDateHidden" class="hidden-flatpickr-input" />
+        <input type="text" id="releaseDateHidden" class="hidden-flatpickr-input"/>
         <button type="button" id="calendarIconBtn" class="calendar-btn">
           <i class="material-icons">calendar_today</i>
         </button>
       </div>
-      <input type="hidden" name="fromDate" id="fromDate" />
-      <input type="hidden" name="toDate" id="toDate" />
-      
-      <button type="button" id="resetBtn"  style="height: 40px; width: 40px;
-        background-color: #444;color: white; font-size: 1.2rem; border: 1px solid #444; cursor: pointer;">✕</button>
+      <input type="hidden" name="fromDate" id="fromDate"/>
+      <input type="hidden" name="toDate" id="toDate"/>
+
+      <button type="button" id="resetBtn" style="height: 40px; width: 40px;
+        background-color: #444;color: white; font-size: 1.2rem; border: 1px solid #444; cursor: pointer;">
+        ✕
+      </button>
       <button type="submit" style="height: 40px; padding: 0 1rem; background-color: #ff5252;
-        color: white; border: none; border-radius: 4px; cursor: pointer;" class="waves-effect">Search</button>
-      <input type="hidden" name="page" value="0" />
+        color: white; border: none; border-radius: 4px; cursor: pointer;" class="waves-effect">
+        Search
+      </button>
+      <button type="button" class="waves-effect" onclick="fixPastReleases()" style="background-color: steelblue; color: white; border: none; padding: 6px 12px; border-radius: 4px;
+        font-size: 0.95rem; line-height: 1.2; display: flex; align-items: center; gap: 6px;"><i
+          class="material-icons" style="font-size: 1.1rem;">cached</i>Fix Past Releases
+      </button>
+      <input type="hidden" name="page" value="0"/>
     </form>
   </div>
 
-  <div id="createMovieModal" class="modal black-text" style="background-color: #424242;" >
+  <div id="createMovieModal" class="modal black-text" style="background-color: #424242;">
     <form id="createMovieForm" th:action="@{/admin/movies/create}" method="post">
       <div class="modal-content">
         <h5 style="color: white; margin-bottom: 0px">Create New Movie</h5>
 
         <!-- Movie ID -->
-        <div class="input-field input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
           <div style="color: white; min-width: 120px;">TMDB Movie ID</div>
           <textarea name="id" class="materialize-textarea white-text"></textarea>
           <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
         </div>
 
         <!-- Title -->
-        <div class="input-field input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
           <div style="color: white; min-width: 120px;">Title</div>
           <textarea name="title" class="materialize-textarea white-text"></textarea>
           <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
         </div>
 
         <!-- Release Date -->
-        <div class="input-field input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
           <div style="color: white; min-width: 120px;">Release Date</div>
-          <input id="releaseDate" name="releaseDate" type="text" class="white-text flatpickr-release">
+          <input id="releaseDate" name="releaseDate" type="text"
+                 class="white-text flatpickr-release">
           <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
         </div>
 
         <!-- Country -->
-        <div class="input-field input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
           <div style="color: white; min-width: 120px;">Country</div>
           <textarea name="country" class="materialize-textarea white-text"></textarea>
           <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
         </div>
 
         <!-- Certification -->
-        <div class="input-field input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
           <div style="color: white; min-width: 120px;">Certification</div>
           <textarea name="certification" class="materialize-textarea white-text"></textarea>
           <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
         </div>
 
         <!-- Overview -->
-        <div class="input-field input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
           <div style="color: white; min-width: 120px;">Overview</div>
           <textarea name="overview" class="materialize-textarea white-text"></textarea>
           <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
@@ -339,7 +387,9 @@
           <div style="display: flex; align-items: center; gap: 12px;">
             <div style="color: white; min-width: 120px;">Poster Path</div>
             <div style="flex: 1; position: relative;">
-              <textarea id="poster" name="poster" class="materialize-textarea white-text clearable-input" style="margin-bottom: 0;"></textarea>
+              <textarea id="poster" name="poster"
+                        class="materialize-textarea white-text clearable-input"
+                        style="margin-bottom: 0;"></textarea>
               <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
             </div>
           </div>
@@ -348,7 +398,8 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="modal-footer custom-modal-footer" style="margin-top: 0px; margin-bottom: 20px; display: flex; justify-content: flex-end; align-items: center; padding: 0 1rem;">
+      <div class="modal-footer custom-modal-footer"
+           style="margin-top: 0px; margin-bottom: 20px; display: flex; justify-content: flex-end; align-items: center; padding: 0 1rem;">
         <button type="submit" class="btn" style="background-color: steelblue">SAVE</button>
         <a href="#" class="modal-close btn-flat" style="color: white;">CANCEL</a>
       </div>
@@ -372,37 +423,50 @@
         <tbody>
         <tr th:each="movie : ${pageResponse.content()}">
           <td th:text="${movie.id}" style="width: 10%;">ID</td>
-          <td th:text="${movie.title}"style="width: 45%;">Movie Title</td>
-          <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 15%;">2025-01-01</td>
+          <td th:text="${movie.title}" style="width: 45%;">Movie Title</td>
+          <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 15%;">
+            2025-01-01
+          </td>
           <td th:text="${movie.isReleased == true ? 'Released' : 'Upcoming'}"
-              th:classappend="${movie.isReleased} ? 'green-text' : 'red-text'"style="width: 10%;">Status</td>
+              th:classappend="${movie.isReleased} ? 'green-text' : 'red-text'" style="width: 10%;">
+            Status
+          </td>
           <td style="width: 8%;">
             <a th:href="'#movieModal__' + ${movie.id}" class="btn modal-btn modal-trigger">View</a>
 
-            <div th:id="'movieModal__' + ${movie.id}" class="modal black-text" style="background-color: #424242;">
+            <div th:id="'movieModal__' + ${movie.id}" class="modal black-text"
+                 style="background-color: #424242;">
               <form th:action="@{'/admin/movies/' + ${movie.id} + '/update'}" method="post">
                 <div class="modal-content">
                   <div style="margin-bottom: 15px">
-                    <label style="color: white; font-weight: bold; font-size: 1.1rem;">Movie ID</label>
-                    <span th:text="${movie.id}" style="color: white; margin-left: 8px; font-weight: bold; font-size: 1.1rem; "></span>
+                    <label style="color: white; font-weight: bold; font-size: 1.1rem;">Movie
+                      ID</label>
+                    <span th:text="${movie.id}"
+                          style="color: white; margin-left: 8px; font-weight: bold; font-size: 1.1rem; "></span>
                   </div>
                   <div style="display: flex; gap: 2rem; align-items: flex-start;">
                     <div>
                       <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
                            alt="Poster"
                            style="width: 120px; border-radius: 8px;"
-                           onerror="this.onerror=null; this.src='/images/default.jpg';" />
+                           onerror="this.onerror=null; this.src='/images/default.jpg';"/>
                     </div>
                     <div style="flex: 1;">
-                      <div class="input-field input-wrapper" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: 20px">
-                        <textarea id="title__${movie.id}" name="title" class="materialize-textarea white-text clearable-input" th:text="${movie.title}"></textarea>
-                        <label for="title__${movie.id}" class="active" style="color: white;">Title</label>
-                        <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+                      <div class="input-field input-wrapper"
+                           style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: 20px">
+                        <textarea id="title__${movie.id}" name="title"
+                                  class="materialize-textarea white-text clearable-input"
+                                  th:text="${movie.title}"></textarea>
+                        <label for="title__${movie.id}" class="active"
+                               style="color: white;">Title</label>
+                        <button type="button" class="clear-btn" onclick="clearInput(this)">×
+                        </button>
                       </div>
 
                       <!-- Release Date -->
                       <div class="input-field" style="margin-top: 45px;">
-                        <label for="releaseDate__${movie.id}" style="color: white">Release Date</label>
+                        <label for="releaseDate__${movie.id}" style="color: white">Release
+                          Date</label>
                         <input id="releaseDate__${movie.id}" name="releaseDate" type="text"
                                th:value="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}"
                                class="white-text flatpickr-release">
@@ -413,7 +477,8 @@
                   <!-- Poster Path -->
                   <div class="input-field input-wrapper" style="margin-top: 25px; margin-left: 5px">
                     <label for="poster__${movie.id}" style="color: white">Poster Path (TMDB)</label>
-                    <textarea id="poster__${movie.id}" name="poster" class="materialize-textarea white-text clearable-input"
+                    <textarea id="poster__${movie.id}" name="poster"
+                              class="materialize-textarea white-text clearable-input"
                               th:text="${movie.poster}"></textarea>
                     <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
                     <span class="helper-text" style="color: gray;">e.g. /abc123.jpg</span>
@@ -421,33 +486,47 @@
 
                   <!-- Country -->
                   <div class="input-field input-wrapper" style="margin-top: 30px; margin-left: 5px">
-                    <textarea id="country__${movie.id}" name="country" class="materialize-textarea white-text clearable-input" th:text="${movie.country}"></textarea>
-                    <label for="country__${movie.id}" class="active" style="color: white;">Country</label>
+                    <textarea id="country__${movie.id}" name="country"
+                              class="materialize-textarea white-text clearable-input"
+                              th:text="${movie.country}"></textarea>
+                    <label for="country__${movie.id}" class="active"
+                           style="color: white;">Country</label>
                     <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
                   </div>
 
                   <!-- Certification -->
                   <div class="input-field input-wrapper" style="margin-top: 25px; margin-left: 5px">
-                    <textarea id="certification__${movie.id}" name="certification" class="materialize-textarea white-text clearable-input" th:text="${movie.certification}"></textarea>
+                    <textarea id="certification__${movie.id}" name="certification"
+                              class="materialize-textarea white-text clearable-input"
+                              th:text="${movie.certification}"></textarea>
                     <label for="certification__${movie.id}" class="active" style="color: white;">Certification</label>
                     <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
                   </div>
 
                   <!-- Overview -->
-                  <div class="input-field input-wrapper" style="margin-top: 25px; margin-left: 5px; margin-bottom: 0px">
-                    <textarea id="overview__${movie.id}" name="overview" class="materialize-textarea white-text clearable-input" th:text="${movie.overview}"></textarea>
-                    <label for="overview__${movie.id}" class="active" style="color: white;">Overview</label>
+                  <div class="input-field input-wrapper"
+                       style="margin-top: 25px; margin-left: 5px; margin-bottom: 0px">
+                    <textarea id="overview__${movie.id}" name="overview"
+                              class="materialize-textarea white-text clearable-input"
+                              th:text="${movie.overview}"></textarea>
+                    <label for="overview__${movie.id}" class="active"
+                           style="color: white;">Overview</label>
                     <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
                   </div>
                 </div>
 
-                <div class="modal-footer custom-modal-footer" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem;">
+                <div class="modal-footer custom-modal-footer"
+                     style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem;">
                   <!-- 왼쪽: Delete 버튼 -->
-                  <button type="button" th:onclick="'handleDelete(' + ${movie.id} + ')'" th:if="${movie.id != null}" class="btn"
-                   style="margin-right: auto; margin-left: 13px; background-color: #ff5252">DELETE</button>
+                  <button type="button" th:onclick="'handleDelete(' + ${movie.id} + ')'"
+                          th:if="${movie.id != null}" class="btn"
+                          style="margin-right: auto; margin-left: 13px; background-color: #ff5252">
+                    DELETE
+                  </button>
                   <!-- 오른쪽: Save & Cancel -->
                   <div>
-                    <button type="submit" class="btn" style="background-color: steelblue">SAVE</button>
+                    <button type="submit" class="btn" style="background-color: steelblue">SAVE
+                    </button>
                     <a href="#!" class="modal-close btn-flat" style="color: white;">CANCEL</a>
                   </div>
                 </div>
@@ -457,9 +536,11 @@
 
           <!-- Updated Badge -->
           <td style="width: 8%">
-            <div style="text-align: center; width: 80px;" >
-              <span th:if="${movie.updatedRecently}" class="badge updated-badge" style="visibility: visible;">Updated</span>
-              <span th:unless="${movie.updatedRecently}" class="badge updated-badge" style="visibility: hidden;">Updated</span>
+            <div style="text-align: center; width: 80px;">
+              <span th:if="${movie.updatedRecently}" class="badge updated-badge"
+                    style="visibility: visible;">Updated</span>
+              <span th:unless="${movie.updatedRecently}" class="badge updated-badge"
+                    style="visibility: hidden;">Updated</span>
             </div>
           </td>
         </tr>
@@ -468,14 +549,19 @@
 
       <!-- Pagination -->
       <div class="pagination-container">
-        <a th:if="${pageResponse.startNumber() > 1}" th:href="@{${pageResponse.url()}(page=${pageResponse.startNumber() - 2}, keyword=${keyword}, isReleased=${isReleased}, fromDate=${fromDate}, toDate=${toDate})}" class="page-button">Prev</a>
+        <a th:if="${pageResponse.startNumber() > 1}"
+           th:href="@{${pageResponse.url()}(page=${pageResponse.startNumber() - 2}, keyword=${keyword}, isReleased=${isReleased}, fromDate=${fromDate}, toDate=${toDate})}"
+           class="page-button">Prev</a>
 
         <a th:each="i : ${#numbers.sequence(pageResponse.startNumber(), pageResponse.endNumber())}"
            th:href="@{${pageResponse.url()}(page=${i - 1}, keyword=${keyword}, isReleased=${isReleased}, fromDate=${fromDate}, toDate=${toDate})}"
-           th:text="${i}" th:classappend="${i == pageResponse.currentNumber()} ? 'page-button active' : 'page-button'">
+           th:text="${i}"
+           th:classappend="${i == pageResponse.currentNumber()} ? 'page-button active' : 'page-button'">
         </a>
 
-        <a th:if="${pageResponse.endNumber() < pageResponse.totalPages()}" th:href="@{${pageResponse.url()}(page=${pageResponse.endNumber()}, keyword=${keyword}, isReleased=${isReleased}, fromDate=${fromDate}, toDate=${toDate})}" class="page-button">Next</a>
+        <a th:if="${pageResponse.endNumber() < pageResponse.totalPages()}"
+           th:href="@{${pageResponse.url()}(page=${pageResponse.endNumber()}, keyword=${keyword}, isReleased=${isReleased}, fromDate=${fromDate}, toDate=${toDate})}"
+           class="page-button">Next</a>
       </div>
     </div>
   </div>
@@ -507,6 +593,15 @@
             const end = formatDateToYMD(selectedDates[1]);
 
             keywordInput.value = `${start} ~ ${end}`;
+            fromDateInput.value = start;
+            toDateInput.value = end;
+          } else if (selectedDates.length === 1) {
+            const date = formatDateToYMD(selectedDates[0]);
+            keywordInput.value = date;
+            fromDateInput.value = date;
+            toDateInput.value = date; // ✅ 하루만 선택한 경우 동일한 날짜
+          } else {
+            keywordInput.value = "";
             fromDateInput.value = "";
             toDateInput.value = "";
           }
@@ -560,7 +655,9 @@
       function resetToOriginalValues(modal) {
         modal.querySelectorAll('textarea, input').forEach(input => {
           const original = input.getAttribute('data-original');
-          if (original !== null) input.value = original;
+          if (original !== null) {
+            input.value = original;
+          }
         });
         M.updateTextFields();
       }
@@ -569,7 +666,9 @@
     // 입력 필드 클리어 버튼 처리
     function clearInput(btn) {
       const input = btn.closest('.input-wrapper').querySelector('textarea, input');
-      if (input) input.value = '';
+      if (input) {
+        input.value = '';
+      }
     }
 
     // 영화 등록 처리
@@ -606,6 +705,29 @@
           alert("⚠️ An error occurred while deleting the movie.");
         });
       }
+    }
+
+    // 과거 개봉 영화 상태 일괄 수정
+    function fixPastReleases() {
+      fetch('/admin/movies/fix-past-release-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => {
+        console.log("응답 상태:", res.status);
+        if (res.ok) {
+          alert("✅ Past releases updated successfully!");
+          location.reload();
+        } else {
+          alert("❌ Update failed! (" + res.status + ")");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("⚠️ An error occurred!");
+      });
     }
   </script>
 </section>
