@@ -11,6 +11,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/*
+ * 공개 예정작 영화 장르 정보 조회 서비스
+ * TMDB API 를 통해 장르 정보를 조회하고 메모리에 캐싱
+ * 
+ * 주요 기능:
+ * - 애플리케이션 시작 시 장르 정보 초기화
+ * - 장르 ID와 이름 매핑 제공
+ * - 장르 정보 메모리 캐싱
+ * 
+ * 초기화 전략:
+ * - @PostConstruct 로 애플리케이션 시작 시 자동 초기화
+ * - TMDB API 호출 실패 시 로그만 기록하고 빈 맵 유지
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,8 +34,11 @@ public class UpcomingMovieGenreFetchNeo4jService {
   @Value("${tmdb.api.key}")
   private String apiKey;
 
+  // 장르 ID와 이름의 매핑을 저장하는 캐시
   private final Map<Long, String> genreMap = new HashMap<>();
 
+  // 애플리케이션 시작 시 TMDB API를 호출하여 장르 정보 초기화
+  // 초기화 실패 시 로그만 기록하고 빈 맵 유지
   @PostConstruct
   public void init() {
     try {
@@ -41,6 +57,7 @@ public class UpcomingMovieGenreFetchNeo4jService {
     }
   }
 
+  // 캐시된 장르 ID-이름 매핑 반환
   public Map<Long, String> getGenreMap() {
     return genreMap;
   }

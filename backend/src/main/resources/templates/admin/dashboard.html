@@ -2,209 +2,240 @@
 <html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layoutAdmin}">
 <head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <style>
-        .dashboard-section {
-            flex: 1;
-            padding: 2rem;
-            min-width: 0;
-        }
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <style>
+    .dashboard-section {
+      flex: 1;
+      padding: 2rem;
+      min-width: 0;
+    }
 
-        .dashboard-flex {
-            display: flex;
-            width: 100%;
-        }
+    .dashboard-flex {
+      display: flex;
+      width: 100%;
+    }
 
-        h4 {
-            margin-top: 0;
-            margin-bottom: 2.2rem;
-        }
+    h4 {
+      margin-top: 0;
+      margin-bottom: 2.2rem;
+    }
 
-        .summary-cards {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
+    .summary-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
 
-        .card {
-            background-color: #222;
-            padding: 1rem;
-            border-radius: 8px;
-            flex: 1;
-            min-width: 160px;
-        }
+    .card {
+      background-color: #222;
+      padding: 1rem;
+      border-radius: 8px;
+      flex: 1;
+      min-width: 160px;
+    }
 
-        .section h5,
-        .section p,
-        .section ol {
-            margin-top: 0;
-            margin-bottom: 0.8rem;
-        }
+    .section h5,
+    .section p,
+    .section ol {
+      margin-top: 0;
+      margin-bottom: 0.8rem;
+    }
 
-        .tag-list li {
-            margin: 0.3rem 0;
-        }
+    .tag-list li {
+      margin: 0.3rem 0;
+    }
 
-        .quick-links .card {
-            display: inline-block;
-            padding: 1rem;
-            margin: 0.5rem;
-            background-color: #222;
-            border-radius: 8px;
-            text-decoration: none;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            min-width: 120px;
-        }
+    .quick-links .card {
+      display: inline-block;
+      padding: 1rem;
+      margin: 0.5rem;
+      background-color: #222;
+      border-radius: 8px;
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      min-width: 120px;
+    }
 
-        .quick-links .card:hover {
-            background-color: #333;
-        }
+    .quick-links .card:hover {
+      background-color: #333;
+    }
 
-        .flex-two-column {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-        }
+    .flex-two-column {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
 
-        .half-section {
-            flex: 1;
-            min-width: 280px;
-            margin-bottom: 25px;
-        }
-    </style>
+    .half-section {
+      flex: 1;
+      min-width: 280px;
+      margin-bottom: 25px;
+    }
+  </style>
 </head>
 <body>
 <section class="dashboard-section" layout:fragment="main-content">
-    <h4>📊 Admin Dashboard</h4>
+  <h4>📊 Admin Dashboard</h4>
 
-    <!-- Summary -->
-    <div class="section">
-        <h5>✅ Summary</h5>
-        <div class="summary-cards">
-            <div class="card"><strong>👤 Total Users</strong><div th:text="${totalUsers}">0</div></div>
-            <div class="card"><strong>✅ Active User</strong><div th:text="${activeUsers}">0</div></div>
-            <div class="card"><strong>❌ Inactive User</strong><div th:text="${inactiveUsers}">0</div></div>
-            <div class="card"><strong>🎬 Total Movies</strong><div th:text="${totalMovies}">0</div></div>
-            <div class="card"><strong>⏳ Upcoming Movies</strong><div th:text="${upcomingMovies}">0</div></div>
-            <div class="card"><strong>🏷️ Total Tags</strong><div th:text="${totalTags}">0</div></div>
+  <!-- Summary -->
+  <div class="section">
+    <h5>✅ Summary</h5>
+    <div class="summary-cards">
+      <div class="card"><strong>👤 Total Users</strong>
+        <div th:text="${totalUsers}">0</div>
+      </div>
+      <div class="card"><strong>✅ Active User</strong>
+        <div th:text="${activeUsers}">0</div>
+      </div>
+      <div class="card"><strong>❌ Inactive User</strong>
+        <div th:text="${inactiveUsers}">0</div>
+      </div>
+      <div class="card"><strong>🎬 Total Movies</strong>
+        <div th:text="${totalMovies}">0</div>
+      </div>
+      <div class="card"><strong>⏳ Upcoming Movies</strong>
+        <div th:text="${upcomingMovies}">0</div>
+      </div>
+      <div class="card"><strong>🏷️ Total Tags</strong>
+        <div th:text="${totalTags}">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sync Info & 최근 영화 -->
+  <div class="flex-two-column">
+    <div class="half-section" style="flex: 0 0 50%;">
+      <h5>🕒 Recent Upcoming Sync</h5>
+      <p>📅 Last Sync Time: <span th:text="${lastSyncTime}">N/A</span></p>
+      <p>📥 New Movies Added: <strong th:text="${newlyAddedCount}">0</strong></p>
+      <p>
+        ⚠️ Failed:
+        <strong th:class="${failedCount > 0} ? 'red-text' : ''" th:text="${failedCount}">0</strong>
+      </p>
+
+      <p>🔍 Enrich Failed: <strong th:text="${enrichFailedCount}">0</strong></p>
+      <div style="position: relative; display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="waves-effect" onclick="syncUpcomingMovies()" style="background-color: #ff6262; color: white; border: none; padding: 6px 12px; border-radius: 4px;
+        font-size: 0.95rem; line-height: 1.2; display: flex; align-items: center; gap: 6px;"><i
+            class="material-icons" style="font-size: 1.1rem;">cached</i>Manual Sync
+        </button>
+
+        <div id="syncSpinner" class="preloader-wrapper small active" style="display: none;">
+          <div class="spinner-layer spinner-white-only">
+            <div class="circle-clipper left"><div class="circle"></div></div>
+            <div class="gap-patch"><div class="circle"></div></div>
+            <div class="circle-clipper right"><div class="circle"></div></div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Sync Info & 최근 영화 -->
-    <div class="flex-two-column">
-        <div class="half-section" style="flex: 0 0 50%;">
-            <h5>🕒 Recent Upcoming Sync</h5>
-            <p>📅 Last Sync Time: <span th:text="${lastSyncTime}">N/A</span></p>
-            <p>📥 New Movies Added: <strong th:text="${newlyAddedCount}">0</strong></p>
-            <p>
-                ⚠️ Failed:
-                <strong th:class="${failedCount > 0} ? 'red-text' : ''" th:text="${failedCount}">0</strong>
-            </p>
+    <!-- 🎬 공개 예정 영화 목록 -->
+    <div class="half-section">
+      <h5>🎬 Upcoming Movies</h5>
+      <ul>
+        <li th:each="movie : ${recentUpcomingMovies}">
+          <a class="modal-trigger movie-link" style="color: steelblue"
+             th:href="'#movieModal__' + ${movie.id}"
+             th:text="'🎞 ' + ${movie.id} + ' | ' + ${movie.title} + ' | ' + ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}">
+          </a>
 
-            <p>🔍 Enrich Failed: <strong th:text="${enrichFailedCount}">0</strong></p>
-            <button type="button" class="waves-effect" onclick="syncUpcomingMovies()" style="background-color: #ff6262; color: white; border: none; padding: 6px 12px; border-radius: 4px;
-        font-size: 0.95rem; line-height: 1.2; display: flex; align-items: center; gap: 6px;"><i class="material-icons" style="font-size: 1.1rem;">cached</i>Manual Sync
-            </button>
-        </div>
-
-        <!-- 🎬 공개 예정 영화 목록 -->
-        <div class="half-section">
-            <h5>🎬 Upcoming Movies</h5>
-            <ul>
-                <li th:each="movie : ${recentUpcomingMovies}">
-                    <a class="modal-trigger movie-link" style="color: steelblue"
-                       th:href="'#movieModal__' + ${movie.id}"
-                       th:text="'🎞 ' + ${movie.id} + ' | ' + ${movie.title} + ' | ' + ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}">
-                    </a>
-
-                    <!-- ⬇️ 각 영화용 모달 -->
-                    <div th:id="'movieModal__' + ${movie.id}" class="modal" style="background-color: #1e1e1e; color: white;">
-                        <div class="modal-content">
-                            <h5 th:text="${movie.title}" style="color: steelblue; margin-bottom: 20px">Title</h5>
-                            <div style="display: flex; gap: 2rem; align-items: flex-start;">
-                                <div>
-                                    <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
-                                         alt="Poster"
-                                         style="width: 120px; border-radius: 8px;"
-                                         onerror="this.onerror=null; this.src='/images/default.jpg';" />
-                                </div>
-                                <div style="flex: 1; margin-top: 0px">
-                                    <p><strong>ID:</strong> <span th:text="${movie.id}">N/A</span></p>
-                                    <p><strong>Release Date:</strong>
-                                        <span th:text="${movie.releaseDate != null ? #temporals.format(movie.releaseDate, 'yyyy-MM-dd') : 'null'}">null</span>
-                                    </p>
-                                    <p><strong>Certification:</strong>
-                                        <span th:text="${movie.certification != null ? movie.certification : 'null'}">null</span>
-                                    </p>
-                                    <p><strong>Country:</strong>
-                                        <span th:text="${movie.country != null ? movie.country : 'null'}">null</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <p><strong>Overview:</strong>
-                                <span th:text="${movie.overview != null ? movie.overview : 'null'}">null</span>
-                            </p>
-                        </div>
-                        <div class="modal-footer" style="background-color: #1e1e1e">
-                            <a href="#!" class="modal-close btn-flat" style="color: lightcoral">Close</a>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-            <a href="/admin/movies/upcoming" style="display:inline-block; color: lightcoral;">➕ More</a>
-        </div>
+          <!-- ⬇️ 각 영화용 모달 -->
+          <div th:id="'movieModal__' + ${movie.id}" class="modal"
+               style="background-color: #1e1e1e; color: white;">
+            <div class="modal-content">
+              <h5 th:text="${movie.title}" style="color: steelblue; margin-bottom: 20px">Title</h5>
+              <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                <div>
+                  <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
+                       alt="Poster"
+                       style="width: 120px; border-radius: 8px;"
+                       onerror="this.onerror=null; this.src='/images/default.jpg';"/>
+                </div>
+                <div style="flex: 1; margin-top: 0px">
+                  <p><strong>ID:</strong> <span th:text="${movie.id}">N/A</span></p>
+                  <p><strong>Release Date:</strong>
+                    <span
+                        th:text="${movie.releaseDate != null ? #temporals.format(movie.releaseDate, 'yyyy-MM-dd') : 'null'}">null</span>
+                  </p>
+                  <p><strong>Certification:</strong>
+                    <span th:text="${movie.certification != null ? movie.certification : 'null'}">null</span>
+                  </p>
+                  <p><strong>Country:</strong>
+                    <span th:text="${movie.country != null ? movie.country : 'null'}">null</span>
+                  </p>
+                </div>
+              </div>
+              <p><strong>Overview:</strong>
+                <span th:text="${movie.overview != null ? movie.overview : 'null'}">null</span>
+              </p>
+            </div>
+            <div class="modal-footer" style="background-color: #1e1e1e">
+              <a href="#!" class="modal-close btn-flat" style="color: lightcoral">Close</a>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <a href="/admin/movies/upcoming" style="display:inline-block; color: lightcoral;">➕ More</a>
     </div>
+  </div>
 
-    <!-- 🔗 Quick Admin Navigation -->
-    <div class="section">
-        <h5>🔗 Quick Admin Navigation</h5>
-        <div class="quick-links">
-            <a class="card" href="/admin/users">User List</a>
-            <a class="card" href="/admin/users/ratings">User Ratings</a>
-            <a class="card" href="/admin/movies">Movie List</a>
-            <a class="card" href="/admin/movies/upcoming">Upcoming Movies</a>
-            <a class="card" href="/admin/tags">Tag List</a>
-        </div>
+  <!-- 🔗 Quick Admin Navigation -->
+  <div class="section">
+    <h5>🔗 Quick Admin Navigation</h5>
+    <div class="quick-links">
+      <a class="card" href="/admin/users">User List</a>
+      <a class="card" href="/admin/users/ratings">User Ratings</a>
+      <a class="card" href="/admin/movies">Movie List</a>
+      <a class="card" href="/admin/movies/upcoming">Upcoming Movies</a>
+      <a class="card" href="/admin/tags">Tag List</a>
     </div>
+  </div>
 
-    <script>
-        // 페이지가 완전히 로딩된 후 실행될 초기화 코드
-        document.addEventListener('DOMContentLoaded', function () {
-            // 모든 .modal 클래스를 가진 요소를 찾아서 Materialize 모달로 초기화
-            var elems = document.querySelectorAll('.modal');
-            M.Modal.init(elems);
-        });
+  <script>
+    // 페이지가 완전히 로딩된 후 실행될 초기화 코드
+    document.addEventListener('DOMContentLoaded', function () {
+      // 모든 .modal 클래스를 가진 요소를 찾아서 Materialize 모달로 초기화
+      var elems = document.querySelectorAll('.modal');
+      M.Modal.init(elems);
+    });
 
-        // "Manual Sync" 버튼 클릭 시 실행될 함수
-        function syncUpcomingMovies() {
-            // 비동기 GET 요청: 수동 동기화 API 호출
-            fetch('/admin/movies/upcoming/sync-manual-test', {
-                method: 'GET'
-            })
-            .then(res => {
-                console.log("응답 상태:", res.status); // 응답 상태 코드 출력
+    // "Manual Sync" 버튼 클릭 시 실행될 함수
+    function syncUpcomingMovies() {
+      const spinner = document.getElementById("syncSpinner");
+      spinner.style.display = "inline-block"; // 표시
 
-                if (res.ok) {
-                    // 200 OK 응답이면 알림 후 페이지 리로드 (캐시 방지를 위한 타임스탬프 추가)
-                    alert("✅ Sync completed successfully!");
-                    window.location.href = '/admin/movies/upcoming?v=' + new Date().getTime();
-                } else {
-                    // 4xx, 5xx 에러 처리
-                    alert("❌ Sync failed! (" + res.status + ")");
-                }
-            })
-            .catch(err => {
-                // 네트워크 오류 등 예외 발생 시 처리
-                console.error(err);
-                alert("⚠️ An error occurred!");
-            });
+      // 비동기 GET 요청: 수동 동기화 API 호출
+      fetch('/admin/movies/upcoming/sync', {
+        method: 'POST'
+      })
+      .then(res => {
+        console.log("Response status:", res.status);
+        return res.text().then(text => ({ status: res.status, text }));
+      })
+      .then(({ status, text }) => {
+        if (status === 200) {
+          alert("✅ Sync completed successfully!");
+        } else {
+          alert(text || `❌ Sync failed! (${status})`);
         }
-    </script>
+      })
+      .catch(err => {
+        spinner.style.display = 'none';
+        // 네트워크 오류 등 예외 발생 시 처리
+        console.error('Sync failed:', err);
+        alert("⚠️ An error occurred during synchronization. Please check the server logs for details.");
+      })
+      .finally(() => {
+        spinner.style.display = 'none'; // ⬅️ 완료 후 숨기기
+      });
+    }
+  </script>
 </section>
 </body>
 </html>
