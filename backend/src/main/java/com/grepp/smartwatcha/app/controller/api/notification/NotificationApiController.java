@@ -5,6 +5,7 @@ import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.response.ApiResponse;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,13 +28,13 @@ public class NotificationApiController {
      * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
      * 로직: userId, notificationId로 접근, 해당하는 알림의 isRead를 true로 전환
      */
-    public ApiResponse<Object> markAsRead(
+    public ResponseEntity<ApiResponse<Void>> markAsRead(
             @RequestParam("id") Long notificationId,
             @RequestParam("user") Long userId) {
         try {
             notificationService.markAsRead(notificationId, userId);
 
-            return ApiResponse.noContent();
+            return ResponseEntity.ok(ApiResponse.noContent());
         } catch (Exception e) {
             throw new CommonException(ResponseCode.BAD_REQUEST);
         }
@@ -47,13 +48,13 @@ public class NotificationApiController {
      * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
      * 로직: userId, notificationId로 접근, 해당하는 알림의 activated를 false로 전환
      */
-    public ApiResponse<Object> deleteNotification(
+    public ResponseEntity<ApiResponse<Void>> deleteNotification(
             @RequestParam("id") Long notificationId,
             @RequestParam("user") Long userId) {
         try {
             notificationService.deactivateNotification(notificationId, userId);
 
-            return ApiResponse.noContent();
+            return ResponseEntity.ok(ApiResponse.noContent());
         } catch (Exception e) {
             throw new CommonException(ResponseCode.BAD_REQUEST);
         }
@@ -67,11 +68,11 @@ public class NotificationApiController {
      * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
      * 로직: userId로 접근, 해당하는 모든 알림의 isRead를 true로 전환
      */
-    public ApiResponse<Object> markAllAsRead(@RequestParam("user") Long userId) {
+    public ResponseEntity<ApiResponse<Void>> markAllAsRead(@RequestParam("user") Long userId) {
         try{
             notificationService.markAllAsRead(userId);
 
-            return ApiResponse.noContent();
+            return ResponseEntity.ok(ApiResponse.noContent());
         } catch (Exception e) {
             throw new CommonException(ResponseCode.BAD_REQUEST);
         }
@@ -85,11 +86,11 @@ public class NotificationApiController {
      * 출력: 200 OK, 예외 발생 시 400 BAD REQUEST
      * 로직: userId로 접근, 해당하는 모든 알림의 activated를 false로 전환
      */
-    public ApiResponse<Object> deleteAllNotifications(@RequestParam("user") Long userId) {
+    public ResponseEntity<ApiResponse<Void>> deleteAllNotifications(@RequestParam("user") Long userId) {
         try{
             notificationService.deactivateAllNotifications(userId);
 
-            return ApiResponse.noContent();
+            return ResponseEntity.ok(ApiResponse.noContent());
         } catch (Exception e) {
             throw new CommonException(ResponseCode.BAD_REQUEST);
         }
