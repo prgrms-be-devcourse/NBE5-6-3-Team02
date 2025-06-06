@@ -35,9 +35,8 @@ public class TagApiController {
         return ResponseEntity.ok(ApiResponse.success(userTagNames));
     }
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<TagDto>>> searchTags(@RequestParam String keyword) {
-        List<TagDto> result = tagService.searchTags(keyword);
-        return ResponseEntity.ok(ApiResponse.success(result));
+    public List<TagDto>searchTags(@RequestParam String keyword) {
+        return tagService.searchTags(keyword);
     }
 
     @PostMapping("/select")
