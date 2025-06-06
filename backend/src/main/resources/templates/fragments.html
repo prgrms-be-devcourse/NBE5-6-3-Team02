@@ -81,7 +81,7 @@
           </th:block>
 
           <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
-            <li><a th:href="@{/login}" class="highlight">Login</a></li>
+            <li><a th:href="@{/user/login}" class="highlight">Login</a></li>
           </th:block>
         </ul>
       </div>

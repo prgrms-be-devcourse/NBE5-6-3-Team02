@@ -7,16 +7,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/*
+ * TMDB 영화 개봉일 및 관람등급 API 를 위한 Feign Client
+ * TMDB API 에서 특정 영화의 개봉일과 관람등급 정보를 가져옴
+ * 각 국가별 개봉일과 관람등급 정보를 포함
+ */
 @FeignClient(
     name = "tmdb-release-api",
     url = "https://api.themoviedb.org/3",
     configuration = {FeignCommonConfig.class}
 )
-public interface UpcomingMovieReleaseDateApi { //관람등급 정보
+public interface UpcomingMovieReleaseDateApi {
 
-  @GetMapping("/movie/{movieId}/release_dates")
-  UpcomingMovieReleaseDateApiResponse getReleaseDates(
-      @PathVariable("movieId") Long movieId,
-      @RequestParam("api_key") String apiKey
-  );
+    // 특정 영화의 개봉일과 관람등급 정보를 조회
+    @GetMapping("/movie/{movieId}/release_dates")
+    UpcomingMovieReleaseDateApiResponse getReleaseDates(
+        @PathVariable("movieId") Long movieId,
+        @RequestParam("api_key") String apiKey
+    );
 }

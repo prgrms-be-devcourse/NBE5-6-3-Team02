@@ -33,26 +33,23 @@ public class IndexJpaService {
 
     public List<IndexMovieDto> findByReleaseDate() {
         List<MovieEntity> movies = indexJpaRepository.findByReleaseDate();
-        List<IndexMovieDto> indexMovieDtos = new ArrayList<>();
-        for (MovieEntity movie : movies) {
-            IndexMovieDto indexMovieDto = IndexMovieDto.fromEntity(movie);
-            indexMovieDtos.add(indexMovieDto);
-        }
-        return indexMovieDtos;
+
+        return movieEntitytoIndexDto(movies);
     }
 
     public List<IndexMovieDto> findByRandom() {
         List<MovieEntity> movies = indexJpaRepository.findByRandom();
-        List<IndexMovieDto> indexMovieDtos = new ArrayList<>();
-        for (MovieEntity movie : movies) {
-            IndexMovieDto indexMovieDto = IndexMovieDto.fromEntity(movie);
-            indexMovieDtos.add(indexMovieDto);
-        }
-        return indexMovieDtos;
+
+        return movieEntitytoIndexDto(movies);
     }
 
     public List<IndexMovieDto> findByInterest(Long id) {
         List<MovieEntity> movies = indexJpaRepository.findByInterest(id);
+
+        return movieEntitytoIndexDto(movies);
+    }
+
+    public List<IndexMovieDto> movieEntitytoIndexDto(List<MovieEntity> movies) {
         List<IndexMovieDto> indexMovieDtos = new ArrayList<>();
         for (MovieEntity movie : movies) {
             IndexMovieDto indexMovieDto = IndexMovieDto.fromEntity(movie);

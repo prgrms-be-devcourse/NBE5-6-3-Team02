@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MovieStatusChangeJpaRepository extends JpaRepository<MovieEntity, Long> {
 
-    @Query("SELECT m FROM MovieEntity m WHERE FUNCTION('DATE', m.releaseDate) = CURRENT_DATE")
+    @Query("SELECT m FROM MovieEntity m WHERE FUNCTION('DATE', m.releaseDate) <= CURRENT_DATE")
     List<MovieEntity> findByReleaseDateToday();
 }

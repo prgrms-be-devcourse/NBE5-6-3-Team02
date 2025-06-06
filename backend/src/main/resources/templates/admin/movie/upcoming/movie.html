@@ -108,9 +108,14 @@
   <!--메인 콘텐츠 영역-->
   <h4 style="color: lightgrey">🗓️ Upcoming movies</h4>
 
-  <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;">
-    <div style="color: steelblue ; display: flex; align-items: center; gap: 12px;">
+  <!-- ✅ Last Sync + 버튼 영역 -->
+  <div style="display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 10px;">
 
+    <div id="syncProgress" class="progress" style="display: none; width: 65px; margin-bottom: 6px;">
+      <div class="indeterminate"></div>
+    </div>
+
+    <div style="color: steelblue; display: flex; align-items: center; gap: 12px;">
       <div style="font-size: 1rem;">
         <strong>Last Sync Time:</strong>
         <span th:text="${lastSyncTime != null ? #temporals.format(lastSyncTime, 'yyyy-MM-dd HH:mm') : 'N/A'}">N/A</span>
@@ -119,9 +124,9 @@
       <button type="button" class="waves-effect" onclick="syncUpcomingMovies()" style="background-color: #ff6262; color: white; border: none; padding: 6px 12px; border-radius: 4px;
         font-size: 0.95rem; line-height: 1.2; display: flex; align-items: center; gap: 6px;"><i class="material-icons" style="font-size: 1.1rem;">cached</i>Manual Sync
       </button>
-
     </div>
   </div>
+
 
   <div class="upcomingMovie-layout">
     <!-- Upcoming Movie 테이블 -->
@@ -184,21 +189,31 @@
 
   <script>
     function syncUpcomingMovies() {
-      fetch('/admin/movies/upcoming/sync-manual-test', {
-        method: 'GET'
+      const progressBar = document.getElementById('syncProgress');
+      progressBar.style.display = 'block'; // ⬅️ 시작 시 보이기
+
+      fetch('/admin/movies/upcoming/sync', {
+        method: 'POST'
       })
       .then(res => {
-        console.log("응답 상태:", res.status);
-        if (res.ok) {
+        console.log("Response status:", res.status);
+        return res.text().then(text => ({ status: res.status, text }));
+      })
+      .then(({ status, text }) => {
+        if (status === 200) {
           alert("✅ Sync completed successfully!");
           window.location.href = '/admin/movies/upcoming?v=' + new Date().getTime();
         } else {
-          alert("❌ Sync failed! (" + res.status + ")");
+          alert(text || `❌ Sync failed! (${status})`);
         }
       })
       .catch(err => {
-        console.error(err);
-        alert("⚠️ An error occurred!");
+        progressBar.style.display = 'none'; // 오류시 숨기기
+        console.error('Sync failed:', err);
+        alert("⚠️ An error occurred during synchronization. Please check the server logs for details.");
+      })
+    .finally(() => {
+        progressBar.style.display = 'none'; // ⬅️ 완료 후 숨기기
       });
     }
   </script>
