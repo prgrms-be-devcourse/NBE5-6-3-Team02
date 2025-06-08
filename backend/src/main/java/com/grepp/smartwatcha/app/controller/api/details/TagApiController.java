@@ -23,15 +23,12 @@ public class TagApiController {
     private final TagService tagService;
 
     @GetMapping("/user")
-    public ResponseEntity<ApiResponse<List<String>>> getUserTags(
+    public ResponseEntity<ApiResponse<List<TagDto>>> getUserTags(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("id") Long movieId
     ) {
         UserEntity user = userDetails.getUser();
-        List<String> userTagNames =  tagService.getUserTags(user, movieId)
-                .stream()
-                .map(tag -> tag.getTag().getName())
-                .toList();
+        List<TagDto> userTagNames =  tagService.getUserTags(user, movieId);
         return ResponseEntity.ok(ApiResponse.success(userTagNames));
     }
     @GetMapping("/search")

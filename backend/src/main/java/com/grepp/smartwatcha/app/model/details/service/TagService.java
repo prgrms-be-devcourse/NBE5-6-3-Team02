@@ -29,7 +29,7 @@ public class TagService {
     }
 
     // 유저가 남긴 태그 조회
-    public List<MovieTagEntity> getUserTags(UserEntity user, Long movieId) {
+    public List<TagDto> getUserTags(UserEntity user, Long movieId) {
         return tagJpaService.getUserTags(user,movieId);
     }
 

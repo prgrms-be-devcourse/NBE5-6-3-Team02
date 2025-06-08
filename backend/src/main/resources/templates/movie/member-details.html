@@ -465,16 +465,18 @@
         const response = await fetch(`/movies/${movieId}/tags/user`);
         if (!response.ok) return;
 
-        const tags = await response.json();
+        const json = await response.json();
+        const tags = json.data;
         myTags.innerHTML = '';
         tags.forEach(tag => {
-            myTags.appendChild(createTagListItem(tag));
+            myTags.appendChild(createTagListItem(tag.name));
         });
     }
 
     async function loadTopTags() {
         const response = await fetch(`/movies/${movieId}/tags/top6?movieId=${movieId}`);
-        const tags = await response.json();
+        const json = await response.json();
+        const tags = json.data;
         const list = document.querySelector(".top-tags ul");
         list.innerHTML = '';
         tags.forEach(tag => {
@@ -487,16 +489,16 @@
     async function loadAverageScore() {
         const res = await fetch(`/movies/${movieId}/ratings/average`);
         if (!res.ok) return;
-        const avg = await res.json();
-
+        const json = await res.json();
+        const avg = json.data;
         document.querySelector(".rating-center strong").textContent = avg.toFixed(1);
     }
 
     async function loadRatingBars() {
         const res = await fetch(`/movies/${movieId}/ratings/bars`);
         if (!res.ok) return;
-
-        const bars = await res.json();
+        const json = await res.json();
+        const bars= json.data;
         const graph = document.querySelector(".graph");
         graph.innerHTML = "";  // 기존 그래프 초기화
 

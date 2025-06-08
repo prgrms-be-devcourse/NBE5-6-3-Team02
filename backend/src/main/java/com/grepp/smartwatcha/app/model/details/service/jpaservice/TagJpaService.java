@@ -52,11 +52,16 @@ public class TagJpaService {
     }
 
     // 유저가 남긴 Tag 정보 반환
-    public List<MovieTagEntity> getUserTags(UserEntity user, Long movieId) {
+    public List<TagDto> getUserTags(UserEntity user, Long movieId) {
         MovieEntity movie = movieDetailsJpaRepository.findById(movieId)
                 .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
 
-        return userTagJpaRepository.findByUserAndMovie(user, movie);
+        return userTagJpaRepository.findByUserAndMovie(user, movie).stream()
+                .map(entity -> new TagDto(
+                        entity.getTag().getId(),
+                        entity.getTag().getName()
+                ))
+                .collect(Collectors.toList());
     }
 
 
