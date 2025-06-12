@@ -92,7 +92,7 @@ jobs:
 
       - name: Build and Push llm Docker image
         run: |
-          docker build -t asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }} ./backend
+          docker build -t asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }} ./llmserver
           docker push asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }}
 
       - name: Deploy llm to Cloud Run
