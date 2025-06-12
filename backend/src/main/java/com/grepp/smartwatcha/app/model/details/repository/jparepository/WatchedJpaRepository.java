@@ -9,8 +9,12 @@ import java.util.Optional;
 
 public interface WatchedJpaRepository extends JpaRepository<MovieWatchedEntity, Integer> {
 
-    // userid, movieid 기반 MovieWatchedEntity에 정보가 있는지 찾음
+    // userid, movieid 기반 MovieWatchedEntity에 정보를 가져옴 -> 값을 반환
     Optional<MovieWatchedEntity> findByUserIdAndMovieId(Long userId, Long movieId);
+
+    // MovieWatchedEntity에 정보 유무 확인 -> boolean 반환
+    boolean existsByUserIdAndMovieId(Long userId, Long movieId);
+
     // 삭제 기능
     void deleteByUserIdAndMovieId(Long userId, Long movieId);
 }

@@ -42,10 +42,11 @@ public class WatchedJpaService {
             throw new CommonException(ResponseCode.BAD_REQUEST);
         }
 
-        // 2. 기존 시청 정보 존재 여부 확인
+        // Entity에 저장되어있는 정보 꺼내오기
         Optional<MovieWatchedEntity> existing =
                 watchedJpaRepository.findByUserIdAndMovieId(dto.getUserId(), dto.getMovieId());
 
+        // 2. 기존 시청 정보 존재 여부 확인
         if (existing.isPresent()) {
             // 존재 시 날짜만 저장
             MovieWatchedEntity entity = existing.get();
