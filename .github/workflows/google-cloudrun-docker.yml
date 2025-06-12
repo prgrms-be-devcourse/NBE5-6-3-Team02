@@ -78,13 +78,13 @@ jobs:
 
       - name: Build and Push backend Docker image
         run: |
-          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/spring-app:${{ github.sha }} ./backend
-          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/spring-app:${{ github.sha }}
+          docker build -t asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/spring-app:${{ github.sha }} ./backend
+          docker push asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/spring-app:${{ github.sha }}
 
       - name: Deploy backend to Cloud Run
         run: |
           gcloud run deploy spring-app \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/spirng-app:${{ github.sha }} \
+            --image asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/spirng-app:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
@@ -92,13 +92,13 @@ jobs:
 
       - name: Build and Push llm Docker image
         run: |
-          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }} ./backend
-          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }}
+          docker build -t asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }} ./backend
+          docker push asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }}
 
       - name: Deploy llm to Cloud Run
         run: |
           gcloud run deploy spring-app \
-            --image ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }} \
+            --image asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
