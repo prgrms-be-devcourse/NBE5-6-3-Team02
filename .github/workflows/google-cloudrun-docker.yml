@@ -97,7 +97,7 @@ jobs:
 
       - name: Deploy llm to Cloud Run
         run: |
-          gcloud run deploy spring-app \
+          gcloud run deploy llm-server \
             --image asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
