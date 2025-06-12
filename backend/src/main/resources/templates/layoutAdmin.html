@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+
+    <!-- fragments 공통 static 리소스 -->
+    <th:block th:replace="~{fragments :: frg_static}"/>
+
+    <!-- Materialize CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <style>
+        nav .nav-wrapper .right a.highlight {
+            color: #1e1e1e !important;
+        }
+
+        .modal-btn {
+            background-color: #424242 !important;
+            color: white !important;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0 1rem;
+            height: 36px;
+            line-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            text-transform: none;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .dashboard-flex {
+            display: flex;
+            background-color: #121212;
+            color: #bdbdbd;
+            min-height: calc(100vh - 64px - 64px);
+        }
+
+        aside.dashboard-aside {
+            width: 250px;
+            background-color: #1e1e1e;
+            padding: 1.7rem;
+        }
+
+        section.dashboard-section {
+            flex-grow: 1;
+            padding: 2rem;
+            min-width: 0;
+        }
+
+        .collapsible,
+        .collapsible > li,
+        .collapsible-header,
+        .collapsible-body {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #1e1e1e !important;
+            color: #fafafa !important;
+            padding-left: 0.2rem !important;
+            padding-right: 1rem !important;
+        }
+
+        .collapsible-body {
+            background-color: #1e1e1e !important;
+            color: white;
+            padding: 0.5rem 1rem !important;
+        }
+
+        .collapsible-body ul {
+            list-style: none;
+            margin: 0;
+            padding-left: 1rem;
+        }
+
+        .collapsible-body li {
+            margin-bottom: 1rem;
+        }
+
+        .collapsible-body li:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+<!-- fragments_header -->
+<th:block th:replace="~{fragments :: frg_header}" />
+<main style="margin: 0; padding: 0;">
+    <div class="dashboard-flex">
+        <!-- Sidebar -->
+        <aside class="dashboard-aside">
+            <h5 style="color: lightcoral;">Admin Menu</h5>
+            <ul class="collapsible">
+                <li>
+                    <a class="collapsible-header" href="/admin">Dashboard<i class="material-icons">bookmark</i></a>
+                </li>
+                <li>
+                    <div class="collapsible-header">User Management<i class="material-icons">expand_more</i></div>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li><a href="/admin/users" style="color:steelblue;">User List</a></li>
+                            <li><a href="/admin/users/ratings" style="color:steelblue;">User Ratings</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <div class="collapsible-header">Movie Management<i class="material-icons">expand_more</i></div>
+                    <div class="collapsible-body">
+                        <ul>
+                            <li><a href="/admin/movies" style="color:steelblue;">All Movies</a></li>
+                            <li><a href="/admin/movies/upcoming" style="color:steelblue;">Upcoming Movies</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <a class="collapsible-header" href="/admin/tags">Tag Management</a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- 메인 콘텐츠 -->
+        <section class="dashboard-section" layout:fragment="main-content"></section>
+    </div>
+</main>
+
+<!-- footer -->
+<th:block th:replace="~{fragments :: frg_footer}" />
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.collapsible');
+        M.Collapsible.init(elems);
+    });
+</script>
+</body>
+</html>

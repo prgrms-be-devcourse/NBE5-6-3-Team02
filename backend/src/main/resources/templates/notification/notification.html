@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    #notificationModal .modal-content {
+      background-color: #212121;
+      color: #ffffff;
+    }
+
+    #notificationModal .modal-footer {
+      background-color: #212121;
+    }
+
+    #notificationModal .modal-footer .btn-flat {
+      color: #ffffff
+    }
+  </style>
+</head>
+<body>
+<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
+  <!-- notifications.html -->
+  <div class="container">
+    <h4>Notifications</h4>
+
+    <!-- 일괄 처리 버튼 -->
+    <div class="right-align">
+      <a class="btn blue lighten-1" id="markAllReadBtn">Read All</a>
+      <a class="btn red lighten-1" id="deleteAllBtn">Delete All</a>
+    </div>
+
+    <ul class="collection">
+      <li th:each="notification : ${notifications}"
+          class="collection-item"
+          th:classappend="${notification.isRead} ? 'grey-text text-darken-1' : 'black-text'"
+          th:attr="data-id=${notification.id}, data-message=${notification.message}">
+
+      <span th:text="${notification.message}"
+            th:classappend="${!notification.isRead} ? 'font-weight-bold' : ''"
+            class="notification-title modal-trigger" data-target="notificationModal" style="cursor:pointer;"></span>
+
+        <a href="#!" class="secondary-content delete-btn">
+          <i class="material-icons red-text">close</i>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 알림 상세 모달 -->
+  <div id="notificationModal" class="modal">
+    <div class="modal-content">
+      <p id="modalContent"></p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close btn-flat">닫기</a>
+    </div>
+  </div>
+
+  <!-- 스크립트 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      M.Modal.init(document.querySelectorAll('.modal'));
+
+      const path = window.location.pathname;
+      const segments = path.split("/");
+      const userId = segments[segments.length - 1];
+      // 모달 열기 + 읽음 처리
+      document.querySelectorAll('.notification-title').forEach(item => {
+        item.addEventListener('click', function () {
+          const parent = this.closest('li');
+          const id = parent.getAttribute('data-id');
+          const content = parent.getAttribute('data-message');
+
+          document.getElementById('modalContent').innerText = content;
+
+          fetch(`/api/notifications/read?id=${id}&user=${userId}`, { method: 'POST' })
+          .then(() => {
+            parent.classList.remove('black-text');
+            parent.classList.add('grey-text', 'text-darken-1');
+            this.classList.remove('font-weight-bold');
+          });
+        });
+      });
+
+      // 알림 개별 삭제 처리
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const parent = this.closest('li');
+          const id = parent.getAttribute('data-id');
+          fetch(`/api/notifications/delete?id=${id}&user=${userId}`, { method: 'POST' })
+          .then(() => parent.remove());
+        });
+      });
+
+      // 모두 읽음 처리
+      document.getElementById('markAllReadBtn').addEventListener('click', function () {
+        fetch(`/api/notifications/readAll?user=${userId}`, { method: 'POST' })
+        .then(() => location.reload());
+      });
+
+      // 모두 삭제 처리
+      document.getElementById('deleteAllBtn').addEventListener('click', function () {
+        fetch(`/api/notifications/deleteAll?user=${userId}`, { method: 'POST' })
+        .then(() => location.reload());
+      });
+    });
+  </script>
+</main>
+
+</body>
+</html>

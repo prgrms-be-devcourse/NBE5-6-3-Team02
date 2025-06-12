@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Movie Platform</title>
+  <th:block th:fragment="frg_static">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+      body {
+        background-color: #121212;
+        color: white;
+      }
+      .highlight {
+        color: #e53935; /* Red accent */
+      }
+      nav {
+        background-color: #1e1e1e;
+      }
+      footer {
+        background-color: #1e1e1e;
+        padding: 20px 0;
+      }
+    </style>
+  </th:block>
+</head>
+<body>
+
+<th:block th:fragment="frg_header">
+  <header>
+    <nav>
+      <div class="nav-wrapper container">
+        <a href="/" class="brand-logo highlight">🎬 SmartMovie</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a href="/" class="white-text">Home</a></li>
+          <li><a href="/search" class="white-text">Search</a></li>
+
+          <th:block th:if="${#authorization.expression('isAuthenticated()')}">
+
+
+            <li>
+              <a href="/notifications" class="white-text">
+                Notification
+                <span th:if="${unreadCount > 0}" class="new badge red" data-badge-caption="!" style="margin-left:6px;"></span>
+              </a>
+            </li>
+
+            <!-- 관리자만 보이는 영역 -->
+            <th:block th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+              <li><a href="/admin" id="dashboard" class="highlight">Dashboard</a></li>
+            </th:block>
+
+            <!-- 일반 유저만 보이는 영역 -->
+            <th:block th:if="${#authorization.expression('hasRole(''ROLE_USER'')')}">
+              <li style="position:relative;">
+                <div class="mypage-dropdown" style="display:inline-block; position:relative;">
+                  <a href="#" class="white-text mypage-btn" style="background:none; border:none; cursor:pointer; font-size:1.0rem; font-weight:400; display:flex; align-items:center; padding:0 8px;">
+                    <span class="material-icons" style="vertical-align:middle; font-size:1.2rem;">account_circle</span>
+                    <span style="margin-left:4px;">My Page</span>
+                  </a>
+                  <div class="mypage-menu"
+                       style="display:none; position:absolute; top:100%; left:50%; transform:translateX(-50%); min-width:130px; background:#232323; border:1px solid rgba(255,255,255,0.08); box-shadow:0 4px 16px rgba(0,0,0,0.25); border-radius:10px; z-index:100; padding:6px 0;">
+                    <a href="/user/mypage"
+                       style="display:block; padding:10px 22px; color:#fff; text-decoration:none; font-size:0.98rem; border-radius:7px; transition:background 0.15s;">
+                      Modifying Information
+                    </a>
+                    <a href="/user/mypage/activity"
+                       style="display:block; padding:10px 22px; color:#fff; text-decoration:none; font-size:0.98rem; border-radius:7px; transition:background 0.15s;">
+                      Activity Management
+                    </a>
+                  </div>
+                </div>
+              </li>
+            </th:block>
+
+            <li><a href="#" id="logout" class="highlight">Logout</a></li>
+
+          </th:block>
+
+          <th:block th:unless="${#authorization.expression('isAuthenticated()')}">
+            <li><a th:href="@{/user/login}" class="highlight">Login</a></li>
+          </th:block>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <form th:action="@{/logout}" method="post" id="logoutForm"></form>
+  <script>
+
+    (() => {
+
+      const logout = document.querySelector('#logout');
+      if (!logout) {
+        return;
+      }
+
+      logout.addEventListener('click', ev => {
+        ev.preventDefault();
+        document.getElementById('logoutForm').submit();
+      });
+
+    })();
+
+    // 마이페이지 드롭다운
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropdown = document.querySelector('.mypage-dropdown');
+      if (!dropdown) return;
+      const menu = dropdown.querySelector('.mypage-menu');
+      dropdown.addEventListener('mouseenter', () => { menu.style.display = 'block'; });
+      dropdown.addEventListener('mouseleave', () => { menu.style.display = 'none'; });
+
+      // 드롭다운 항목 hover 스타일
+      const items = menu.querySelectorAll('a');
+      items.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+          item.style.background = 'rgba(229,57,53,0.15)';
+        });
+        item.addEventListener('mouseleave', () => {
+          item.style.background = 'none';
+        });
+      });
+    });
+  </script>
+</th:block>
+
+<!-- footer -->
+<th:block th:fragment="frg_footer">
+  <footer class="page-footer">
+    <div class="container center-align white-text">
+      © 2025 SmartMovie Project | Made with ❤️ and LLM
+    </div>
+  </footer>
+</th:block>
+
+</body>
+</html>
+

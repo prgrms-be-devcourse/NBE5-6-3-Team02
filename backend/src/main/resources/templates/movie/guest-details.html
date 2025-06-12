@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title th:text="${movie.title}">영화 상세 페이지</title>
+    <th:block th:replace="fragments :: frg_static"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .genre-recommend-container {
+            padding: 20px 0;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .recommend-list {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            scroll-behavior: smooth;
+            padding: 10px 0;
+            margin: 0 40px;
+        }
+
+        .recommend-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .recommend-item {
+            width: 120px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .recommend-poster {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .slider-button {
+            position: absolute;
+            z-index: 10;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .slider-button.left {
+            left: 0;
+        }
+
+        .slider-button.right {
+            right: 0;
+        }
+
+        .slider-button:hover {
+            background-color: #27c29c;
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.85);
+            min-height: 100vh;
+        }
+
+        .main-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .poster img {
+            width: 300px;
+            border-radius: 10px;
+        }
+
+        .graph {
+            width: 300px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 120px;
+            margin-top: 20px;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bar-vertical {
+            width: 16px;
+            background-color: #ff2f6e;
+            border-radius: 5px 5px 0 0;
+            margin-bottom: 5px;
+            min-height: 5px;
+        }
+
+        .bar-label {
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .info-section {
+            flex: 1;
+        }
+
+        .movie-title {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .info-text {
+            margin: 10px 0;
+            color: #ccc;
+        }
+
+        .section-divider {
+            border-top: 1px solid #555;
+            margin: 20px 0;
+        }
+
+        .rating-wrapper {
+            margin: 20px 0;
+        }
+
+        /* ⭐ 별점 영역 3분할 구조 */
+        .rating-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .rating-left,
+        .rating-center,
+        .rating-right {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rating-center {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .stars {
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .stars.hovered {
+            color: #f5c518;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .icon-button i {
+            margin-right: 6px;
+            font-size: 18px;
+        }
+
+        .average-rating strong {
+            font-size: 28px;
+            color: #f15b5b;
+        }
+        .tag-selection {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tag-selection label {
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            white-space: nowrap;
+        }
+
+        input#tagInput[type="text"] {
+            border: none;
+            outline: none;
+            box-shadow: none;
+            background-color: white;
+            color: black;
+            padding: 6px 10px;
+            border-radius: 4px;
+            width: 180px !important;
+            flex-shrink: 0;
+        }
+
+        #submitTag {
+            white-space: nowrap;
+            height: 30px;
+            padding: 0 5px;
+            font-size: 14px;
+        }
+
+        .top-tags ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .top-tags li {
+            margin-bottom: 5px;
+        }
+
+        .cast-section {
+            margin-top: 20px;
+        }
+
+        .cast-section div {
+            margin-bottom: 10px;
+        }
+
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-modal-content {
+            background-color: #1e1e1e;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 400px;
+            box-shadow: 0 0 20px #f15b5b;
+        }
+
+        .login-modal-content h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #f15b5b;
+        }
+
+        .login-modal-content p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .login-modal-content button {
+            background-color: #f15b5b;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-modal-content .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        h3, h4 {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: white;
+        }
+
+        /* 모든 버튼 기본 focus 효과 제거 (불필요한 초록 테두리 제거) */
+        button:focus,
+        .icon-button:focus {
+            outline: none;
+            box-shadow: none;
+            background-color: transparent;
+        }
+
+        /* 슬라이더 버튼만 focus 시 초록색 배경 유지 */
+        .slider-button:focus {
+            background-color: #27c29c;
+        }
+    </style>
+</head>
+<body th:attr="data-movie-id=${movie.id}">
+<th:block th:replace="fragments :: frg_header"></th:block>
+<div id="login-banner" class="login-modal">
+    <div class="login-modal-content">
+        <span class="close" onclick="closeLoginBanner()">&times;</span>
+        <h2>SmartMovie</h2>
+        <p>This feature requires registration or login.<br>Use SmartMovie more conveniently.</p>
+        <button onclick="location.href='/user/login'">login</button>
+        <button onclick="location.href='/user/signup'">join member</button>
+    </div>
+</div>
+<div class="overlay">
+    <div class="main-section">
+        <div class="poster">
+            <img th:src="${movie.poster != null ? 'https://image.tmdb.org/t/p/w500' + movie.poster : '/images/default.jpg'}"
+                 alt="포스터">
+            <div class="graph">
+                <div th:each="bar : ${ratingBars}" class="bar-group">
+                    <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
+                    <div class="bar-label" th:text="${bar.score} + 'pointer'"></div>
+                </div>
+            </div>
+        </div>
+        <div class="info-section">
+            <div class="movie-title" th:text="${movie.title}">영화 제목</div>
+            <div class="info-text">
+                <strong>Genre :</strong>
+                <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
+            </div>
+            <div class="info-text">
+                <span th:text="'Release Date : ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : 'No information')"></span> |
+                <span th:text="'Country : ' + (${movie.country} != null ? ${movie.country} : 'No information')"></span> |
+                <span th:text="'Certification : ' + (${movie.certification} != null ? ${movie.certification} : 'No information')"></span> |
+                <span th:text="'undisclosed : ' + (${movie.isReleased} ? 'release' : 'undisclosed')"></span>
+            </div>
+
+            <div class="section-divider"></div>
+            <div class="info-text">
+                <strong>OverView : </strong>
+                <span th:text="${movie.overview != null ? movie.overview : 'No information'}"></span>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="rating-wrapper">
+                <div class="rating-flex">
+                    <!-- 왼쪽: 평가하기 -->
+                    <div class="rating-left">
+                        <strong>Leave a rating : </strong>
+                        <span th:each="i : ${#numbers.sequence(1,5)}">
+                        <i class="fa-regular fa-star stars" th:attr="data-score=${i}"></i></span>
+                    </div>
+                    <!-- 가운데: 평균 별점 -->
+                    <div class="rating-center">
+                        <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
+                        <div style="font-size: 14px; color: #ccc;">Average Star</div>
+                    </div>
+                    <!-- 오른쪽: 아이콘 버튼 -->
+                    <div class="rating-right">
+                        <button class="icon-button"><i class="fa-solid fa-bookmark"></i> Interest</button>
+                        <button class="icon-button"><i class="fa-solid fa-eye-slash"></i> UnInterest</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="tag-selection">
+                <label for="tagInput"><strong>Leave a tag :</strong></label>
+                <input type="text" id="tagInput" class="browser-default" placeholder="Please enter tags..." autocomplete="off"/>
+                <button id="submitTag">Leave a tag</button>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="top-tags">
+                <h3>Top 6 Tags</h3>
+                <ul>
+                    <li th:each="t : ${topTags}" th:text="${'# ' + t.name}"></li>
+                </ul>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <div class="cast-section">
+                <!-- 감독 -->
+                <div>
+                    <strong>Director :</strong>
+                    <span th:if="${#lists.isEmpty(directors)}">정보없음</span>
+                    <span th:each="d, stat : ${directors}" th:unless="${#lists.isEmpty(directors)}"
+                          th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span>
+                </div>
+
+                <!-- 출연 -->
+                <div>
+                    <strong>Casting :</strong>
+                    <span th:if="${#lists.isEmpty(actors)}">정보없음</span>
+                    <span th:each="a, stat : ${actors}" th:unless="${#lists.isEmpty(actors)}"
+                          th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section-divider"></div>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 30px;">
+        <div class="genre-recommend-container">
+            <h3 class="recommend-title">Recommendations of similar genres :</h3>
+            <div class="slider-wrapper">
+                <button class="slider-button left" onclick="scrollToLeft(this)">&#10094;</button>
+                <div class="recommend-list"
+                     style="display: flex; overflow-x: auto; gap: 20px; padding-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none;">
+                    <div class="recommend-item" th:each="sim : ${similarMovies}">
+                        <a th:href="@{'/movies/' + ${sim.id}}">
+                            <img th:src="${sim.poster != null ? 'https://image.tmdb.org/t/p/w500' + sim.poster : '/images/default.jpg'}"
+                                 alt="포스터" class="recommend-poster"/>
+                        </a>
+                        <p class="recommend-title" th:text="${sim.title}">영화 제목</p>
+                    </div>
+                </div>
+                <button class="slider-button right" onclick="scrollToRight(this)">&#10095;</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function showLoginBanner() {
+        document.getElementById("login-banner").style.display = "flex";
+    }
+
+    function closeLoginBanner() {
+        document.getElementById("login-banner").style.display = "none";
+    }
+
+    function scrollToLeft(button) {
+        const list = button.parentElement.querySelector(".recommend-list");
+        list.scrollBy({left: -300, behavior: 'smooth'});
+        button.blur();
+    }
+
+    function scrollToRight(button) {
+        const list = button.parentElement.querySelector(".recommend-list");
+        list.scrollBy({left: 300, behavior: 'smooth'});
+        button.blur();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".stars").forEach(star => {
+            star.addEventListener("mouseenter", () => {
+                const score = parseInt(star.dataset.score);
+                document.querySelectorAll(".stars").forEach(s => {
+                    if (parseInt(s.dataset.score) <= score) {
+                        s.classList.add("hovered");
+                        s.classList.remove("fa-regular");
+                        s.classList.add("fa-solid");
+                    }
+                });
+            });
+
+            star.addEventListener("mouseleave", () => {
+                document.querySelectorAll(".stars").forEach(s => {
+                    s.classList.remove("hovered");
+                    s.classList.remove("fa-solid");
+                    s.classList.add("fa-regular");
+                });
+            });
+
+            star.onclick = showLoginBanner;
+        });
+
+        document.querySelectorAll(".icon-button").forEach(btn => {
+            btn.onclick = showLoginBanner;
+        });
+
+        document.getElementById("submitTag").onclick = showLoginBanner;
+        document.getElementById("tagInput").onclick = showLoginBanner;
+    });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === "Escape") closeLoginBanner();
+    });
+
+    window.addEventListener('click', function (event) {
+        const modal = document.getElementById("login-banner");
+        if (event.target === modal) closeLoginBanner();
+    });
+</script>
+<th:block th:replace="fragments :: frg_footer"></th:block>
+</body>
+</html>

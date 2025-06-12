@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up - SmartMovie</title>
+    <style>
+        .input-field input[type=text],
+        .input-field input[type=email],
+        .input-field input[type=password],
+        .input-field input[type=tel] {
+            color: white;
+        }
+        .input-field label {
+            color: #9e9e9e;
+        }
+        .input-field input[type=text]:focus + label,
+        .input-field input[type=email]:focus + label,
+        .input-field input[type=password]:focus + label,
+        .input-field input[type=tel]:focus + label {
+            color: #e53935;
+        }
+        .input-field input[type=text]:focus,
+        .input-field input[type=email]:focus,
+        .input-field input[type=password]:focus,
+        .input-field input[type=tel]:focus {
+            border-bottom: 1px solid #e53935;
+            box-shadow: 0 1px 0 0 #e53935;
+        }
+        .resend-btn {
+            margin-left: 8px;
+            font-size: 0.8em;
+            padding: 0.5em 1em;
+            background: #444;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .resend-btn:disabled {
+            background: #222;
+            color: #888;
+            cursor: not-allowed;
+        }
+    </style>
+    <!-- 인증 코드 전송 시 팝업 -->
+    <script>
+    function showVerificationPopup() {
+        alert('Please enter the 6 digits of the authentication code sent by e-mail.');
+    }
+    </script>
+</head>
+<body>
+<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 m6 offset-m3">
+                <div class="card" style="background-color: #1e1e1e; padding: 20px;">
+                    <div class="card-content white-text">
+                        <!-- 타이틀: codeSent 값에 따라 분기 -->
+                        <span class="card-title center-align" style="color: #e53935; margin-bottom: 30px;"
+                              th:text="${codeSent} ? 'Enter authentication code': 'Membership registration'"></span>
+                        <div th:if="${message}" class="center-align green-text" th:text="${message}"></div>
+                        <div th:if="${error}" class="center-align red-text" th:text="${error}"></div>
+                        <!-- 인증 코드 전송 전 -->
+                        <form th:action="@{/user/signup/send-code}" method="post" th:if="${codeSent == false}" id="sendCodeForm">
+                            <div class="input-field">
+                                <input type="text" id="name" name="name" th:value="${signupRequestDto.name}" required>
+                                <label for="name">Name</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="email" id="email" name="email" th:value="${signupRequestDto.email}" required>
+                                <label for="email">Email(ID)</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="text" id="phoneNumber" name="phoneNumber" th:value="${signupRequestDto.phoneNumber}" required>
+                                <label for="phoneNumber">PhoneNumber</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="password" id="password" name="password" required>
+                                <label for="password">Password</label>
+                            </div>
+                            <div class="input-field">
+                                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                                <label for="confirmPassword">Password Confirm</label>
+                            </div>
+                            <div class="center-align">
+                                <button type="submit" id="sendCodeBtn" class="btn waves-effect waves-light" style="background-color: #e53935;"
+                                        th:disabled="${remainingTime > 0}"
+                                        th:text="${remainingTime > 0 ? 'retransmission (' + remainingTime + 'Sec)' : 'Send authentication code'}">
+                                    Send Verification Code
+                                </button>
+                            </div>
+                        </form>
+                        <!-- 인증 코드 발송 버튼 클릭 시 팝업 및 비활성화 처리 -->
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                var sendCodeForm = document.getElementById('sendCodeForm');
+                                var sendCodeBtn = document.getElementById('sendCodeBtn');
+                                if (sendCodeForm && sendCodeBtn) {
+                                    sendCodeForm.addEventListener('submit', function(e) {
+                                        sendCodeBtn.disabled = true;
+                                        alert('Please enter the 6 digits of the authentication code sent by e-mail.');
+                                    });
+                                }
+                            });
+                        </script>
+
+                        <!-- 인증 코드 전송 후 -->
+                        <form th:action="@{/user/signup/verify}" method="post" th:if="${codeSent == true}" id="verifyForm">
+                            <input type="hidden" name="name" th:value="${signupRequestDto.name}">
+                            <input type="hidden" name="email" th:value="${signupRequestDto.email}">
+                            <input type="hidden" name="phoneNumber" th:value="${signupRequestDto.phoneNumber}">
+                            <input type="hidden" name="password" th:value="${signupRequestDto.password}">
+                            <input type="hidden" name="confirmPassword" th:value="${signupRequestDto.confirmPassword}">
+                            <div class="input-field" style="display: flex; align-items: center;">
+                                <input type="text" id="verificationCode" name="verificationCode" required style="flex: 1;">
+                                <button type="button" id="resendBtn" class="resend-btn" style="margin-left:8px;">retransmission</button>
+                            </div>
+                            <div style="text-align: left; color: #e53935; font-size: 0.9em; margin-bottom: 10px;" id="timerText"></div>
+                            <div class="center-align">
+                                <button type="submit" class="btn waves-effect waves-light" style="background-color: #e53935;">
+                                    Certification verification and membership registration
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-action center-align">
+                        <a th:href="@{/user/login}" style="color: #e53935;">Already have account? Login</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<div layout:fragment="pageScripts">
+<script th:inline="javascript">
+    var remainingTime = /*[[${remainingTime}]]*/ 0;
+    console.log("remainingTime:", remainingTime);
+    var resendBtn = document.getElementById('resendBtn');
+    var timerText = document.getElementById('timerText');
+    function updateTimer() {
+        if (remainingTime > 0) {
+            timerText.textContent = 'Time remaining for retransmission : ' + remainingTime + 'Sec';
+        } else {
+            timerText.textContent = '';
+        }
+        remainingTime--;
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        if (resendBtn && timerText) {
+            updateTimer();
+            var timerInterval = setInterval(function() {
+                updateTimer();
+                if (remainingTime < 0) clearInterval(timerInterval);
+            }, 1000);
+        }
+        resendBtn && resendBtn.addEventListener('click', function() {
+            if (remainingTime > 0) {
+                alert('Please try again in a moment');
+                return;
+            }
+            alert('The authentication code has been sent, please check your mail.');
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/user/signup/send-code';
+            ['name','email','phoneNumber','password','confirmPassword'].forEach(function(field) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = field;
+                input.value = document.getElementsByName(field)[0].value;
+                form.appendChild(input);
+            });
+            document.body.appendChild(form);
+            form.submit();
+        });
+    });
+</script>
+</div>
+</body>
+</html> 

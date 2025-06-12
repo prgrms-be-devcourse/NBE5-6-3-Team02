@@ -1,0 +1,772 @@
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layoutAdmin}">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Movie List</title>
+
+  <!-- ✅ flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+  <!-- ✅ flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <style>
+    h4 {
+      margin-top: 0;
+      margin-bottom: 2.2rem;
+    }
+
+    h5 {
+      margin-top: 0;
+    }
+
+    .dashboard-section {
+      flex: 1;
+      padding: 2rem;
+      min-width: 0;
+    }
+
+    .dashboard-flex {
+      display: flex;
+      width: 100%;
+    }
+
+    .user-controls {
+      margin: 1.5rem 0;
+    }
+
+    .user-controls select,
+    .user-controls input[type="text"],
+    .user-controls button {
+      height: 42px;
+      padding: 0 0.8rem;
+      background-color: #1e1e1e;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .movie-table thead tr {
+      border-bottom: 2px solid #444;
+      background-color: #2c2c2c;
+    }
+
+    .movie-table th {
+      color: #e0e0e0;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: left;
+    }
+
+    .user-layout {
+      display: flex;
+      gap: 2rem;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
+
+    .movie-table {
+      flex: 1 1 70%;
+      min-width: 0;
+    }
+
+    .user-detail-panel {
+      flex: 0 0 30%;
+      max-width: 300px;
+      background-color: #1e1e1e;
+      padding: 1.5rem;
+      border-radius: 8px;
+      color: white;
+      min-height: 300px;
+    }
+
+    .user-detail-panel p {
+      margin: 0.5rem 0;
+    }
+
+    table.highlight tbody tr td {
+      color: white;
+    }
+
+    td.green-text {
+      color: steelblue !important;
+    }
+
+    td.red-text {
+      color: lightcoral !important;
+    }
+
+    tr:hover {
+      background-color: #2a2a2a;
+      cursor: pointer;
+    }
+
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 2.5rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .page-button {
+      color: white;
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      padding: 0.4rem 0.8rem;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .page-button:hover {
+      background-color: #3d3d3d;
+    }
+
+    .page-button.active {
+      background-color: #ff5252;
+      color: white;
+      font-weight: bold;
+      border-color: #ff5252;
+    }
+
+    .custom-modal-footer {
+      background-color: #424242 !important;
+    }
+
+    .calendar-btn {
+      height: 42px;
+      width: 42px;
+      background-color: #1e1e1e;
+      border: 1px solid #444;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      line-height: 1;
+      font-size: 0;
+    }
+
+    .calendar-btn i {
+      font-size: 20px;
+      line-height: 1;
+      display: block;
+    }
+
+    .date-icon-wrapper {
+      position: relative;
+    }
+
+    .input-field input[type="text"],
+    .input-field input[type="date"] {
+      border-bottom: 1px solid #888 !important;
+      box-shadow: none !important;
+      color: white;
+    }
+
+    .input-field input[type="text"]:focus,
+    .input-field input[type="date"]:focus {
+      border-bottom: 1px solid #3d9c91 !important;
+      box-shadow: 0 1px 0 0 #3d9c91 !important;
+    }
+
+    .hidden-flatpickr-input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 42px;
+      z-index: -1;
+      pointer-events: auto;
+    }
+
+    .flatpickr-current-month {
+      display: flex !important;
+      visibility: visible !important;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .flatpickr-months {
+      display: block !important;
+    }
+
+    .flatpickr-monthDropdown-months {
+      display: inline-block !important;
+      color: black !important;
+    }
+
+    /* flatpickr 월 텍스트 표시 색상 수정 */
+    .flatpickr-current-month .cur-month {
+      color: black !important;
+    }
+
+    /* 혹시 연도도 흰색이면 같이 처리 */
+    .flatpickr-current-month input.cur-year {
+      color: black !important;
+    }
+
+    form.user-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 6px;
+      top: 8px;
+      background: transparent !important;
+      border: none;
+      font-size: 20px;
+      color: #bbb !important;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      outline: none;
+    }
+
+    .clear-btn:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    .updated-badge {
+      background-color: steelblue !important;
+      color: white !important;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      font-weight: 400;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 900px) {
+      .user-layout {
+        flex-direction: column;
+      }
+
+      .input-field {
+        width: 100%;
+      }
+    }
+
+    .modal-trigger {
+      transition: all 0.1s ease-in-out;
+    }
+
+    .modal-trigger:active {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+<section class="dashboard-section" layout:fragment="main-content">
+  <!--메인 콘텐츠 영역-->
+  <h4 style="color: lightgrey">🎬 Movie list</h4>
+
+  <!-- 검색 필터 영역 -->
+  <div class="user-controls">
+    <form method="get" id="searchForm" class="user-controls">
+
+      <!-- Create Movie Modal 버튼 -->
+      <button type="button" data-target="createMovieModal" class="modal-trigger"
+              style="height: 40px; width: 130px; padding: 0 1rem; background-color: steelblue; color: white;
+        border: none; border-radius: 4px; cursor: pointer;">Create Movie
+      </button>
+
+      <select name="isReleased" class="browser-default" style="flex: 1 1 140px;">
+        <option value="">All Status</option>
+        <option value="true" th:selected="${isReleased == true or isReleased == 'true'}">Released
+        </option>
+        <option value="false" th:selected="${isReleased == false or isReleased == 'false'}">
+          Upcoming
+        </option>
+      </select>
+
+      <input type="text" name="keyword" placeholder="Search by title or date" th:value="${keyword}"
+             style="flex: 2 1 200px;"/>
+
+      <div id="calendarWrapper" class="date-icon-wrapper">
+        <input type="text" id="releaseDateHidden" class="hidden-flatpickr-input"/>
+        <button type="button" id="calendarIconBtn" class="calendar-btn">
+          <i class="material-icons">calendar_today</i>
+        </button>
+      </div>
+      <input type="hidden" name="fromDate" id="fromDate"/>
+      <input type="hidden" name="toDate" id="toDate"/>
+
+      <button type="button" id="resetBtn" style="height: 40px; width: 40px;
+        background-color: #444;color: white; font-size: 1.2rem; border: 1px solid #444; cursor: pointer;">
+        ✕
+      </button>
+      <button type="submit" style="height: 40px; padding: 0 1rem; background-color: #ff5252;
+        color: white; border: none; border-radius: 4px; cursor: pointer;" class="waves-effect">
+        Search
+      </button>
+      <button type="button" class="waves-effect" onclick="fixPastReleases()" style="background-color: steelblue; color: white; border: none; padding: 6px 12px; border-radius: 4px;
+        font-size: 0.95rem; line-height: 1.2; display: flex; align-items: center; gap: 6px;"><i
+          class="material-icons" style="font-size: 1.1rem;">cached</i>Fix Past Releases
+      </button>
+      <input type="hidden" name="page" value="0"/>
+    </form>
+  </div>
+
+  <!--create Movie Modal-->
+  <div id="createMovieModal" class="modal black-text" style="background-color: #424242;">
+    <form id="createMovieForm" th:action="@{/admin/movies/create}" method="post">
+      <div class="modal-content">
+        <h5 style="color: white; margin-bottom: 0px">Create New Movie</h5>
+
+        <!-- Movie ID -->
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="color: white; min-width: 120px;">TMDB Movie ID</div>
+          <textarea name="id" class="materialize-textarea white-text"></textarea>
+          <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+        </div>
+
+        <!-- Title -->
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="color: white; min-width: 120px;">Title</div>
+          <textarea name="title" class="materialize-textarea white-text"></textarea>
+          <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+        </div>
+
+        <!-- Release Date -->
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="color: white; min-width: 120px;">Release Date</div>
+          <input id="releaseDate" name="releaseDate" type="text"
+                 class="white-text flatpickr-release">
+          <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+        </div>
+
+        <!-- Country -->
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="color: white; min-width: 120px;">Country</div>
+          <textarea name="country" class="materialize-textarea white-text"></textarea>
+          <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+        </div>
+
+        <!-- Certification -->
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="color: white; min-width: 120px;">Certification</div>
+          <textarea name="certification" class="materialize-textarea white-text"></textarea>
+          <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+        </div>
+
+        <!-- Overview -->
+        <div class="input-field input-wrapper"
+             style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="color: white; min-width: 120px;">Overview</div>
+          <textarea name="overview" class="materialize-textarea white-text"></textarea>
+          <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+        </div>
+
+        <!-- Poster Path -->
+        <div class="input-field">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="color: white; min-width: 120px;">Poster Path</div>
+            <div style="flex: 1; position: relative;">
+              <textarea id="poster" name="poster"
+                        class="materialize-textarea white-text clearable-input"
+                        style="margin-bottom: 0;"></textarea>
+              <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+            </div>
+          </div>
+          <span class="helper-text" style="color: gray; margin-left: 162px;">e.g. /abc123.jpg</span>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer custom-modal-footer"
+           style="margin-top: 0px; margin-bottom: 20px; display: flex; justify-content: flex-end; align-items: center; padding: 0 1rem;">
+        <button type="submit" class="btn" style="background-color: steelblue">SAVE</button>
+        <a href="#" class="modal-close btn-flat" style="color: white;">CANCEL</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="user-layout">
+    <!-- Movie 테이블 -->
+    <div class="movie-table">
+      <table class="highlight">
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Release Date</th>
+          <th>Release Status</th>
+          <th>Edit</th>
+          <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="movie : ${pageResponse.content()}">
+          <td th:text="${movie.id}" style="width: 10%;">ID</td>
+          <td th:text="${movie.title}" style="width: 45%;">Movie Title</td>
+          <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 15%;">
+            2025-01-01
+          </td>
+          <td th:text="${movie.isReleased == true ? 'Released' : 'Upcoming'}"
+              th:classappend="${movie.isReleased} ? 'green-text' : 'red-text'" style="width: 10%;">
+            Status
+          </td>
+          <td style="width: 8%;">
+            <a th:href="'#movieModal__' + ${movie.id}" class="btn modal-btn modal-trigger">View</a>
+
+            <div th:id="'movieModal__' + ${movie.id}" class="modal black-text"
+                 style="background-color: #424242;">
+              <form th:action="@{'/admin/movies/' + ${movie.id} + '/update'}" method="post">
+                <div class="modal-content">
+                  <div style="margin-bottom: 15px">
+                    <label style="color: white; font-weight: bold; font-size: 1.1rem;">Movie
+                      ID</label>
+                    <span th:text="${movie.id}"
+                          style="color: white; margin-left: 8px; font-weight: bold; font-size: 1.1rem; "></span>
+                  </div>
+                  <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                    <div>
+                      <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
+                           alt="Poster"
+                           style="width: 120px; border-radius: 8px;"
+                           onerror="this.onerror=null; this.src='/images/default.jpg';"/>
+                    </div>
+                    <div style="flex: 1;">
+                      <div class="input-field input-wrapper"
+                           style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: 20px">
+                        <textarea id="title__${movie.id}" name="title"
+                                  class="materialize-textarea white-text clearable-input"
+                                  th:text="${movie.title}"></textarea>
+                        <label for="title__${movie.id}" class="active"
+                               style="color: white;">Title</label>
+                        <button type="button" class="clear-btn" onclick="clearInput(this)">×
+                        </button>
+                      </div>
+
+                      <!-- Release Date -->
+                      <div class="input-field" style="margin-top: 45px;">
+                        <label for="releaseDate__${movie.id}" style="color: white">Release
+                          Date</label>
+                        <input id="releaseDate__${movie.id}" name="releaseDate" type="text"
+                               th:value="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}"
+                               class="white-text flatpickr-release">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Poster Path -->
+                  <div class="input-field input-wrapper" style="margin-top: 25px; margin-left: 5px">
+                    <label for="poster__${movie.id}" style="color: white">Poster Path (TMDB)</label>
+                    <textarea id="poster__${movie.id}" name="poster"
+                              class="materialize-textarea white-text clearable-input"
+                              th:text="${movie.poster}"></textarea>
+                    <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+                    <span class="helper-text" style="color: gray;">e.g. /abc123.jpg</span>
+                  </div>
+
+                  <!-- Country -->
+                  <div class="input-field input-wrapper" style="margin-top: 30px; margin-left: 5px">
+                    <textarea id="country__${movie.id}" name="country"
+                              class="materialize-textarea white-text clearable-input"
+                              th:text="${movie.country}"></textarea>
+                    <label for="country__${movie.id}" class="active"
+                           style="color: white;">Country</label>
+                    <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+                  </div>
+
+                  <!-- Certification -->
+                  <div class="input-field input-wrapper" style="margin-top: 25px; margin-left: 5px">
+                    <textarea id="certification__${movie.id}" name="certification"
+                              class="materialize-textarea white-text clearable-input"
+                              th:text="${movie.certification}"></textarea>
+                    <label for="certification__${movie.id}" class="active" style="color: white;">Certification</label>
+                    <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+                  </div>
+
+                  <!-- Overview -->
+                  <div class="input-field input-wrapper"
+                       style="margin-top: 25px; margin-left: 5px; margin-bottom: 0px">
+                    <textarea id="overview__${movie.id}" name="overview"
+                              class="materialize-textarea white-text clearable-input"
+                              th:text="${movie.overview}"></textarea>
+                    <label for="overview__${movie.id}" class="active"
+                           style="color: white;">Overview</label>
+                    <button type="button" class="clear-btn" onclick="clearInput(this)">×</button>
+                  </div>
+                </div>
+
+                <div class="modal-footer custom-modal-footer"
+                     style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; padding: 0 1rem;">
+                  <!-- 왼쪽: Delete 버튼 -->
+                  <button type="button" th:onclick="'handleDelete(' + ${movie.id} + ')'"
+                          th:if="${movie.id != null}" class="btn"
+                          style="margin-right: auto; margin-left: 13px; background-color: #ff5252">
+                    DELETE
+                  </button>
+                  <!-- 오른쪽: Save & Cancel -->
+                  <div>
+                    <button type="submit" class="btn" style="background-color: steelblue">SAVE
+                    </button>
+                    <a href="#!" class="modal-close btn-flat" style="color: white;">CANCEL</a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </td>
+
+          <!-- Updated Badge -->
+          <td style="width: 8%">
+            <div style="text-align: center; width: 80px;">
+              <span th:if="${movie.updatedRecently}" class="badge updated-badge"
+                    style="visibility: visible;">Updated</span>
+              <span th:unless="${movie.updatedRecently}" class="badge updated-badge"
+                    style="visibility: hidden;">Updated</span>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <a th:if="${pageResponse.startNumber() > 1}"
+           th:href="@{${pageResponse.url()}(page=${pageResponse.startNumber() - 2}, keyword=${keyword}, isReleased=${isReleased}, fromDate=${fromDate}, toDate=${toDate})}"
+           class="page-button">Prev</a>
+
+        <a th:each="i : ${#numbers.sequence(pageResponse.startNumber(), pageResponse.endNumber())}"
+           th:href="@{${pageResponse.url()}(page=${i - 1}, keyword=${keyword}, isReleased=${isReleased}, fromDate=${fromDate}, toDate=${toDate})}"
+           th:text="${i}"
+           th:classappend="${i == pageResponse.currentNumber()} ? 'page-button active' : 'page-button'">
+        </a>
+
+        <a th:if="${pageResponse.endNumber() < pageResponse.totalPages()}"
+           th:href="@{${pageResponse.url()}(page=${pageResponse.endNumber()}, keyword=${keyword}, isReleased=${isReleased}, fromDate=${fromDate}, toDate=${toDate})}"
+           class="page-button">Next</a>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // 날짜 포맷 (flatpickr용)
+    function formatDateToYMD(date) {
+      const year = date.getFullYear();
+      const month = `${date.getMonth() + 1}`.padStart(2, "0");
+      const day = `${date.getDate()}`.padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // flatpickr 초기화
+      const calendarBtn = document.getElementById("calendarIconBtn");
+      const flatpickrInput = document.getElementById("releaseDateHidden");
+      const keywordInput = document.querySelector('input[name="keyword"]');
+      const fromDateInput = document.getElementById("fromDate");
+      const toDateInput = document.getElementById("toDate");
+
+      const fp = flatpickr(flatpickrInput, {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        onClose: function (selectedDates) {
+          if (selectedDates.length === 2) {
+            const start = formatDateToYMD(selectedDates[0]);
+            const end = formatDateToYMD(selectedDates[1]);
+
+            keywordInput.value = `${start} ~ ${end}`;
+            fromDateInput.value = start;
+            toDateInput.value = end;
+          } else if (selectedDates.length === 1) {
+            const date = formatDateToYMD(selectedDates[0]);
+            keywordInput.value = date;
+            fromDateInput.value = date;
+            toDateInput.value = date; // ✅ 하루만 선택한 경우 동일한 날짜
+          } else {
+            keywordInput.value = "";
+            fromDateInput.value = "";
+            toDateInput.value = "";
+          }
+        }
+      });
+
+      calendarBtn.addEventListener("click", () => fp.open());
+
+      flatpickr(".flatpickr-release", {
+        dateFormat: "Y-m-d"
+      });
+
+      document.getElementById("resetBtn").addEventListener("click", function () {
+        window.location.href = "/admin/movies";
+      });
+
+      // Create Movie Modal 초기화
+      const createMovieModal = document.getElementById("createMovieModal");
+      const createModalTrigger = document.querySelector('[data-target="createMovieModal"]');
+
+      // 모달 인스턴스 초기화 (이게 없으면 작동안 함)
+      M.Modal.init(createMovieModal);
+
+      createModalTrigger.addEventListener('click', () => {
+        resetModalInputs(createMovieModal);
+      });
+
+      // Edit Movie Modal 초기화
+      document.querySelectorAll('.modal[id^="movieModal__"]').forEach(modal => {
+        if (!M.Modal.getInstance(modal)) {
+          const instance = M.Modal.init(modal, {
+            onCloseEnd: () => {
+              resetToOriginalValues(modal);
+            }
+          });
+
+          // 초기값 저장
+          modal.querySelectorAll('textarea, input').forEach(input => {
+            input.setAttribute('data-original', input.value);
+          });
+        }
+      });
+
+      function resetModalInputs(modal) {
+        modal.querySelectorAll('textarea, input').forEach(input => {
+          input.value = '';
+        });
+        M.updateTextFields();
+      }
+
+      function resetToOriginalValues(modal) {
+        modal.querySelectorAll('textarea, input').forEach(input => {
+          const original = input.getAttribute('data-original');
+          if (original !== null) {
+            input.value = original;
+          }
+        });
+        M.updateTextFields();
+      }
+    });
+
+    // 입력 필드 클리어 버튼 처리
+    function clearInput(btn) {
+      const input = btn.closest('.input-wrapper').querySelector('textarea, input');
+      if (input) {
+        input.value = '';
+      }
+    }
+
+    // 영화 등록 처리
+    document.addEventListener('DOMContentLoaded', function () {
+      const createForm = document.getElementById('createMovieForm');
+
+      if (createForm) {
+        createForm.addEventListener('submit', async function (e) {
+          e.preventDefault(); // 기본 제출 방지
+
+          const id = createForm.querySelector('textarea[name="id"]').value.trim();
+          const title = createForm.querySelector('textarea[name="title"]').value.trim();
+          const releaseDate = createForm.querySelector('input[name="releaseDate"]').value.trim();
+
+          if (!id) {
+            alert("❗ Please enter the required field: 𝙈𝙤𝙫𝙞𝙚 𝙄𝘿");
+            return;
+          }
+
+          if (isNaN(id)) {
+            alert("❗ TMDB Movie ID must be a number.");
+            return;
+          }
+
+          try {
+            const res = await fetch(`/admin/movies/check-duplicate?id=${id}`);
+            if (!res.ok) {
+              alert("❌ Server error while checking TMDB ID.");
+              return;
+            }
+
+            const data = await res.json();
+            if (data.exists) {
+              alert("❌ A movie with this TMDB ID already exists.");
+              return;
+            }
+
+            if (!title) {
+              alert("❗ Please enter the required field: 𝙏𝙞𝙩𝙡𝙚");
+              return;
+            } else if (!releaseDate){
+              alert("❗ Please enter the required field: 𝙍𝙚𝙡𝙚𝙖𝙨𝙚 𝘿𝙖𝙩𝙚");
+              return;
+            }
+
+            // 조건 만족하면 제출
+            createForm.submit();
+          } catch (err) {
+            console.error("중복 체크 에러:", err);
+            alert("⚠️ Failed to validate TMDB ID. Please try again.");
+          }
+        });
+      }
+    });
+
+    // 삭제 버튼 처리
+    function handleDelete(id) {
+      if (confirm("🗑️ Are you sure you want to delete this movie?")) {
+        fetch(`/admin/movies/` + id, {
+          method: 'DELETE'
+        }).then(response => {
+          if (response.ok) {
+            alert("✅ Movie has been deleted.");
+            location.reload();
+          } else {
+            alert("❌ Failed to delete the movie.");
+          }
+        }).catch(error => {
+          console.error("Failed response:", response.status, response.statusText);
+          alert("⚠️ An error occurred while deleting the movie.");
+        });
+      }
+    }
+
+    // 과거 개봉 영화 상태 일괄 수정
+    function fixPastReleases() {
+      fetch('/admin/movies/fix-past-release-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => {
+        console.log("응답 상태:", res.status);
+        if (res.ok) {
+          alert("✅ Past releases updated successfully!");
+          location.reload();
+        } else {
+          alert("❌ Update failed! (" + res.status + ")");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("⚠️ An error occurred!");
+      });
+    }
+  </script>
+</section>
+</body>
+</html>

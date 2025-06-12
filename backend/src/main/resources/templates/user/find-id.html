@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{login.findEmail}">Find Email</title>
+    <link rel="stylesheet" th:href="@{/css/user/form.css}">
+</head>
+<body>
+<main layout:fragment="content" class="container form-container">
+    <div class="card grey darken-4 auth-card">
+        <div class="card-content">
+            <span class="card-title center-align highlight" th:text="#{login.findEmail}">Find Email</span>
+
+            <div th:if="${error}" class="center-align">
+                <span class="red-text text-lighten-2" th:text="${error}"></span>
+            </div>
+
+            <div th:if="${foundEmail}" class="center-align">
+                <p>Found email: <span th:text="${foundEmail}" class="auth-link"></span></p>
+            </div>
+
+            <form th:action="@{/user/find-id}" method="post" th:unless="${foundEmail}" onsubmit="return validateForm(this);">
+                <div class="input-field">
+                    <input type="text" id="name" name="name" required>
+                    <label for="name" th:text="#{validation.name.required}">Name</label>
+                </div>
+
+                <div class="input-field">
+                    <input type="text" id="phoneNumber" name="phoneNumber" required>
+                    <label for="phoneNumber" th:text="#{validation.phone.required}">Phone Number</label>
+                </div>
+
+                <div class="center-align">
+                    <button type="submit" class="btn auth-btn waves-effect waves-light" th:text="#{login.findEmail}">
+                        Find Email
+                    </button>
+                </div>
+            </form>
+
+            <div class="card-action center-align">
+                <a th:href="@{/user/login}" class="auth-link" th:text="#{login.title}">Back to Login Page</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block layout:fragment="script">
+    <script th:src="@{/js/user/messages.js}"></script>
+</th:block>
+</body>
+</html> 

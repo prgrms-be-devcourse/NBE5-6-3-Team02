@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    .scroll-container {
+      position: relative;
+    }
+
+    .scroll-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.6);
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 8px;
+      z-index: 1;
+      display: none; /* 기본적으로 숨김 */
+      border-radius: 50%;
+    }
+
+    .scroll-btn.left {
+      left: 10px;
+    }
+
+    .scroll-btn.right {
+      right: 10px;
+    }
+
+    .scroll-container:hover .scroll-btn {
+      display: block;
+    }
+
+    .horizontal-scroll {
+      display: flex;
+      overflow-x: auto;
+      padding: 1rem 0;
+      gap: 1rem;
+      scroll-behavior: smooth;
+    }
+
+    .horizontal-scroll::-webkit-scrollbar {
+      display: none; /* 스크롤바 숨기기 (선택) */
+    }
+
+    .movie-card {
+      flex: 0 0 auto;
+      width: 180px;     /* 카드 너비 조절 */
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .card-image img {
+      height: 270px;     /* 포스터 비율 유지 */
+      object-fit: cover;
+    }
+    .card-content {
+      padding: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
+  <!-- Section: 새로 나온 영화 -->
+  <div class="movie-section">
+    <div class="section-title">📽 New Movies</div>
+    <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+      <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+
+      <div class="horizontal-scroll">
+        <div th:each="movie : ${newMovies}" class="movie-card card black">
+          <a th:href="@{/movies/{id}(id=${movie.id})}">
+            <div class="card-image">
+              <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
+              <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />            </div>
+            <div class="card-content">
+              <span th:text="${movie.title}" class="white-text truncate"></span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+    </div>
+  </div>
+
+  <!-- Section: 이건 어때요? -->
+  <div class="movie-section">
+    <div class="section-title">🎲 How About These?</div>
+    <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+      <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+
+      <div class="horizontal-scroll">
+        <div th:each="movie : ${randomMovies}" class="movie-card card black">
+          <a th:href="@{/movies/{id}(id=${movie.id})}">
+            <div class="card-image">
+              <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
+              <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />
+            </div>
+            <div class="card-content">
+              <span th:text="${movie.title}" class="white-text truncate"></span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+    </div>
+  </div>
+
+  <!-- Section: 랭킹 TOP 10 -->
+  <div class="movie-section">
+    <div class="section-title">🏆 Ranking TOP 10</div>
+    <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+      <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+
+      <div class="horizontal-scroll">
+        <div th:each="movie : ${top10Movies}" class="movie-card card black">
+          <a th:href="@{/movies/{id}(id=${movie.id})}">
+            <div class="card-image">
+              <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
+              <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />            </div>
+            <div class="card-content">
+              <span th:text="${movie.title}" class="white-text truncate"></span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+    </div>
+  </div>
+
+  <!-- Section: 예상별점이 높은 콘텐츠 -->
+  <div sec:authorize="isAuthenticated()" class="movie-section">
+    <div th:if="${#lists.isEmpty(personalTop10Movies) == false}">
+      <div class="section-title">🔮 Content With High Prediction Ratings</div>
+      <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+        <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+
+        <div class="horizontal-scroll">
+          <div th:each="movie : ${personalTop10Movies}" class="movie-card card black">
+            <a th:href="@{/movies/{id}(id=${movie.id})}">
+              <div class="card-image">
+                <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
+                <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />              </div>
+              <div class="card-content">
+                <span th:text="${movie.title}" class="white-text truncate"></span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: 보고싶어요 한 영화 -->
+  <div sec:authorize="isAuthenticated()" class="movie-section">
+    <div th:if="${#lists.isEmpty(interestedMovie) == false}">
+      <div class="section-title">💜 Movies You Interested In</div>
+      <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+        <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+
+        <div class="horizontal-scroll">
+          <div th:each="movie : ${interestedMovie}" class="movie-card card black">
+            <a th:href="@{/movies/{id}(id=${movie.id})}">
+              <div class="card-image">
+                <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
+                <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />
+              </div>
+              <div class="card-content">
+                <span th:text="${movie.title}" class="white-text truncate"></span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: 비슷한 취향의 사용자 추천 -->
+  <div sec:authorize="isAuthenticated()" class="movie-section">
+    <div th:if="${#lists.isEmpty(userMovies) == false}">
+      <div class="section-title">💕 User Recommendations with Similar Tastes</div>
+      <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+        <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+
+        <div class="horizontal-scroll">
+          <div th:each="movie : ${userMovies}" class="movie-card card black">
+            <a th:href="@{/movies/{id}(id=${movie.id})}">
+              <div class="card-image">
+                <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
+                <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />
+              </div>
+              <div class="card-content">
+                <span th:text="${movie.title}" class="white-text truncate"></span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Section: 가볍게 즐기기 좋은 콘텐츠 -->
+  <div class="movie-section">
+    <div class="section-title">☕ Light Movies</div>
+    <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+      <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+
+      <div class="horizontal-scroll">
+        <div th:each="movie : ${lightMovies}" class="movie-card card black">
+          <a th:href="@{/movies/{id}(id=${movie.id})}">
+            <div class="card-image">
+              <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" alt="Movie Poster" />
+              <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" alt="Default Poster" />            </div>
+            <div class="card-content">
+              <span th:text="${movie.title}" class="white-text truncate"></span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+    </div>
+  </div>
+
+
+  <script>
+    function scrollLeftBy(btn) {
+      const container = btn.parentElement.querySelector('.horizontal-scroll');
+      container.scrollBy({ left: -800, behavior: 'smooth' });
+    }
+
+    function scrollRightBy(btn) {
+      const container = btn.parentElement.querySelector('.horizontal-scroll');
+      container.scrollBy({ left: 800, behavior: 'smooth' });
+    }
+
+    function showScrollButtons(container) {
+      const buttons = container.querySelectorAll('.scroll-btn');
+      buttons.forEach(btn => btn.style.display = 'block');
+    }
+
+    function hideScrollButtons(container) {
+      const buttons = container.querySelectorAll('.scroll-btn');
+      buttons.forEach(btn => btn.style.display = 'none');
+    }
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropdown = document.querySelector('.mypage-dropdown');
+      const menu = dropdown.querySelector('.mypage-menu');
+      dropdown.addEventListener('mouseenter', () => { menu.style.display = 'block'; });
+      dropdown.addEventListener('mouseleave', () => { menu.style.display = 'none'; });
+    });
+  </script>
+</main>
+
+</body>
+</html>

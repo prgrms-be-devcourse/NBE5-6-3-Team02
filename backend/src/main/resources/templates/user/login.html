@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{login.title}">Login</title>
+    <link rel="stylesheet" th:href="@{/css/user/form.css}">
+</head>
+<body>
+<main layout:fragment="content" class="container form-container">
+    <div class="card grey darken-4 auth-card">
+        <div class="card-content">
+            <span class="card-title center-align highlight" th:text="#{login.title}">Login</span>
+
+            <div class="center-align" style="margin-top: 1rem;" th:if="${param.error}">
+                <span class="red-text text-lighten-2" th:text="#{login.error}">Incorrect email or password.</span>
+            </div>
+
+            <form th:action="@{/user/login}" method="post" onsubmit="return validateForm(this);">
+                <div class="input-field">
+                    <input type="email" id="email" name="email" required>
+                    <label for="email" th:text="#{login.email}">Email</label>
+                </div>
+
+                <div class="input-field">
+                    <input type="password" id="password" name="password" required>
+                    <label for="password" th:text="#{login.password}">Password</label>
+                </div>
+
+                <p>
+                    <label>
+                        <input type="checkbox" name="remember-me" class="filled-in"/>
+                        <span th:text="#{login.remember}">Keep me logged in</span>
+                    </label>
+                </p>
+
+                <div class="center-align" style="margin-top: 2rem;">
+                    <button type="submit" class="btn auth-btn waves-effect waves-light" th:text="#{login.button}">Log In</button>
+                </div>
+            </form>
+
+            <div class="center-align" style="margin-top: 1rem;">
+                <a href="/user/find-id" class="btn-flat waves-effect waves-light auth-link" th:text="#{login.findEmail}">Find Email</a>
+                <span class="divider">|</span>
+                <a href="/user/find-password" class="btn-flat waves-effect waves-light auth-link" th:text="#{login.findPassword}">Find Password</a>
+                <span class="divider">|</span>
+                <a href="/user/signup" class="btn-flat waves-effect waves-light auth-link" th:text="#{login.signup}">Sign Up</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block layout:fragment="script">
+    <script th:src="@{/js/user/messages.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const message = /*[[${message}]]*/ null;
+        showMessage(message);
+        /*]]>*/
+    </script>
+</th:block>
+</body>
+</html>
