@@ -19,7 +19,7 @@ public class WatchedApiController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<String>> saveWatchedDate(
-            @RequestParam WatchedRequestDto dto
+            @RequestBody WatchedRequestDto dto
             ){
         watchedJpaService.saveWatchedDate(dto);
         return ResponseEntity.ok(ApiResponse.success("본 날짜가 추가되었습니다."));
