@@ -30,4 +30,7 @@ public interface RatingJpaRepository extends JpaRepository<RatingEntity, Long> {
 
     void deleteByUserIdAndMovieId(Long userId, Long movieId);
 
+    // 실제 해당 영화 id에 대해 user가 별점을 남겼는지 여부에 대한 메서드
+    boolean existsByUserIdAndMovieId(Long userId, Long movieId);
+
 }

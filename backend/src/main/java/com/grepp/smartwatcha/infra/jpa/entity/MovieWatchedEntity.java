@@ -26,5 +26,7 @@ public class MovieWatchedEntity extends BaseEntity {
     @JoinColumn(name = "movie_id")
     private MovieEntity movie;
 
-    private LocalDate watchDate;
+
+    private LocalDate watchedDate;
+
 }

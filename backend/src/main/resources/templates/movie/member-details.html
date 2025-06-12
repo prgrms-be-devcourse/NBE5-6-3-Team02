@@ -385,6 +385,7 @@
                     </div>
 
 
+                    <!-- 점 세게 안에 관심도 및 본 날짜 추가 -->
                     <div class="rating-center">
                         <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
                         <div style="font-size: 14px; color: #ccc;">Average Star</div>
@@ -702,7 +703,8 @@
         if (keyword.length > 0) {
             const res = await fetch(`/movies/${movieId}/tags/search?keyword=${keyword}`);
             if (!res.ok) return;
-            const tags = await res.json();
+            const json = await res.json();
+            const tags = json.data;
 
             if (tags.length > 0) {
                 suggestions.style.display = 'block';
