@@ -84,7 +84,7 @@ jobs:
       - name: Deploy backend to Cloud Run
         run: |
           gcloud run deploy spring-app \
-            --image asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/spirng-app:${{ github.sha }} \
+            --image asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/spring-app:${{ github.sha }} \
             --region ${{ env.REGION }} \
             --platform managed \
             --allow-unauthenticated \
