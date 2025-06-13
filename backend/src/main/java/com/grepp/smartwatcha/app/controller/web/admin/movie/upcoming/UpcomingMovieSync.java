@@ -69,8 +69,8 @@ public class UpcomingMovieSync {
     List<Long> skippedIds = new ArrayList<>();
     List<String> skippedTitles = new ArrayList<>();
     List<String> skippedReasons = new ArrayList<>();
-    List<Long> failedIds = new ArrayList<>(); // 추가
-    List<String> failedMessages = new ArrayList<>(); // 추가
+    List<Long> failedIds = new ArrayList<>();
+    List<String> failedMessages = new ArrayList<>();
 
     for (UpcomingMovieDto baseDto : allMovies) {
       try {
@@ -132,7 +132,7 @@ public class UpcomingMovieSync {
           skippedReasons.get(i));
     }
 
-    // 추가: 저장 실패한 영화 ID와 제목 로그
+    // 저장 실패한 영화 ID와 제목 로그
     if (!failedIds.isEmpty()) {
       log.info("=========================================================================");
       log.info("❌ [저장 실패한 영화 요약]");
