@@ -1,6 +1,7 @@
 package com.grepp.smartwatcha.app.controller.web.admin.movie.upcoming;
 
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieSyncDto;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper.UpcomingMovieMapper;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.common.UpcomingMovieFetchService;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.common.UpcomingMovieUnifiedSaveService;
@@ -55,7 +56,7 @@ public class UpcomingMovieSync {
    * - 개봉일: 현재 날짜 이후
    */
   @Scheduled(cron = "0 0 0 ? * MON") // 매주 월요일 00:00 스케줄러 작동
-  public void syncAllUpcomingMovies() {
+  public UpcomingMovieSyncDto syncAllUpcomingMovies() {
     log.info("🕒 [공개 예정작] 동기화 시작");
 
     List<UpcomingMovieDto> allMovies = fetchService.fetchUpcomingMovies();
@@ -68,6 +69,8 @@ public class UpcomingMovieSync {
     List<Long> skippedIds = new ArrayList<>();
     List<String> skippedTitles = new ArrayList<>();
     List<String> skippedReasons = new ArrayList<>();
+    List<Long> failedIds = new ArrayList<>(); // 추가
+    List<String> failedMessages = new ArrayList<>(); // 추가
 
     for (UpcomingMovieDto baseDto : allMovies) {
       try {
@@ -104,8 +107,9 @@ public class UpcomingMovieSync {
         success++;
 
       } catch (Exception e) {
-        log.error("❌ [{}] 저장 실패: {}", baseDto.getTitle(), e.getMessage(), e);
         failed++;
+        failedIds.add(baseDto.getId());
+        failedMessages.add(baseDto.getTitle() + ": " + e.getMessage());
       }
     }
 
@@ -127,5 +131,26 @@ public class UpcomingMovieSync {
           skippedTitles.get(i),
           skippedReasons.get(i));
     }
+
+    // 추가: 저장 실패한 영화 ID와 제목 로그
+    if (!failedIds.isEmpty()) {
+      log.info("=========================================================================");
+      log.info("❌ [저장 실패한 영화 요약]");
+      for (int i = 0; i < failedIds.size(); i++) {
+        log.info("   - [{}] {}", failedIds.get(i), failedMessages.get(i));
+      }
+      log.info("=========================================================================");
+    }
+
+    return UpcomingMovieSyncDto.builder()
+        .total(total)
+        .success(success)
+        .failed(failed)
+        .skipped(skipped)
+        .enrichFailed(enrichFailed)
+        .skippedIds(skippedIds)
+        .skippedReasons(skippedReasons)
+        .failedIds(failedIds)
+        .build();
   }
 }
