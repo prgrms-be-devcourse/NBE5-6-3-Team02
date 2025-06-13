@@ -3,15 +3,13 @@ package com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.neo4j.UpcomingMovieGenreFetchNeo4jService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
-import com.grepp.smartwatcha.infra.neo4j.node.ActorNode;
-import com.grepp.smartwatcha.infra.neo4j.node.DirectorNode;
-import com.grepp.smartwatcha.infra.neo4j.node.GenreNode;
-import com.grepp.smartwatcha.infra.neo4j.node.MovieNode;
-import com.grepp.smartwatcha.infra.neo4j.node.WriterNode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -78,19 +76,48 @@ public class UpcomingMovieMapper {
     }
   }
 
-  // DTO 를 Neo4j 노드로 변환
-  public MovieNode toNeo4jNode(
-      UpcomingMovieDto dto,
-      List<ActorNode> actors,
-      List<DirectorNode> directors,
-      List<WriterNode> writers,
-      List<GenreNode> genres
-  ) {
-    MovieNode movie = new MovieNode(dto.getId(), dto.getTitle());
-    movie.setActors(new ArrayList<>(actors));
-    movie.setDirectors(new ArrayList<>(directors));
-    movie.setWriters(new ArrayList<>(writers));
-    movie.setGenres(new ArrayList<>(genres));
-    return movie;
+  // DTO 에 담긴 neo4j 관련 노드 리스트를 null, 빈문자열 제거, 중복 제거 후
+  // id/title 과 함께 Cypher 파라미터 맵으로 만들어 반환
+  public Map<String, Object> toParameters(UpcomingMovieDto dto) {
+
+    // 배우
+    List<String> actorNames = dto.getActorNames().stream()
+        .filter(Objects::nonNull)       // null 값 제거
+        .map(String::trim)               // 앞뒤 공백 제거
+        .filter(s -> !s.isEmpty())       // 빈 문자열 제거
+        .distinct()                      // 중복 제거
+        .collect(Collectors.toList());
+
+    // 감독
+    List<String> directorNames = dto.getDirectorNames().stream()
+        .filter(Objects::nonNull)
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .distinct()
+        .collect(Collectors.toList());
+
+    // 작가
+    List<String> writerNames = dto.getWriterNames().stream()
+        .filter(Objects::nonNull)
+        .map(String::trim)
+        .filter(s -> !s.isEmpty())
+        .distinct()
+        .collect(Collectors.toList());
+
+    // 장르
+    List<Long> genreIds = dto.getGenreIds().stream()
+        .filter(Objects::nonNull)        // null 장르 ID 제거
+        .distinct()                      // 중복 제거
+        .collect(Collectors.toList());
+
+    // 파라미터 바인딩
+    Map<String, Object> params = new HashMap<>();
+    params.put("id", dto.getId());
+    params.put("title", dto.getTitle());
+    params.put("actorNames", actorNames);
+    params.put("directorNames", directorNames);
+    params.put("writerNames", writerNames);
+    params.put("genreIds", genreIds);
+    return params;
   }
 }

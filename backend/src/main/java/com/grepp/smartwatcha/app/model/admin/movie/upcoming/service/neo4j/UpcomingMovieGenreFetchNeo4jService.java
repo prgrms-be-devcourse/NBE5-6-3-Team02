@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 /*
  * 공개 예정작 영화 장르 정보 조회 서비스
  * TMDB API 를 통해 장르 정보를 조회하고 메모리에 캐싱
- * 
+ *
  * 주요 기능:
  * - 애플리케이션 시작 시 장르 정보 초기화
  * - 장르 ID와 이름 매핑 제공
  * - 장르 정보 메모리 캐싱
- * 
+ *
  * 초기화 전략:
  * - @PostConstruct 로 애플리케이션 시작 시 자동 초기화
  * - TMDB API 호출 실패 시 로그만 기록하고 빈 맵 유지

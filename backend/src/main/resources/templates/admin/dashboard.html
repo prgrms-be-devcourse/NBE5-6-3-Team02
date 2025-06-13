@@ -221,6 +221,7 @@
       .then(({ status, text }) => {
         if (status === 200) {
           alert("✅ Sync completed successfully!");
+          window.location.href = '/admin';
         } else {
           alert(text || `❌ Sync failed! (${status})`);
         }
