@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Recommendation</title>
+    <style>
+        .scroll-container { position: relative; }
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 1;
+            display: none;
+            border-radius: 50%;
+        }
+        .scroll-btn.left { left: 10px; }
+        .scroll-btn.right { right: 10px; }
+        .scroll-container:hover .scroll-btn { display: block; }
+        .horizontal-scroll {
+            display: flex;
+            overflow-x: auto;
+            padding: 1rem 0;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+        .horizontal-scroll::-webkit-scrollbar { display: none; }
+        .movie-card {
+            flex: 0 0 auto;
+            width: 180px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .card-image img {
+            height: 270px;
+            width: 100%;
+            object-fit: cover;
+        }
+        .card-content { padding: 0.5rem; }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+<main layout:fragment="content" style="min-height: 80vh; padding-top: 80px; padding-bottom: 80px;">
+
+    <!-- 🔮 콘텐츠 기반 추천 -->
+    <div class="movie-section">
+        <div class="section-title">🔮 Content With High Prediction Ratings</div>
+        <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+            <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+            <div class="horizontal-scroll" id="personal-container"></div>
+            <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+        </div>
+    </div>
+
+    <!-- 💕 유저 기반 추천 -->
+    <div class="movie-section">
+        <div class="section-title">💕 User Recommendations with Similar Tastes</div>
+        <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+            <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+            <div class="horizontal-scroll" id="user-based-container"></div>
+            <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+        </div>
+    </div>
+
+    <!-- 🎬 장르 기반 추천 -->
+    <div class="movie-section">
+        <div class="section-title">🎬 Genre-Based Recommendations</div>
+        <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+            <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+            <div class="horizontal-scroll" id="genre-container"></div>
+            <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+        </div>
+    </div>
+
+    <!-- 🏷️ 태그 기반 추천 -->
+    <div class="movie-section">
+        <div class="section-title">🏷️ Tag-Based Recommendations</div>
+        <div class="scroll-container" onmouseover="showScrollButtons(this)" onmouseout="hideScrollButtons(this)">
+            <button class="scroll-btn left" onclick="scrollLeftBy(this)">&#10094;</button>
+            <div class="horizontal-scroll" id="tag-container"></div>
+            <button class="scroll-btn right" onclick="scrollRightBy(this)">&#10095;</button>
+        </div>
+    </div>
+
+    <script>
+        function scrollLeftBy(btn) {
+            const container = btn.parentElement.querySelector('.horizontal-scroll');
+            container.scrollBy({ left: -800, behavior: 'smooth' });
+        }
+
+        function scrollRightBy(btn) {
+            const container = btn.parentElement.querySelector('.horizontal-scroll');
+            container.scrollBy({ left: 800, behavior: 'smooth' });
+        }
+
+        function showScrollButtons(container) {
+            const buttons = container.querySelectorAll('.scroll-btn');
+            buttons.forEach(btn => btn.style.display = 'block');
+        }
+
+        function hideScrollButtons(container) {
+            const buttons = container.querySelectorAll('.scroll-btn');
+            buttons.forEach(btn => btn.style.display = 'none');
+        }
+
+        const sectionConfig = [
+            {
+                key: 'personal',
+                containerId: 'personal-container',
+                emptyMsg: '⚠ No rating data available.<br>Please rate some movies to get personalized recommendations!'
+            },
+            {
+                key: 'user-based',
+                containerId: 'user-based-container',
+                emptyMsg: '⚠ Not enough rating data yet.<br>Please rate more movies or wait for other users to rate similar ones!'
+            },
+            {
+                key: 'genre',
+                containerId: 'genre-container',
+                emptyMsg: '⚠ No recent rating history found.<br>Please rate movies so we can analyze your genre preferences!'
+            },
+            {
+                key: 'tag',
+                containerId: 'tag-container',
+                emptyMsg: '⚠ No recent tag-based rating found.<br>Please rate more movies to generate tag-based recommendations!'
+            }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            sectionConfig.forEach(({ key, containerId, emptyMsg }) => {
+                fetch(`/api/recommend/${key}`)
+                    .then(res => res.ok ? res.json() : [])
+                    .then(data => {
+                        const container = document.getElementById(containerId);
+                        if (!data || data.length === 0) {
+                            container.innerHTML = `<p style="padding-left: 1rem;">${emptyMsg}</p>`;
+                            return;
+                        }
+
+                        const cards = data.map(movie => `
+                            <div class="movie-card card black">
+                                <a href="/movies/${movie.id}">
+                                    <div class="card-image">
+                                        <img src="${movie.poster ? 'https://image.tmdb.org/t/p/w500' + movie.poster : '/images/default.jpg'}" alt="Movie Poster" />
+                                    </div>
+                                    <div class="card-content">
+                                        <span class="white-text truncate">${movie.title}</span>
+                                    </div>
+                                </a>
+                            </div>
+                        `).join('');
+                        container.innerHTML = cards;
+                    })
+                    .catch(err => {
+                        document.getElementById(containerId).innerHTML = `<p style="padding-left: 1rem;">⚠ Error loading data</p>`;
+                    });
+            });
+        });
+    </script>
+</main>
+</body>
+</html>

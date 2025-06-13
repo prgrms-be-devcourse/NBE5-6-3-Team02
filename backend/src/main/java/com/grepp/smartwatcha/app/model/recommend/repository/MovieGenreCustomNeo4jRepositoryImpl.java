@@ -1,5 +1,6 @@
 package com.grepp.smartwatcha.app.model.recommend.repository;
 
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
@@ -33,6 +34,27 @@ public class MovieGenreCustomNeo4jRepositoryImpl implements MovieGenreCustomNeo4
                                         record.get("movieId").asLong(),
                                         new ArrayList<>(record.get("genres").asList(org.neo4j.driver.Value::asString)),
                                         new ArrayList<>(record.get("tags").asList(org.neo4j.driver.Value::asString))
+                                )
+                        )
+                        .all()
+        );
+    }
+
+    public List<MovieGenreResponse> findOnlyGenresByMovieIdList(List<Long> movieIdList) {
+        return new ArrayList<>(
+                neo4jClient.query("""
+                UNWIND $movieIdList AS movieId
+                MATCH (m:MOVIE {id: movieId})
+                OPTIONAL MATCH (m)-[:HAS_GENRE]->(g:GENRE)
+                RETURN m.id AS movieId,
+                       collect(DISTINCT g.name) AS genres
+            """)
+                        .bind(movieIdList).to("movieIdList")
+                        .fetchAs(MovieGenreResponse.class)
+                        .mappedBy((typeSystem, record) ->
+                                new MovieGenreResponse(
+                                        record.get("movieId").asLong(),
+                                        new ArrayList<>(record.get("genres").asList(org.neo4j.driver.Value::asString))
                                 )
                         )
                         .all()

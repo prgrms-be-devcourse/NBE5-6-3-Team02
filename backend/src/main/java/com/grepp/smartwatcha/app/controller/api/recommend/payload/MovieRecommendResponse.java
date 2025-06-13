@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class MovieRecommendUserBasedResponse {
+public class MovieRecommendResponse {
     private Long id;
     private String title;
     private LocalDateTime releaseDate;
@@ -19,8 +19,8 @@ public class MovieRecommendUserBasedResponse {
     private List<String> genres;
     private List<String> tags;
 
-    public static MovieRecommendUserBasedResponse from(MovieEntity movie, double score, List<String> genres, List<String> tags) {
-        return new MovieRecommendUserBasedResponse(
+    public static MovieRecommendResponse from(MovieEntity movie, double score, List<String> genres, List<String> tags) {
+        return new MovieRecommendResponse(
                 movie.getId(),
                 movie.getTitle(),
                 movie.getReleaseDate(),
