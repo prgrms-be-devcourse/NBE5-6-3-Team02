@@ -1,5 +1,6 @@
-package com.grepp.smartwatcha.app.model.admin.tag;
+package com.grepp.smartwatcha.app.model.admin.tag.service;
 
+import com.grepp.smartwatcha.app.model.admin.tag.repository.AdminTagJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.TagEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
