@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.controller.web.admin;
 
-import com.grepp.smartwatcha.app.model.admin.tag.AdminTagJpaService;
+import com.grepp.smartwatcha.app.model.admin.tag.service.AdminTagJpaService;
 import com.grepp.smartwatcha.infra.jpa.entity.TagEntity;
 import com.grepp.smartwatcha.infra.response.PageResponse;
 import lombok.RequiredArgsConstructor;

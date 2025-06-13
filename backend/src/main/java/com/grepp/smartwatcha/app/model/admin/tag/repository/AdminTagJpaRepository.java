@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.tag;
+package com.grepp.smartwatcha.app.model.admin.tag.repository;
 
 import com.grepp.smartwatcha.infra.jpa.entity.TagEntity;
 import org.springframework.data.domain.Page;
