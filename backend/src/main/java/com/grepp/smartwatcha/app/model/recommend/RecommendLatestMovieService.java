@@ -1,11 +1,12 @@
 package com.grepp.smartwatcha.app.model.recommend;
 
-import com.grepp.smartwatcha.app.model.recommend.service.latest.RecommendLatestRatedJpaService;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendLatestResponse;
+import com.grepp.smartwatcha.app.model.recommend.service.latest.RecommendLatestRatedJpaService;
 import com.grepp.smartwatcha.app.model.recommend.service.latest.RecommendLatestRatedNeo4jService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 
