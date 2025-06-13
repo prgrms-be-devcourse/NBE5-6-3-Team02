@@ -4,6 +4,7 @@ import com.grepp.smartwatcha.app.model.admin.movie.list.dto.AdminMovieListRespon
 import com.grepp.smartwatcha.app.model.admin.movie.list.dto.AdminMovieUpdateRequest;
 import com.grepp.smartwatcha.app.model.admin.movie.list.mapper.AdminMovieMapper;
 import com.grepp.smartwatcha.app.model.admin.movie.list.repository.AdminMovieJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.movie.list.repository.AdminMovieRatingJpaRepository;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
@@ -11,6 +12,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminMovieJpaService {
 
   private final AdminMovieJpaRepository adminMovieJpaRepository;
+  private final AdminMovieRatingJpaRepository adminMovieRatingJpaRepository;
 
   // 영화 필터 조회
   // - keyword 가 날짜 범위 형식이면 releaseDate 기준 필터
@@ -114,5 +118,14 @@ public class AdminMovieJpaService {
     MovieEntity movie = adminMovieJpaRepository.findById(id)
         .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
     adminMovieJpaRepository.delete(movie);
+  }
+
+  // 영화 평점평균
+  public Map<Long, Double> getAverageRatingByMovieIds(List<Long> movieIds) {
+    List<Object[]> resultList = adminMovieRatingJpaRepository.findAverageRatingByMovieIds(movieIds);
+    return resultList.stream().collect(Collectors.toMap(
+        row -> (Long) row[0],
+        row -> (Double) row[1]
+    ));
   }
 }
