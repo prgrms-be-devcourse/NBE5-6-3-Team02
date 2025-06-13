@@ -78,6 +78,10 @@
                                 <label for="phoneNumber">PhoneNumber</label>
                             </div>
                             <div class="input-field">
+                                <input type="text" id="birth" name="birth" maxlength="10" required oninput="formatBirth(this)" placeholder="YYYYMMDD">
+                                <label for="birth">생년월일 (예: 20000420)</label>
+                            </div>
+                            <div class="input-field">
                                 <input type="password" id="password" name="password" required>
                                 <label for="password">Password</label>
                             </div>
@@ -176,6 +180,14 @@
             form.submit();
         });
     });
+</script>
+<script>
+function formatBirth(input) {
+    let value = input.value.replace(/[^0-9]/g, '').slice(0,8);
+    if (value.length >= 5) value = value.slice(0,4) + '.' + value.slice(4,6) + (value.length > 6 ? '.' + value.slice(6) : '');
+    else if (value.length >= 3) value = value.slice(0,4) + '.' + value.slice(4);
+    input.value = value;
+}
 </script>
 </div>
 </body>
