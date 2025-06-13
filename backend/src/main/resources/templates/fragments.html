@@ -63,11 +63,11 @@
                   </a>
                   <div class="mypage-menu"
                        style="display:none; position:absolute; top:100%; left:50%; transform:translateX(-50%); min-width:130px; background:#232323; border:1px solid rgba(255,255,255,0.08); box-shadow:0 4px 16px rgba(0,0,0,0.25); border-radius:10px; z-index:100; padding:6px 0;">
-                    <a href="/user/mypage"
+                    <a href="/user/profile"
                        style="display:block; padding:10px 22px; color:#fff; text-decoration:none; font-size:0.98rem; border-radius:7px; transition:background 0.15s;">
                       Modifying Information
                     </a>
-                    <a href="/user/mypage/activity"
+                    <a href="/user/activity"
                        style="display:block; padding:10px 22px; color:#fff; text-decoration:none; font-size:0.98rem; border-radius:7px; transition:background 0.15s;">
                       Activity Management
                     </a>
@@ -88,7 +88,7 @@
     </nav>
   </header>
 
-  <form th:action="@{/logout}" method="post" id="logoutForm"></form>
+  <form th:action="@{/user/logout}" method="post" id="logoutForm"></form>
   <script>
 
     (() => {

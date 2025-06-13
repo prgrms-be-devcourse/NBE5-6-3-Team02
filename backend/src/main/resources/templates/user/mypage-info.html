@@ -52,7 +52,7 @@
                         <div th:if="${message}" class="center-align green-text" th:text="${message}"></div>
                         <div th:if="${error}" class="center-align red-text" th:text="${error}"></div>
                         
-                        <form th:action="@{/user/mypage/update}" method="post" id="updateForm">
+                        <form th:action="@{/user/profile/update}" method="post" id="updateForm">
                             <!-- 이메일 (표시만) -->
                             <div class="input-field">
                                 <input type="text" id="email" th:value="${user.email}" readonly>
@@ -104,7 +104,7 @@
                         </div>
                         
                         <!-- 회원 탈퇴 폼 (hidden) -->
-                        <form th:action="@{/user/mypage/delete}" method="post" id="deleteForm" style="display: none;"></form>
+                        <form th:action="@{/user/profile/delete}" method="post" id="deleteForm" style="display: none;"></form>
                     </div>
                 </div>
             </div>
