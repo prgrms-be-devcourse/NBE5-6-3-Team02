@@ -2,7 +2,10 @@ package com.grepp.smartwatcha.app.model.admin.user.service;
 
 import com.grepp.smartwatcha.app.model.admin.user.dto.AdminRatingDto;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserTagJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminUserRatingJpaService {
 
   private final AdminUserRatingJpaRepository ratingRepository;
+  private final AdminUserTagJpaRepository tagRepository;
 
   // 특정 유저의 평가 목록을 조회하거나, userId가 없을 경우 전체 유저의 평가 목록을 조회
   public Page<AdminRatingDto> getRatings(Long userId, Pageable pageable) {
@@ -26,13 +30,24 @@ public class AdminUserRatingJpaService {
     return ratingPage.map(this::toDto);
   }
 
-  // RatingEntity 를 AdminRatingDto 로 변환
+  // RatingEntity → AdminRatingDto 로 변환
   private AdminRatingDto toDto(RatingEntity rating) {
+    Long userId = rating.getUser().getId();
+    Long movieId = rating.getMovie().getId();
+
+    List<String> tagNames = tagRepository
+        .findByUserIdAndMovieId(userId, movieId)
+        .stream()
+        .map(mt -> mt.getTag().getName())
+        .collect(Collectors.toList());
+
     return AdminRatingDto.builder()
+        .movieId(movieId)
         .title(rating.getMovie().getTitle())
         .score(rating.getScore())
         .createdAt(rating.getCreatedAt())
         .userName(rating.getUser().getName())
+        .tags(tagNames)
         .build();
   }
 }

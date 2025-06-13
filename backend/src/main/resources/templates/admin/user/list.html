@@ -257,16 +257,27 @@
                 <table>
                   <thead class="grey darken-3 white-text">
                   <tr>
+                    <th style="color: white;">Movie ID</th>
                     <th style="color: white;">Title</th>
-                    <th style="color: white;">Rating</th>
                     <th style="color: white;">Date</th>
+                    <th style="color: white;">Tag</th>
+                    <th style="color: white;">Rating</th>
                   </tr>
                   </thead>
                   <tbody>
                   <tr th:each="rating : ${user.recentRatings}">
+                    <td style="color: white;" th:text="${rating.movieId}">Movie ID</td>
                     <td style="color: white;" th:text="${rating.title}">Movie Title</td>
-                    <td style="color: white;"th:text="${rating.score + ' ★'}">4.5 ★</td>
                     <td style="color: white;" th:text="${#temporals.format(rating.createdAt, 'yyyy-MM-dd')}">2025-01-01</td>
+                    <td>
+                      <!-- 태그가 하나라도 있을 때 -->
+                      <span th:if="${rating.tags != null and !rating.tags.isEmpty()}"
+                            th:text="${#strings.arrayJoin(rating.tags, ', ')}">funny, action</span>
+
+                      <!-- 태그가 없거나 null일 때 -->
+                      <span th:if="${rating.tags == null or rating.tags.isEmpty()}"> x </span>
+                    </td>
+                    <td style="color: white;"th:text="${rating.score + ' ★'}">4.5 ★</td>
                   </tr>
                   <tr th:if="${#lists.isEmpty(user.recentRatings)}">
                     <td colspan="3">No ratings found.</td>

@@ -285,7 +285,7 @@
   <div class="user-controls">
     <form method="get" id="searchForm" class="user-controls">
 
-      <!-- Create Movie Modal -->
+      <!-- Create Movie Modal 버튼 -->
       <button type="button" data-target="createMovieModal" class="modal-trigger"
               style="height: 40px; width: 130px; padding: 0 1rem; background-color: steelblue; color: white;
         border: none; border-radius: 4px; cursor: pointer;">Create Movie
@@ -328,6 +328,7 @@
     </form>
   </div>
 
+  <!--create Movie Modal-->
   <div id="createMovieModal" class="modal black-text" style="background-color: #424242;">
     <form id="createMovieForm" th:action="@{/admin/movies/create}" method="post">
       <div class="modal-content">
@@ -674,15 +675,51 @@
     // 영화 등록 처리
     document.addEventListener('DOMContentLoaded', function () {
       const createForm = document.getElementById('createMovieForm');
+
       if (createForm) {
-        createForm.addEventListener('submit', function (e) {
+        createForm.addEventListener('submit', async function (e) {
+          e.preventDefault(); // 기본 제출 방지
+
           const id = createForm.querySelector('textarea[name="id"]').value.trim();
           const title = createForm.querySelector('textarea[name="title"]').value.trim();
           const releaseDate = createForm.querySelector('input[name="releaseDate"]').value.trim();
 
-          if (!id || !title || !releaseDate) {
-            alert("❗ Movie ID, Title, and Release Date are required fields.");
-            e.preventDefault(); // Prevent form submission
+          if (!id) {
+            alert("❗ Please enter the required field: 𝙈𝙤𝙫𝙞𝙚 𝙄𝘿");
+            return;
+          }
+
+          if (isNaN(id)) {
+            alert("❗ TMDB Movie ID must be a number.");
+            return;
+          }
+
+          try {
+            const res = await fetch(`/admin/movies/check-duplicate?id=${id}`);
+            if (!res.ok) {
+              alert("❌ Server error while checking TMDB ID.");
+              return;
+            }
+
+            const data = await res.json();
+            if (data.exists) {
+              alert("❌ A movie with this TMDB ID already exists.");
+              return;
+            }
+
+            if (!title) {
+              alert("❗ Please enter the required field: 𝙏𝙞𝙩𝙡𝙚");
+              return;
+            } else if (!releaseDate){
+              alert("❗ Please enter the required field: 𝙍𝙚𝙡𝙚𝙖𝙨𝙚 𝘿𝙖𝙩𝙚");
+              return;
+            }
+
+            // 조건 만족하면 제출
+            createForm.submit();
+          } catch (err) {
+            console.error("중복 체크 에러:", err);
+            alert("⚠️ Failed to validate TMDB ID. Please try again.");
           }
         });
       }

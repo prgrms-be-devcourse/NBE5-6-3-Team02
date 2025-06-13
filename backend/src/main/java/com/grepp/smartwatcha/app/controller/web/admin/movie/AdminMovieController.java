@@ -2,9 +2,12 @@ package com.grepp.smartwatcha.app.controller.web.admin.movie;
 
 import com.grepp.smartwatcha.app.model.admin.movie.list.dto.AdminMovieListResponse;
 import com.grepp.smartwatcha.app.model.admin.movie.list.dto.AdminMovieUpdateRequest;
+import com.grepp.smartwatcha.app.model.admin.movie.list.repository.AdminMovieJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.movie.list.service.AdminMovieJpaService;
 import com.grepp.smartwatcha.infra.response.PageResponse;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AdminMovieController {
 
+  private final AdminMovieJpaRepository adminMovieJpaRepository;
   private final AdminMovieJpaService adminMovieJpaService;
 
   /**
@@ -80,9 +84,28 @@ public class AdminMovieController {
    * 출력: 목록 페이지 리디렉션
    */
   @PostMapping("/movies/create")
-  public String createMovie(@ModelAttribute AdminMovieUpdateRequest request) {
-    adminMovieJpaService.save(request);
+  public String createMovie(@ModelAttribute AdminMovieUpdateRequest request, Model model) {
+    boolean success = adminMovieJpaService.save(request);
+    if(!success) {
+      model.addAttribute("errorMessage", "A movie with this TMDB ID already exists.");
+      model.addAttribute("openCreateModel", true);
+      return "admin/movie/list";
+    }
     return "redirect:/admin/movies";
+  }
+
+  /**
+   * TMDB ID 중복 여부 확인
+   * 입력: TMDB Movie ID (Long)
+   * 출력: {"exists": true} 또는 {"exists": false}
+   *
+   * 설명: 프론트엔드에서 영화 생성 전에 ID가 이미 존재하는지 확인할 수 있도록 제공되는 API
+   */
+  @GetMapping("/movies/check-duplicate")
+  @ResponseBody
+  public Map<String, Boolean> checkDuplicate(@RequestParam Long id) {
+    boolean exists = adminMovieJpaRepository.existsById(id);
+    return Collections.singletonMap("exists", exists);
   }
 
   /**

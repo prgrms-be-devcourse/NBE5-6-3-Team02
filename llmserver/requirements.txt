@@ -1,13 +1,15 @@
-python-dotenv
+python-dotenv==1.1.0
 
-fastapi
-uvicorn
-pydantic
+fastapi==0.115.12
+uvicorn==0.34.2
+pydantic==2.11.4
 
-neo4j
+neo4j==5.28.1
 
-openai
-langchain
-langgraph
-langchain-community
-langchain-openai
+openai==1.76.2
+langchain==0.3.24
+langgraph==0.4.1
+langchain-community==0.3.23
+langchain-openai==0.3.15
+
+spacy==3.8.5

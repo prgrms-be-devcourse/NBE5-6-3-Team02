@@ -9,8 +9,6 @@ from dotenv import load_dotenv
 
 from uvicorn import run
 
-load_dotenv()
-
 app = FastAPI(openapi_url="/api/docs/openapi.json")
 
 @app.get("/api/docs", include_in_schema=False)
@@ -23,4 +21,4 @@ async def get_documentation():
 app.include_router(search.router, tags=["search"])
 
 if __name__ == "__main__":
-    run(app, host='0.0.0.0', port=8000)
+    run(app, host='0.0.0.0', port=8080)

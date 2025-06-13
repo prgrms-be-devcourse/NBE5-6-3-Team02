@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(
         name = "smart-search-api",
-        url = "http://localhost:8000/llm/search",
+        url = "${fastapi.llm.server.url}",
         configuration = {FeignCommonConfig.class})
 // FastApi 통신을 위한 OpenFeign Api
 public interface SmartSearchApi {

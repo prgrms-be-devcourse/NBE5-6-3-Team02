@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -80,13 +79,16 @@ public class AdminMovieJpaService {
   }
 
   // 영화 저장
-  public void save(AdminMovieUpdateRequest request) {
-    try {
-      MovieEntity movie = AdminMovieMapper.toEntity(request);
-      adminMovieJpaRepository.save(movie);
-    } catch (DataIntegrityViolationException e) {
-      throw new CommonException(ResponseCode.INTERNAL_SERVER_ERROR);
+  public boolean save(AdminMovieUpdateRequest request) {
+    Long id = request.getId();
+
+    if (adminMovieJpaRepository.existsById(id)) {
+      return false;
     }
+
+    MovieEntity movie = AdminMovieMapper.toEntity(request);
+    adminMovieJpaRepository.save(movie);
+    return true;
   }
 
   // 영화 정보 수정

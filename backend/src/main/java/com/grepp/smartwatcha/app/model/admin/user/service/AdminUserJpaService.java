@@ -5,9 +5,11 @@ import com.grepp.smartwatcha.app.model.admin.user.dto.AdminUserListResponse;
 import com.grepp.smartwatcha.app.model.admin.user.mapper.AdminUserMapper;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserRatingJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.user.repository.AdminUserTagJpaRepository;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.infra.jpa.enums.Role;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -26,10 +27,12 @@ public class AdminUserJpaService {
 
   private final AdminUserJpaRepository adminUserJpaRepository;
   private final AdminUserRatingJpaRepository adminUserRatingJpaRepository;
+  private final AdminUserTagJpaRepository adminUserTagJpaRepository;
   private final UserJpaRepository userJpaRepository;
 
   // 유저 필터 조회(이름, 역할, 활성화 여부)
-  public Page<AdminUserListResponse> findUserByFilter(String keyword, Role role, Boolean activated, Pageable pageable) {
+  public Page<AdminUserListResponse> findUserByFilter(String keyword, Role role, Boolean activated,
+      Pageable pageable) {
     return adminUserJpaRepository.findUserByFilter(keyword, role, activated, pageable)
         .map(user -> AdminUserMapper.toDto(user, getRecentRatings(user.getId())));
   }
@@ -64,11 +67,24 @@ public class AdminUserJpaService {
   private List<AdminSimpleRatingDto> getRecentRatings(Long userId) {
     return adminUserRatingJpaRepository.findTop8ByUserIdOrderByCreatedAtDesc(userId)
         .stream()
-        .map(rating -> AdminSimpleRatingDto.builder()
-            .title(rating.getMovie().getTitle())
-            .score(rating.getScore())
-            .createdAt(rating.getCreatedAt())
-            .build())
+        .map(rating -> {
+          Long movieId = rating.getMovie().getId();
+
+          // user + movie 기준으로 태그 가져오기
+          List<String> tagNames = adminUserTagJpaRepository
+              .findByUserIdAndMovieId(userId, movieId)
+              .stream()
+              .map(mt -> mt.getTag().getName())
+              .collect(Collectors.toList());
+
+          return AdminSimpleRatingDto.builder()
+              .movieId(movieId)
+              .title(rating.getMovie().getTitle())
+              .score(rating.getScore())
+              .createdAt(rating.getCreatedAt())
+              .tags(tagNames)
+              .build();
+        })
         .toList();
   }
 }
