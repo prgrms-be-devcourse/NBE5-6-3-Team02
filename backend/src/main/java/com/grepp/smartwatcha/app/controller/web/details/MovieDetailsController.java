@@ -84,7 +84,6 @@ public class MovieDetailsController {
             throw new CommonException(ResponseCode.UNAUTHORIZED);
         }
 
-
         Long userId = userEntity.getId();
         Integer userRating = ratingJpaService.getUserRating(userId, id);
         Status interestStatus = interestJpaService.getInterestStatus(userId, id);

@@ -3,7 +3,6 @@ package com.grepp.smartwatcha.app.model.details.repository.jparepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
-import com.querydsl.core.group.GroupBy;
 import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -29,5 +28,8 @@ public interface RatingJpaRepository extends JpaRepository<RatingEntity, Long> {
     Optional<RatingEntity> findRatingByUserAndMovie(@Param("userId") Long userId, @Param("movieId") Long movieId);
 
     void deleteByUserIdAndMovieId(Long userId, Long movieId);
+
+    // 실제 해당 영화 id에 대해 user가 별점을 남겼는지 여부에 대한 메서드
+    boolean existsByUserIdAndMovieId(Long userId, Long movieId);
 
 }

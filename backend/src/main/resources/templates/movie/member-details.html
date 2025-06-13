@@ -167,6 +167,41 @@
             text-align: center;
         }
 
+        .icon-button.dropdown-toggle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: none;
+            background: none;
+        }
+
+        /* 점 + 텍스트 묶음 */
+        .ellipsis-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 점 아이콘 */
+        .icon-dots {
+            font-size: 18px;
+            line-height: 1;
+            display: block;
+            text-align: center;
+            margin-right: 0 !important;
+        }
+
+        /* 텍스트 */
+        .label-text {
+            margin-top: 4px;
+            font-size: 12px;
+            color: white;
+            text-align: center;
+        }
+
         .icon-button.cancel-btn {
             background-color: #f15b5b;
             color: white;
@@ -179,6 +214,49 @@
         .icon-button.cancel-btn:hover {
             background-color: #d84444;
         }
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #2b2b2b;
+            border-radius: 8px;
+            padding: 8px 0;
+            min-width: 180px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            z-index: 1000;
+        }
+
+        .dropdown-menu button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            width: 100%;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-menu button:hover {
+            background-color: #444;
+        }
+
+        .dropdown-menu button i {
+            font-size: 16px;
+        }
+        .dropdown-menu button i.active {
+            color: #ff2f6e;  /* 분홍 강조색 */
+        }
+
+
 
         .stars {
             font-size: 24px;
@@ -202,10 +280,6 @@
         .icon-button i {
             margin-right: 6px;
             font-size: 18px;
-        }
-
-        .icon-button i.active {
-            color: #ff2f6e;
         }
 
         .tag-selection {
@@ -319,12 +393,14 @@
         .slider-button:focus {
             background-color: #27c29c;
         }
+
         .rating-inline {
             display: flex;
             align-items: center;
             gap: 12px;
             white-space: nowrap;
         }
+
         .rating-label {
             font-size: 16px;
             font-weight: bold;
@@ -333,6 +409,60 @@
         .rating-stars {
             display: flex;
             gap: 8px;
+        }
+
+        /*날짜 모달*/
+        .watched-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 14px;
+            width: 300px;
+            z-index: 9999;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+            padding: 20px 24px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            flex: 1;
+            text-align: center;
+            color: #333;
+        }
+
+        .modal-cancel,
+        .modal-confirm {
+            background: none;
+            border: none;
+            color: #ff2f6e;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal-body label {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #444;
+        }
+
+        #watchedDateInput {
+            width: 100%;
+            border: 1px solid #ccc;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -358,9 +488,12 @@
                 <span th:each="genre : ${genres}" th:text="${genre.name} + ' '"></span>
             </div>
             <div class="info-text">
-                <span th:text="'Release Date : ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : 'No information')"></span> |
-                <span th:text="'Country : ' + (${movie.country} != null ? ${movie.country} : 'No information')"></span> |
-                <span th:text="'Certification : ' + (${movie.certification} != null ? ${movie.certification} : 'No information')"></span> |
+                <span th:text="'Release Date : ' + (${movie.releaseDate} != null ? ${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')} : 'No information')"></span>
+                |
+                <span th:text="'Country : ' + (${movie.country} != null ? ${movie.country} : 'No information')"></span>
+                |
+                <span th:text="'Certification : ' + (${movie.certification} != null ? ${movie.certification} : 'No information')"></span>
+                |
                 <span th:text="'undisclosed : ' + (${movie.isReleased} ? 'release' : 'undisclosed')"></span>
             </div>
 
@@ -377,27 +510,40 @@
                     <div class="rating-left rating-inline">
                         <strong class="rating-label">Leave a rating :</strong>
                         <span class="rating-stars" th:each="i : ${#numbers.sequence(1,5)}">
-                            <i class="fa-star stars" th:classappend="${userRating >= i} ? 'fa-solid selected' : 'fa-regular'"
-                                th:attr="data-score=${i}, onclick=|rateMovie(${movie.id},${i})|">
+                            <i class="fa-star stars"
+                               th:classappend="${userRating >= i} ? 'fa-solid selected' : 'fa-regular'"
+                               th:attr="data-score=${i}, onclick=|rateMovie(${movie.id},${i})|">
                             </i>
                         </span>
                         <button class="icon-button cancel-btn" onclick="cancelRating()">Cancel</button>
                     </div>
 
 
+                    <!-- 점 세게 안에 관심도 및 본 날짜 추가 -->
                     <div class="rating-center">
                         <strong th:text="${#numbers.formatDecimal(averageScore != null ? averageScore : 0.0, 1, 1)}">0.0</strong>
                         <div style="font-size: 14px; color: #ccc;">Average Star</div>
                     </div>
                     <div class="rating-right">
-                        <button class="icon-button" onclick="setInterest('WATCH_LATER')">
-                            <i th:class="'fa-bookmark ' + (${interestStatus != null and interestStatus.name() == 'WATCH_LATER'} ? 'fa-solid active' : 'fa-regular')"> </i>
-                            Interest
-                        </button>
-                        <button class="icon-button" onclick="setInterest('NOT_INTERESTED')">
-                            <i th:class="'fa-eye-slash ' + (${interestStatus != null and interestStatus.name() == 'NOT_INTERESTED'} ? 'fa-solid active' : 'fa-regular')"> </i>
-                            UnInterest
-                        </button>
+                        <div class="dropdown">
+                            <button class="icon-button dropdown-toggle" onclick="toggleDropdown(this)">
+                                <span class="ellipsis-wrapper">
+                                    <i class="fa-solid fa-ellipsis icon-dots"></i>
+                                    <span class="label-text">더보기</span>
+                                </span>
+                            </button>
+                            <div class="dropdown-menu" style="display:none">
+                                <button onclick="setInterest('WATCH_LATER')">
+                                    <i class="fa fa-bookmark"></i> interest
+                                </button>
+                                <button onclick="setInterest('NOT_INTERESTED')">
+                                    <i class="fa fa-eye-slash"></i> UnInterest
+                                </button>
+                                <button onclick="handleWatchedDateClick()">
+                                    <i class="fa fa-calendar-day"></i> <span id="watched-date-label">본 날짜 추가</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -406,7 +552,8 @@
 
             <div class="tag-selection">
                 <label for="tagInput"><strong>Leave a tag :</strong></label>
-                <input type="text" id="tagInput" class="browser-default" placeholder="Please enter tags..." autocomplete="off"/>
+                <input type="text" id="tagInput" class="browser-default" placeholder="Please enter tags..."
+                       autocomplete="off"/>
                 <div id="suggestions"></div>
                 <button id="submitTag" disabled>Leave a tag</button>
 
@@ -433,9 +580,9 @@
 
             <div class="cast-section">
                 <div><strong>Director :</strong> <span th:each="d, stat : ${directors}"
-                                                th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+                                                       th:utext="${d.name} + (!${stat.last} ? ' | ' : '')"></span></div>
                 <div><strong>Casting :</strong> <span th:each="a, stat : ${actors}"
-                                                th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span></div>
+                                                      th:utext="${a.name} + (!${stat.last} ? ' | ' : '')"></span></div>
             </div>
         </div>
     </div>
@@ -459,22 +606,38 @@
             </div>
         </div>
     </div>
+    <!-- 본 날짜 모달 -->
+    <div id="watchedDateModal" class="watched-modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="modal-cancel" onclick="closeWatchedModal()">취소</button>
+                <div class="modal-title">본 날짜 추가</div>
+                <button class="modal-confirm" onclick="saveWatchedDate()">확인</button>
+            </div>
+            <div class="modal-body">
+                <label for="watchedDateInput">본 날짜 추가하기</label>
+                <input type="date" id="watchedDateInput">
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     async function loadMyTags() {
         const response = await fetch(`/movies/${movieId}/tags/user`);
         if (!response.ok) return;
 
-        const tags = await response.json();
+        const json = await response.json();
+        const tags = json.data;
         myTags.innerHTML = '';
         tags.forEach(tag => {
-            myTags.appendChild(createTagListItem(tag));
+            myTags.appendChild(createTagListItem(tag.name));
         });
     }
 
     async function loadTopTags() {
         const response = await fetch(`/movies/${movieId}/tags/top6?movieId=${movieId}`);
-        const tags = await response.json();
+        const json = await response.json();
+        const tags = json.data;
         const list = document.querySelector(".top-tags ul");
         list.innerHTML = '';
         tags.forEach(tag => {
@@ -487,16 +650,16 @@
     async function loadAverageScore() {
         const res = await fetch(`/movies/${movieId}/ratings/average`);
         if (!res.ok) return;
-        const avg = await res.json();
-
+        const json = await res.json();
+        const avg = json.data;
         document.querySelector(".rating-center strong").textContent = avg.toFixed(1);
     }
 
     async function loadRatingBars() {
         const res = await fetch(`/movies/${movieId}/ratings/bars`);
         if (!res.ok) return;
-
-        const bars = await res.json();
+        const json = await res.json();
+        const bars = json.data;
         const graph = document.querySelector(".graph");
         graph.innerHTML = "";  // 기존 그래프 초기화
 
@@ -527,27 +690,25 @@
             body: JSON.stringify({movieId, score})
         });
 
-            if (res.ok) {
-                document.querySelectorAll(".stars").forEach(s => {
-                    s.classList.remove("selected", "fa-solid");
-                    s.classList.add("fa-regular");
-                    const sScore = parseInt(s.dataset.score);
-                    if (sScore <= score) {
-                        s.classList.add("selected", "fa-solid");
-                        s.classList.remove("fa-regular");
-                    }
-                });
-                alert("Your rating has been successfully registered.");
-                setTimeout(() => {
-                    loadAverageScore();
-                    loadRatingBars();
-                }, 100);
-                //loadMyTags();
-                //loadTopTags();
-            } else {
-                const error = await res.json();
-                alert(error.message || "An error occurred!");
-            }
+        if (res.ok) {
+            document.querySelectorAll(".stars").forEach(s => {
+                s.classList.remove("selected", "fa-solid");
+                s.classList.add("fa-regular");
+                const sScore = parseInt(s.dataset.score);
+                if (sScore <= score) {
+                    s.classList.add("selected", "fa-solid");
+                    s.classList.remove("fa-regular");
+                }
+            });
+            alert("Your rating has been successfully registered.");
+            setTimeout(() => {
+                loadAverageScore();
+                loadRatingBars();
+            }, 100);
+        } else {
+            const error = await res.json();
+            alert(error.message || "An error occurred!");
+        }
     }
 
     async function cancelRating() {
@@ -559,20 +720,21 @@
         }
 
         const res = await fetch(`/movies/${movieId}/ratings`, {method: 'DELETE'});
-                if (res.ok) {
-                    alert("The evaluation has been cancelled.");
-                    document.querySelectorAll(".stars").forEach(s => {
-                        s.classList.remove("selected", "fa-solid");
-                        s.classList.add("fa-regular");
-                    });
-                    await loadAverageScore();
-                    await loadRatingBars();
-                } else {
-                    const error = await res.json();
-                    alert(error.message ||"Failed to cancel evaluation");
-                }
+        if (res.ok) {
+            alert("The evaluation has been cancelled.");
+            document.querySelectorAll(".stars").forEach(s => {
+                s.classList.remove("selected", "fa-solid");
+                s.classList.add("fa-regular");
+            });
+            await loadAverageScore();
+            await loadRatingBars();
+        } else {
+            const error = await res.json();
+            alert(error.message || "Failed to cancel evaluation");
+        }
     }
-     async function setInterest(status) {
+
+    async function setInterest(status) {
         const movieId = document.body.getAttribute("data-movie-id");
 
         const bookmarkIcon = document.querySelector("i.fa-bookmark");
@@ -590,19 +752,19 @@
             const res = await fetch(`/movies/${movieId}/interest`, {
                 method: 'DELETE'
             });
-                if (res.ok) {
-                    // 아이콘 초기화
-                    bookmarkIcon.classList.remove("fa-solid", "active");
-                    bookmarkIcon.classList.add("fa-regular");
+            if (res.ok) {
+                // 아이콘 초기화
+                bookmarkIcon.classList.remove("fa-solid", "active");
+                bookmarkIcon.classList.add("fa-regular");
 
-                    eyeSlashIcon.classList.remove("fa-solid", "active");
-                    eyeSlashIcon.classList.add("fa-regular");
+                eyeSlashIcon.classList.remove("fa-solid", "active");
+                eyeSlashIcon.classList.add("fa-regular");
 
-                    alert("Your interest has been cancelled.");
-                } else {
-                    const error = await res.json();
-                    alert(error.message || "Failed to cancel interest status.");
-                }
+                alert("Your interest has been cancelled.");
+            } else {
+                const error = await res.json();
+                alert(error.message || "Failed to cancel interest status.");
+            }
 
         } else {
             // 👇 새로운 관심 상태 등록
@@ -610,28 +772,28 @@
                 method: 'POST'
             });
 
-                if (res.ok) {
-                    // 아이콘 초기화
-                    bookmarkIcon.classList.remove("fa-solid", "active");
-                    bookmarkIcon.classList.add("fa-regular");
+            if (res.ok) {
+                // 아이콘 초기화
+                bookmarkIcon.classList.remove("fa-solid", "active");
+                bookmarkIcon.classList.add("fa-regular");
 
-                    eyeSlashIcon.classList.remove("fa-solid", "active");
-                    eyeSlashIcon.classList.add("fa-regular");
+                eyeSlashIcon.classList.remove("fa-solid", "active");
+                eyeSlashIcon.classList.add("fa-regular");
 
-                    // 선택한 아이콘 활성화
-                    const selectedIcon = status === "WATCH_LATER" ? bookmarkIcon : eyeSlashIcon;
-                    selectedIcon.classList.add("fa-solid", "active");
-                    selectedIcon.classList.remove("fa-regular");
+                // 선택한 아이콘 활성화
+                const selectedIcon = status === "WATCH_LATER" ? bookmarkIcon : eyeSlashIcon;
+                selectedIcon.classList.add("fa-solid", "active");
+                selectedIcon.classList.remove("fa-regular");
 
-                    alert(
-                        status === "WATCH_LATER"
-                            ? "It has been registered as I want to see you."
-                            : "Registered as not interested."
-                    );
-                } else {
-                    const error = await res.json();
-                    alert(error.message || "Failed to register interest status.");
-                }
+                alert(
+                    status === "WATCH_LATER"
+                        ? "It has been registered as I want to see you."
+                        : "Registered as not interested."
+                );
+            } else {
+                const error = await res.json();
+                alert(error.message || "Failed to register interest status.");
+            }
         }
     }
 
@@ -659,14 +821,14 @@
         const res = await fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
             method: 'DELETE'
         });
-            if (res.ok) {
-                alert("It has been deleted.");
-                loadMyTags();   // 내 태그 다시 불러오기
-                loadTopTags();  // Top 태그도 다시 반영
-            } else {
-                const error = await res.json();
-                alert( error.message || "Deletion failed.");
-            }
+        if (res.ok) {
+            alert("It has been deleted.");
+            loadMyTags();   // 내 태그 다시 불러오기
+            loadTopTags();  // Top 태그도 다시 반영
+        } else {
+            const error = await res.json();
+            alert(error.message || "Deletion failed.");
+        }
     }
 
     function scrollToLeft(button) {
@@ -681,6 +843,62 @@
         button.blur();
     }
 
+    function toggleDropdown(button) {
+        const dropdown = button.closest(".dropdown");
+        const menu = dropdown.querySelector(".dropdown-menu");
+
+        // 토글
+        const isOpen = menu.style.display === "block";
+        // 모든 드롭다운 닫기 (선택적)
+        document.querySelectorAll(".dropdown-menu").forEach(el => el.style.display = "none");
+        // 현재만 토글
+        menu.style.display = isOpen ? "none" : "block";
+    }
+    async function handleWatchedDateClick() {
+        const res = await fetch(`/movies/${movieId}/ratings/user`);
+        if (!res.ok) {
+            const error = await res.json();
+            alert(error.message || "별점 확인 실패");
+            return;
+        }
+
+        const json = await res.json();
+        const rating = json.data;
+
+        if (!rating) {
+            alert("별점을 먼저 남겨주세요!");
+            return;
+        }
+
+        // 별점 존재 시 → 모달 열기
+        document.getElementById("watchedDateModal").style.display = "block";
+    }
+
+    function closeWatchedModal() {
+        document.getElementById("watchedDateModal").style.display = "none";
+    }
+
+    async function saveWatchedDate() {
+        const date = document.getElementById("watchedDateInput").value;
+        if (!date) {
+            alert("날짜를 선택해주세요.");
+            return;
+        }
+
+        const res = await fetch(`/movies/${movieId}/watched-date`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({date})
+        });
+
+        if (res.ok) {
+            alert("본 날짜가 저장되었습니다.");
+            closeWatchedModal();
+        } else {
+            const error = await res.json();
+            alert(error.message || "저장 실패");
+        }
+    }
 
     const tagInput = document.getElementById("tagInput");
     const suggestions = document.getElementById("suggestions");
@@ -700,7 +918,8 @@
         if (keyword.length > 0) {
             const res = await fetch(`/movies/${movieId}/tags/search?keyword=${keyword}`);
             if (!res.ok) return;
-            const tags = await res.json();
+            const json = await res.json();
+            const tags = json.data;
 
             if (tags.length > 0) {
                 suggestions.style.display = 'block';
