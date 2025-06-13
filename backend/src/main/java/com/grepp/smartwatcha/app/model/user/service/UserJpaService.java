@@ -25,6 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.Period;
 
 @Service
 @RequiredArgsConstructor
@@ -58,12 +61,19 @@ public class UserJpaService {
                 .filter(user -> !user.getActivated())
                 .orElse(null);
 
+        LocalDate birth = LocalDate.parse(requestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        int age = Period.between(birth, LocalDate.now()).getYears();
+        boolean isAdult = age >= 19;
+
         UserEntity user;
         if (inactiveUser != null) {
             // 기존 비활성화 계정 재사용
             inactiveUser.setPassword(passwordEncoder.encode(requestDto.getPassword()));
             inactiveUser.setName(requestDto.getName());
             inactiveUser.setPhoneNumber(requestDto.getPhoneNumber());
+            inactiveUser.setBirth(birth);
+            inactiveUser.setAge(age);
+            inactiveUser.setIsAdult(isAdult);
             inactiveUser.setActivated(true);
             user = inactiveUser;
         } else {
@@ -73,6 +83,9 @@ public class UserJpaService {
                     .password(passwordEncoder.encode(requestDto.getPassword()))
                     .name(requestDto.getName())
                     .phoneNumber(requestDto.getPhoneNumber())
+                    .birth(birth)
+                    .age(age)
+                    .isAdult(isAdult)
                     .role(Role.USER)
                     .build();
         }

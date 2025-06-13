@@ -36,8 +36,12 @@ public class IndexController {
 
     @GetMapping("/")
     public String index(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        List<IndexMovieDto> newMovies = indexService.findByReleaseDate();
-        List<IndexMovieDto> randomMovies = indexService.findByRandom();
+        boolean isAdult = true;
+        if (userDetails != null && userDetails.getUser() != null) {
+            isAdult = Boolean.TRUE.equals(userDetails.getUser().getIsAdult());
+        }
+        List<IndexMovieDto> newMovies = indexService.findByReleaseDateByAge(isAdult);
+        List<IndexMovieDto> randomMovies = indexService.findByRandomByAge(isAdult);
         List<IndexMovieDto> lightMovies = indexService.findLightMovies();
         List<MovieRecommendHighestRatedResponse> top10Movies = recommendService.getTop10HighestRatedMovies();
 
@@ -59,6 +63,7 @@ public class IndexController {
         model.addAttribute("randomMovies", randomMovies);
         model.addAttribute("lightMovies", lightMovies);
         model.addAttribute("top10Movies", top10Movies);
+        model.addAttribute("isAdult", isAdult);
 
         return "index";
     }
