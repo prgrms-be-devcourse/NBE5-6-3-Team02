@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -14,5 +14,5 @@ public class WatchedRequestDto {
     private Long userId;
 
     // 유저가 선택한 날짜를 저장
-    private LocalDateTime watchedDate;
+    private LocalDate watchedDate;
 }

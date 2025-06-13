@@ -466,7 +466,7 @@
         }
     </style>
 </head>
-<body th:attr="data-movie-id=${movie.id}, data-user-id=${userId}">
+<body th:attr="data-movie-id=${movie.id}, data-user-id=${userId},data-user-rating=${userRating} ">
 <th:block th:replace="fragments :: frg_header"></th:block>
 <div class="overlay">
     <div class="main-section">
@@ -701,6 +701,7 @@
                 }
             });
             alert("Your rating has been successfully registered.");
+            document.body.setAttribute("data-user-rating", score);
             setTimeout(() => {
                 loadAverageScore();
                 loadRatingBars();
@@ -726,6 +727,10 @@
                 s.classList.remove("selected", "fa-solid");
                 s.classList.add("fa-regular");
             });
+
+            // ⭐ 별점 취소 후 user-rating 값도 초기화
+            document.body.setAttribute("data-user-rating", "0");
+
             await loadAverageScore();
             await loadRatingBars();
         } else {
@@ -798,6 +803,48 @@
     }
 
 
+    async function deleteTag(tagName) {
+        if (!confirm(`'${tagName}' Should I delete this tag?`)) return;
+
+        const res = await fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            alert("It has been deleted.");
+            loadMyTags();   // 내 태그 다시 불러오기
+            loadTopTags();  // Top 태그도 다시 반영
+        } else {
+            const error = await res.json();
+            alert(error.message || "Deletion failed.");
+        }
+    }
+
+    async function saveWatchedDate() {
+        const date = document.getElementById("watchedDateInput").value;
+        if (!date) {
+            alert("날짜를 선택해주세요.");
+            return;
+        }
+
+        const res = await fetch(`/movies/${movieId}/watched`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                movieId: movieId,
+                userId: userId,
+                watchedDate: date
+            })
+        });
+
+        if (res.ok) {
+            alert("본 날짜가 저장되었습니다.");
+            closeWatchedModal();
+        } else {
+            const error = await res.json();
+            alert(error.message || "저장 실패");
+        }
+    }
+
     function createTagListItem(tag) {
         const li = document.createElement("li");
         li.textContent = `# ${tag} `;
@@ -815,22 +862,6 @@
         return li;
     }
 
-    async function deleteTag(tagName) {
-        if (!confirm(`'${tagName}' Should I delete this tag?`)) return;
-
-        const res = await fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
-            method: 'DELETE'
-        });
-        if (res.ok) {
-            alert("It has been deleted.");
-            loadMyTags();   // 내 태그 다시 불러오기
-            loadTopTags();  // Top 태그도 다시 반영
-        } else {
-            const error = await res.json();
-            alert(error.message || "Deletion failed.");
-        }
-    }
-
     function scrollToLeft(button) {
         const list = button.parentElement.querySelector(".recommend-list");
         list.scrollBy({left: -300, behavior: 'smooth'});
@@ -842,7 +873,6 @@
         list.scrollBy({left: 300, behavior: 'smooth'});
         button.blur();
     }
-
     function toggleDropdown(button) {
         const dropdown = button.closest(".dropdown");
         const menu = dropdown.querySelector(".dropdown-menu");
@@ -854,50 +884,19 @@
         // 현재만 토글
         menu.style.display = isOpen ? "none" : "block";
     }
-    async function handleWatchedDateClick() {
-        const res = await fetch(`/movies/${movieId}/ratings/user`);
-        if (!res.ok) {
-            const error = await res.json();
-            alert(error.message || "별점 확인 실패");
-            return;
-        }
 
-        const json = await res.json();
-        const rating = json.data;
-
-        if (!rating) {
+    function handleWatchedDateClick() {
+        const userRating = document.body.getAttribute("data-user-rating");
+        if (!userRating || parseInt(userRating) === 0) {
             alert("별점을 먼저 남겨주세요!");
             return;
         }
-
         // 별점 존재 시 → 모달 열기
         document.getElementById("watchedDateModal").style.display = "block";
     }
 
     function closeWatchedModal() {
         document.getElementById("watchedDateModal").style.display = "none";
-    }
-
-    async function saveWatchedDate() {
-        const date = document.getElementById("watchedDateInput").value;
-        if (!date) {
-            alert("날짜를 선택해주세요.");
-            return;
-        }
-
-        const res = await fetch(`/movies/${movieId}/watched-date`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({date})
-        });
-
-        if (res.ok) {
-            alert("본 날짜가 저장되었습니다.");
-            closeWatchedModal();
-        } else {
-            const error = await res.json();
-            alert(error.message || "저장 실패");
-        }
     }
 
     const tagInput = document.getElementById("tagInput");

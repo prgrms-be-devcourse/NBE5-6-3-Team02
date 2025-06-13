@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -28,36 +30,39 @@ public class WatchedJpaService {
     private final MovieDetailsJpaRepository movieDetailsJpaRepository;
 
     // 사용자가 남긴 시청 날짜 저장 함수
-    public void saveWatchedDate(WatchedRequestDto dto){
-        UserEntity user = userJpaRepository.findById(dto.getUserId())
+    public void saveWatchedDate(
+            UserEntity user,
+            Long movieId,
+            LocalDate watchedDate){
+        MovieEntity movie = movieDetailsJpaRepository.findById(movieId)
                 .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
 
-        MovieEntity movie = movieDetailsJpaRepository.findById(dto.getMovieId())
+        ratingJpaRepository.findByUserAndMovie(user, movie)
                 .orElseThrow(() -> new CommonException(ResponseCode.BAD_REQUEST));
 
         // 1. 평점 존재 여부 확인
-        boolean hasRating = ratingJpaRepository.existsByUserIdAndMovieId(dto.getUserId(), dto.getMovieId());
+        boolean hasRating = ratingJpaRepository.existsByUserIdAndMovieId(user.getId(),movieId);
         if (!hasRating) {
             throw new CommonException(ResponseCode.BAD_REQUEST);
         }
 
         // Entity에 저장되어있는 정보 꺼내오기
         Optional<MovieWatchedEntity> existing =
-                watchedJpaRepository.findByUserIdAndMovieId(dto.getUserId(), dto.getMovieId());
+                watchedJpaRepository.findByUserIdAndMovieId(user.getId(), movieId);
 
         // 2. 기존 시청 정보 존재 여부 확인
         if (existing.isPresent()) {
             // 존재 시 날짜만 저장
             MovieWatchedEntity entity = existing.get();
-            entity.setWatchedDate(dto.getWatchedDate().toLocalDate());
+            entity.setWatchedDate(watchedDate); // 👈 날짜 업데이트 명시
             watchedJpaRepository.save(entity); // 수정 (덮어쓰기)
         } else {
             // 모든 정보 저장
-            MovieWatchedEntity entity = new MovieWatchedEntity();
-            entity.setUser(user);
-            entity.setMovie(movie);
-            entity.setWatchedDate(dto.getWatchedDate().toLocalDate());
-            watchedJpaRepository.save(entity); // 새로 등록
+            watchedJpaRepository.save(MovieWatchedEntity.builder()
+                    .user(user)
+                    .movie(movie)
+                    .watchedDate(watchedDate)
+                    .build());
         }
     }
 
