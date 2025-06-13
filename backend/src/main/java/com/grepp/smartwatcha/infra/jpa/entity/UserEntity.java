@@ -35,8 +35,8 @@ public class UserEntity extends BaseEntity {
     @Column(nullable = false) // Role 이 반드시 부여되도록 수정
     private Role role;
 
-    @Column(nullable = false, columnDefinition = "DATE")
-    private LocalDate birth; // 생년월일
+    @Column(nullable = false)
+    private LocalDate birth = LocalDate.now(); // 생년월일
 
     @Column(nullable = false)
     private Integer age; // 나이
