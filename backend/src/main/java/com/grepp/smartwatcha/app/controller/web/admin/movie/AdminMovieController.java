@@ -4,10 +4,14 @@ import com.grepp.smartwatcha.app.model.admin.movie.list.dto.AdminMovieListRespon
 import com.grepp.smartwatcha.app.model.admin.movie.list.dto.AdminMovieUpdateRequest;
 import com.grepp.smartwatcha.app.model.admin.movie.list.repository.AdminMovieJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.movie.list.service.AdminMovieJpaService;
+import com.grepp.smartwatcha.app.model.admin.tag.dto.AdminTagUsageDto;
+import com.grepp.smartwatcha.app.model.admin.tag.service.AdminMovieTagJpaService;
 import com.grepp.smartwatcha.infra.response.PageResponse;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +32,7 @@ public class AdminMovieController {
 
   private final AdminMovieJpaRepository adminMovieJpaRepository;
   private final AdminMovieJpaService adminMovieJpaService;
+  private final AdminMovieTagJpaService adminMovieTagJpaService;
 
   /**
    * 영화 목록 조회 (관리자용)
@@ -64,6 +69,20 @@ public class AdminMovieController {
     model.addAttribute("isReleased", isReleased);
     model.addAttribute("fromDate", fromDate);
     model.addAttribute("toDate", toDate);
+
+    // movieId 리스트 추출
+    List<Long> movieIds = movies.getContent().stream()
+        .map(AdminMovieListResponse::getId)
+        .collect(Collectors.toList());
+
+    // 영화 사용자 태그 통계
+    Map<Long, List<AdminTagUsageDto>> tagStatsMap = adminMovieTagJpaService.getTagStatsMapGroupedByMovieIds(movieIds);
+    model.addAttribute("tagStatsMap", tagStatsMap);
+
+    // 영화 사용자 평점평균
+    Map<Long, Double> avgRatingMap = adminMovieJpaService.getAverageRatingByMovieIds(movieIds);
+    model.addAttribute("avgRatingMap", avgRatingMap);
+
 
     return "admin/movie/list";
   }

@@ -274,6 +274,45 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
       transform: scale(0.98);
     }
+
+    .star-rating-fixed {
+      display: flex;
+      gap: 2px;
+      font-size: 1.0rem;
+    }
+
+    .star {
+      position: relative;
+      width: 1.2rem;
+      height: 1.2rem;
+    }
+
+    .star-icon {
+      position: absolute;
+      color: #ccc; /* 빈 별 */
+      z-index: 0;
+    }
+
+    .star-fill {
+      position: absolute;
+      color: lightgoldenrodyellow; /* 채워진 별 */
+      z-index: 1;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%; /* 기본 full */
+    }
+
+    .star.empty .star-fill {
+      width: 0;
+    }
+
+    .star.half .star-fill {
+      width: 50%;
+    }
+
+    .star.full .star-fill {
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -439,12 +478,39 @@
                  style="background-color: #424242;">
               <form th:action="@{'/admin/movies/' + ${movie.id} + '/update'}" method="post">
                 <div class="modal-content">
-                  <div style="margin-bottom: 15px">
-                    <label style="color: white; font-weight: bold; font-size: 1.1rem;">Movie
-                      ID</label>
-                    <span th:text="${movie.id}"
-                          style="color: white; margin-left: 8px; font-weight: bold; font-size: 1.1rem; "></span>
+
+                  <!-- Movie -->
+                  <div style="margin-bottom: 12px;">
+                    <div style="font-weight: bold; font-size: 1.1rem; color: lightcoral;">
+                      Movie ID <span th:text="${movie.id}" style="margin-left: 6px;"></span>
+                    </div>
+
+                    <!-- Avg Rating -->
+                    <div class="star-rating-fixed" style="margin-top: 5px">
+                      <span style="font-weight: 500; font-style: italic; color: lightyellow;">− Avg Rating :</span>
+                      <div class="star"
+                           th:each="i : ${#numbers.sequence(1, 5)}"
+                           th:classappend="${avgRatingMap[movie.id] >= i ? 'full' : (avgRatingMap[movie.id] >= i - 0.5 ? 'half' : 'empty')}">
+                        <span class="star-icon">☆</span>
+                        <span class="star-fill">★</span>
+                      </div>
+                      <span th:if="${avgRatingMap[movie.id] != null}"
+                            th:text="|(${#numbers.formatDecimal(avgRatingMap[movie.id], 1, 1)})|"
+                            style="font-style: italic; font-weight: 500; color: lightyellow;"></span>
+                    </div>
                   </div>
+
+                  <!-- User Tag -->
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; max-width: 100%;">
+                    <span th:if="${tagStatsMap[movie.id] != null}">
+                        <span th:each="tag : ${tagStatsMap[movie.id]}" class="chip"
+                              style="background-color: grey; color: white; font-size: 0.85rem; margin: 3px; border-radius: 16px;"
+                              th:text="${tag.tagName + ' [' + tag.count + ']'}"></span>
+                    </span>
+                    <span th:if="${tagStatsMap[movie.id] == null}" style="color: lightsteelblue; font-weight: 500; font-style: italic;">- No tags found.</span>
+                  </div>
+
+                  <!-- Poster -->
                   <div style="display: flex; gap: 2rem; align-items: flex-start;">
                     <div>
                       <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
@@ -452,6 +518,8 @@
                            style="width: 120px; border-radius: 8px;"
                            onerror="this.onerror=null; this.src='/images/default.jpg';"/>
                     </div>
+
+                    <!-- Title -->
                     <div style="flex: 1;">
                       <div class="input-field input-wrapper"
                            style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; margin-top: 20px">
@@ -567,7 +635,6 @@
     </div>
   </div>
 
-
   <script>
     // 날짜 포맷 (flatpickr용)
     function formatDateToYMD(date) {
@@ -634,6 +701,7 @@
       document.querySelectorAll('.modal[id^="movieModal__"]').forEach(modal => {
         if (!M.Modal.getInstance(modal)) {
           const instance = M.Modal.init(modal, {
+
             onCloseEnd: () => {
               resetToOriginalValues(modal);
             }

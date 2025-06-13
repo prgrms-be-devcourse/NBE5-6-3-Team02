@@ -1,6 +1,7 @@
 package com.grepp.smartwatcha.app.model.admin.movie.list.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,4 +21,5 @@ public class AdminMovieListResponse {
   private String certification;
   private String overview;
   private boolean updatedRecently;
+  private List<String> tags; // + 사용자 태그 목록
 }
