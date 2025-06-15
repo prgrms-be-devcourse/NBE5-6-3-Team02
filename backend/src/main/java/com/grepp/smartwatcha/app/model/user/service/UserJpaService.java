@@ -23,6 +23,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.List;
 import java.time.LocalDate;
@@ -39,6 +46,8 @@ public class UserJpaService {
     private final EmailVerificationJpaService emailVerificationJpaService;
     private final RatingJpaRepository ratingJpaRepository;
     private final InterestJpaRepository interestJpaRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String emailAuthApiBaseUrl = "http://localhost:8081/api/v1/email-verification";
 
     public Long signup(SignupRequestDto requestDto) {
         // 활성화된 계정 중에서만 이메일 중복 검사
@@ -50,9 +59,8 @@ public class UserJpaService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        EmailVerificationEntity verification = emailVerificationJpaRepository.findByEmail(requestDto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("이메일 인증이 필요합니다."));
-        if (!verification.isVerified()) {
+        // 이메일 인증 검증 (Kotlin 서버 REST API 호출)
+        if (!verifyEmailWithKotlinApi(requestDto.getEmail())) {
             throw new IllegalArgumentException("이메일 인증이 필요합니다.");
         }
 
@@ -114,15 +122,8 @@ public class UserJpaService {
             throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
         }
 
-        // 인증 코드 확인
-        boolean verified = emailVerificationJpaService.verifyCode(
-            new EmailCodeVerifyRequestDto(
-                resetPasswordRequestDto.getEmail(),
-                resetPasswordRequestDto.getVerificationCode()
-            )
-        );
-
-        if (!verified) {
+        // 인증 코드 확인 (Kotlin 서버 REST API 호출)
+        if (!verifyEmailCodeWithKotlinApi(resetPasswordRequestDto.getEmail(), resetPasswordRequestDto.getVerificationCode())) {
             throw new IllegalArgumentException("인증 코드가 올바르지 않거나 만료되었습니다.");
         }
 
@@ -195,5 +196,38 @@ public class UserJpaService {
         return interestJpaRepository.findByUserAndStatus(user, Status.WATCH_LATER).stream()
             .map(com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto::from)
             .toList();
+    }
+
+    private boolean verifyEmailWithKotlinApi(String email) {
+        // 이메일 인증 여부 확인 (verified=true)
+        String url = emailAuthApiBaseUrl + "/verify";
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+        body.put("code", ""); // code는 빈 값, 실제로는 인증 완료 여부만 확인
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            return Boolean.TRUE.equals(response.getBody().get("verified"));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean verifyEmailCodeWithKotlinApi(String email, String code) {
+        String url = emailAuthApiBaseUrl + "/verify";
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+        body.put("code", code);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            return Boolean.TRUE.equals(response.getBody().get("verified"));
+        } catch (Exception e) {
+            return false;
+        }
     }
 } 
