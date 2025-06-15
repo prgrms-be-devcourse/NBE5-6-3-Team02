@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.jpa;
+package com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository;
 
 import com.grepp.smartwatcha.infra.jpa.entity.SyncTimeEntity;
 import java.util.Optional;

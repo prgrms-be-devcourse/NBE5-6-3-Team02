@@ -2,7 +2,7 @@ package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.jpa;
 
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper.UpcomingMovieMapper;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
-import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.jpa.UpcomingMovieJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.UpcomingMovieJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
@@ -82,7 +82,6 @@ public class UpcomingMovieSaveJpaService {
   public void deleteFromJpaById(Long id) {
     if (upcomingMovieJpaRepository.existsById(id)) {
       upcomingMovieJpaRepository.deleteById(id);
-      log.warn("🧹 [deleteFromJpaById] 삭제 완료: ID={}", id);
     } else {
       log.warn("❓ [deleteFromJpaById] 삭제 대상 없음: ID={}", id);
     }

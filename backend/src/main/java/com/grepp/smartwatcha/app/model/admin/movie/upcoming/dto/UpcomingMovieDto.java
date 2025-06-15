@@ -24,23 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 public class UpcomingMovieDto {
 
-    /*
-     * TMDB 영화 ID
-     * TMDB API 에서 제공하는 고유 식별자
-     */
-    private Long id;
+    private Long id; // TMDB 영화 ID
+    private String title; // 영화 제목
 
-    /*
-     * 영화 제목
-     * 원어 제목 (original_title)
-     */
-    private String title;
-
-    /*
-     * 개봉일 문자열
-     * TMDB API에서 제공하는 개봉일 (YYYY-MM-DD 형식)
-     * 서비스 레이어에서 LocalDateTime으로 변환됨
-     */
+    // 개봉일 문자열
+    // 서비스 레이어에서 LocalDateTime으로 변환됨
     @JsonProperty("release_date")
     private String releaseDate;
 
@@ -63,19 +51,14 @@ public class UpcomingMovieDto {
     private String certification;
 
     //neo4j
+    @Builder.Default // NPE 방지(null이 아닌 new ArrayList<>()가 기본값이 되도록)
     private List<String> actorNames = new ArrayList<>();
+    @Builder.Default
     private List<String> directorNames = new ArrayList<>();
+    @Builder.Default
     private List<String> writerNames = new ArrayList<>();
 
-    /*
-     * 개봉일 문자열 반환
-     * 실제 날짜 변환은 서비스 레이어에서 처리
-     * 
-     * @return 개봉일 문자열 (YYYY-MM-DD 형식)
-     */
-    public String getReleaseDate() {
-        return releaseDate;
-    }
-
-
+    // 개봉일 문자열 반환
+    // 실제 날짜 변환은 서비스 레이어에서 처리
+    public String getReleaseDate() { return releaseDate; }
 }

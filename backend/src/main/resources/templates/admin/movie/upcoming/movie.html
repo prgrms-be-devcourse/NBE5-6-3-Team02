@@ -202,7 +202,7 @@
       .then(({ status, text }) => {
         if (status === 200) {
           alert("✅ Sync completed successfully!");
-          window.location.href = '/admin/movies/upcoming?v=' + new Date().getTime();
+          window.location.href = '/admin/movies/upcoming';
         } else {
           alert(text || `❌ Sync failed! (${status})`);
         }
