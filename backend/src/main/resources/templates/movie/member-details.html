@@ -543,7 +543,7 @@
                                         th:attr="data-has-watched=${hasWatchedDate}"
                                         onclick="handleWatchedDateClick(event)">
                                     <i class="fa fa-calendar-day"></i>
-                                    <span id="watched-date-label" th:text="${hasWatchedDate} ? '본 날짜 수정/삭제' : '본 날짜 추가'">본 날짜 추가</span>
+                                    <span id="watched-date-label" th:text="${hasWatchedDate} ? 'Edit/delete WatchedDate' : 'ADD WatchedDate'">본 날짜 추가</span>
                                 </button>
                             </div>
                         </div>
@@ -613,12 +613,12 @@
     <div id="watchedDateModal" class="watched-modal" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
-                <button class="modal-cancel" onclick="closeWatchedModal()">취소</button>
-                <div class="modal-title">본 날짜 추가</div>
-                <button class="modal-confirm" onclick="saveWatchedDate()">확인</button>
+                <button class="modal-cancel" onclick="closeWatchedModal()">Cancel</button>
+                <div class="modal-title">WatchedDate</div>
+                <button class="modal-confirm" onclick="saveWatchedDate()">Check</button>
             </div>
             <div class="modal-body">
-                <label for="watchedDateInput">본 날짜 추가하기</label>
+                <label for="watchedDateInput">Add watchedDate</label>
                 <input type="date" id="watchedDateInput">
             </div>
         </div>
@@ -627,11 +627,11 @@
     <div id="watchedActionModal" class="watched-modal" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title" style="text-align:center; width:100%;">본 날짜를 수정/삭제할 수 있습니다</div>
+                <div class="modal-title" style="text-align:center; width:100%;">Update or Remove the date.</div>
             </div>
             <div class="modal-body" style="text-align:center;">
-                <button class="modal-cancel" onclick="deleteWatchedDate()">삭제</button>
-                <button class="modal-confirm" onclick="openEditWatchedDate()">수정</button>
+                <button class="modal-cancel" onclick="deleteWatchedDate()">delete</button>
+                <button class="modal-confirm" onclick="openEditWatchedDate()">update</button>
             </div>
         </div>
     </div>
@@ -837,7 +837,7 @@
     async function saveWatchedDate() {
         const date = document.getElementById("watchedDateInput").value;
         if (!date) {
-            alert("날짜를 선택해주세요.");
+            alert("Please select a date.");
             return;
         }
         const res = await fetch(`/movies/${movieId}/watched`, {
@@ -851,15 +851,15 @@
         });
 
         if (res.ok) {
-            alert("본 날짜가 저장되었습니다.");
+            alert("Your watched date has been saved.");
 
-            document.getElementById("watched-date-label").textContent = "본 날짜 수정/삭제";
+            document.getElementById("watched-date-label").textContent = "Edit/delete WatchedDate";
             document.getElementById("watched-date-button").setAttribute("data-has-watched", "true");
             closeWatchedModal();
 
         } else {
             const error = await res.json();
-            alert(error.message || "저장 실패");
+            alert(error.message || "fail to save");
         }
     }
 
@@ -870,14 +870,14 @@
         });
 
         if (res.ok) {
-            alert("삭제 성공");
-            document.getElementById("watched-date-label").textContent = "본 날짜 추가";
+            alert("Success delete");
+            document.getElementById("watched-date-label").textContent = "ADD WatchedDate";
             document.getElementById("watched-date-button").setAttribute("data-has-watched", "false");
             // ✅ 모달 닫기 추가
             document.getElementById("watchedActionModal").style.display = "none";
         } else {
             const error = await res.json();
-            alert(error.message || "삭제 실패");
+            alert(error.message || "fail to delete");
         }
     }
 
@@ -925,7 +925,7 @@
         event.stopPropagation();
         const userRating = document.body.getAttribute("data-user-rating");
         if (!userRating || parseInt(userRating) === 0) {
-            alert("별점을 먼저 남겨주세요!");
+            alert("Please leave a rating first!");
             return;
         }
         const button = document.getElementById("watched-date-button");
