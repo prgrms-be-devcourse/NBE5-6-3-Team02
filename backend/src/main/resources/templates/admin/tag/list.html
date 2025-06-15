@@ -143,16 +143,49 @@
         <tr>
           <th>ID</th>
           <th>Tag Name</th>
+          <th>Usage Count</th>
+          <th>Usage</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="tag : ${tags}">
           <td th:text="${tag.id}">1</td>
           <td th:text="${tag.name}">funny</td>
+          <td th:text="${tagUsageMap[tag.id] != null ? tagUsageMap[tag.id] : 0}">0</td>
+          <td>
+            <a th:href="'#tagUserModal__' + ${tag.id}" class="btn modal-btn modal-trigger waves-effect">View</a>
+
+            <!-- Modal -->
+            <div th:id="'tagUserModal__' + ${tag.id}" class="modal black-text" style="background-color: #424242">
+              <div class="modal-content">
+                <h5 style="color: white;" th:text="'🏷️  ' + ${tag.name}">Tag Usage</h5>
+                <table>
+                  <thead class="grey darken-3 white-text">
+                  <tr>
+                    <th style="color: white;">User</th>
+                    <th style="color: white;">Movie</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr th:each="usage : ${tagUsageDetailsMap[tag.id]?.userUsages}">
+                    <td style="color: white;" th:text="${usage.userName}">John</td>
+                    <td style="color: white;" th:text="${usage.movieTitle}">Inception</td>
+                  </tr>
+                  <tr th:if="${#lists.isEmpty(tagUsageDetailsMap[tag.id]?.userUsages)}">
+                    <td colspan="2">No usage found.</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer custom-modal-footer" style="display: flex; justify-content: flex-end; padding: 0 1rem; background-color: #424242;">
+                <a href="#!" class="modal-close btn-flat" style="color: white">Close</a>
+              </div>
+            </div>
+          </td>
         </tr>
 
         <tr th:if="${#lists.isEmpty(pageResponse.content)}">
-          <td colspan="2">No tag found.</td>
+          <td colspan="4">No tag found.</td>
         </tr>
         </tbody>
       </table>
@@ -178,6 +211,11 @@
     // X Button
     document.getElementById("resetBtn").addEventListener("click", function () {
       window.location.href = "/admin/tags";
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var elems = document.querySelectorAll('.modal');
+      var instances = M.Modal.init(elems);
     });
   </script>
 </section>

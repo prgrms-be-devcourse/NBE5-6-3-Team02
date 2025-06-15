@@ -37,9 +37,19 @@ public class IndexJpaService {
         return movieEntitytoIndexDto(movies);
     }
 
+    public List<IndexMovieDto> findByReleaseDateByAge(boolean isAdult) {
+        List<MovieEntity> movies = isAdult ? indexJpaRepository.findByReleaseDate() : indexJpaRepository.findByReleaseDateForMinor();
+        return movieEntitytoIndexDto(movies);
+    }
+
     public List<IndexMovieDto> findByRandom() {
         List<MovieEntity> movies = indexJpaRepository.findByRandom();
 
+        return movieEntitytoIndexDto(movies);
+    }
+
+    public List<IndexMovieDto> findByRandomByAge(boolean isAdult) {
+        List<MovieEntity> movies = isAdult ? indexJpaRepository.findByRandom() : indexJpaRepository.findByRandomForMinor();
         return movieEntitytoIndexDto(movies);
     }
 
