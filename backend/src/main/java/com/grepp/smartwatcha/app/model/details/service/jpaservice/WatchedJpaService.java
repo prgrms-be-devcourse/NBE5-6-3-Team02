@@ -66,6 +66,11 @@ public class WatchedJpaService {
         }
     }
 
+    // WatchedEntity에 해당 movieId 에대해 userId 존재 여부 확인
+    public boolean hasWatchedDate(Long userId, Long movieId) {
+        return watchedJpaRepository.findByUserIdAndMovieId(userId, movieId).isPresent();
+    }
+
     // 저장한 날짜를 삭제
     public void deleteWatchedDate(Long userId, Long movieId) {
         watchedJpaRepository.deleteByUserIdAndMovieId(userId, movieId);

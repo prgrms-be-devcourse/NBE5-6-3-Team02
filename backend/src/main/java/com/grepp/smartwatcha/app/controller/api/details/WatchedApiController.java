@@ -33,7 +33,7 @@ public class WatchedApiController {
         return ResponseEntity.ok(ApiResponse.success("본 날짜가 추가되었습니다."));
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse<String>> deleteWatchedDate(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("id") Long movieId
