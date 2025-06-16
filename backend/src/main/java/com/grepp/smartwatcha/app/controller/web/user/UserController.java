@@ -4,7 +4,6 @@ import com.grepp.smartwatcha.app.controller.web.user.annotation.NonAdmin;
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.user.dto.*;
 import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
-import com.grepp.smartwatcha.app.model.user.service.EmailVerificationJpaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final EmailVerificationJpaService emailVerificationJpaService;
     private final UserJpaService userJpaService;
 
     @GetMapping("/login")
@@ -50,46 +48,15 @@ public class UserController {
         return "signup";
     }
 
-    @PostMapping("/signup/send-code")
-    public String sendCode(@ModelAttribute SignupRequestDto signupRequestDto, Model model) {
-        try {
-            emailVerificationJpaService.sendVerificationCode(
-                new EmailVerificationRequestDto(signupRequestDto.getEmail())
-            );
-            model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true);
-            long remaining = emailVerificationJpaService.getRemainingCooldownTime(signupRequestDto.getEmail());
-            log.debug("Remaining cooldown time: {}", remaining);
-            model.addAttribute("remainingTime", remaining);
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true);
-            long remaining = emailVerificationJpaService.getRemainingCooldownTime(signupRequestDto.getEmail());
-            model.addAttribute("remainingTime", remaining);
-        }
-        return "signup";
-    }
-
-    @PostMapping("/signup/verify")
-    public String verifyAndSignup(@ModelAttribute SignupRequestDto signupRequestDto,
-                                @RequestParam String verificationCode,
-                                Model model, RedirectAttributes redirectAttributes) {
-        boolean verified = emailVerificationJpaService.verifyCode(
-            new EmailCodeVerifyRequestDto(signupRequestDto.getEmail(), verificationCode)
-        );
-        if (!verified) {
-            model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true);
-            model.addAttribute("error", "Invalid or expired verification code.");
-            return "signup";
-        }
+    @PostMapping("/signup")
+    public String signup(@ModelAttribute SignupRequestDto signupRequestDto,
+                        Model model, RedirectAttributes redirectAttributes) {
         try {
             userJpaService.signup(signupRequestDto);
             redirectAttributes.addFlashAttribute("message", "Registration completed. Please log in.");
             return "redirect:/user/login";
         } catch (IllegalArgumentException e) {
             model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true);
             model.addAttribute("error", e.getMessage());
             return "signup";
         }
