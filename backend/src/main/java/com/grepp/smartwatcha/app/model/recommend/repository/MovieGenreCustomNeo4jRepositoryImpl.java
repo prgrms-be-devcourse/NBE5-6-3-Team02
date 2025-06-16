@@ -5,7 +5,6 @@ import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagR
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Repository;
-
 import java.util.ArrayList;
 import java.util.List;
 

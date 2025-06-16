@@ -2,7 +2,6 @@ package com.grepp.smartwatcha.app.model.recommend.repository;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
-
 import java.util.List;
 
 public interface MovieGenreCustomNeo4jRepository {

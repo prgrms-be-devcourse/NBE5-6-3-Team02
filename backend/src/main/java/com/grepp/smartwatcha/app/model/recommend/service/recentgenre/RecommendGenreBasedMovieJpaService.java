@@ -7,7 +7,6 @@ import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 @Transactional("jpaTransactionManager")

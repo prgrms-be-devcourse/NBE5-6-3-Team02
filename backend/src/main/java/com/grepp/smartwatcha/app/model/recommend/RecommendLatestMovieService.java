@@ -6,7 +6,6 @@ import com.grepp.smartwatcha.app.model.recommend.service.latest.RecommendLatestR
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 

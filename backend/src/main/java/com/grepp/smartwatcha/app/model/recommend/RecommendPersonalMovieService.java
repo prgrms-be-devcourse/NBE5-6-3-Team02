@@ -8,7 +8,6 @@ import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 @Service

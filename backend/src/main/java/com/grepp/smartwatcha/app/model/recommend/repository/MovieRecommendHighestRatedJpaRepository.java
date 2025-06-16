@@ -4,7 +4,6 @@ import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 
 public interface MovieRecommendHighestRatedJpaRepository extends JpaRepository<RatingEntity, Long> {
