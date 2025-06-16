@@ -450,7 +450,6 @@
             cursor: pointer;
             font-size: 14px;
         }
-
         .modal-body label {
             font-size: 14px;
             margin-bottom: 6px;
@@ -460,13 +459,14 @@
         #watchedDateInput {
             width: 100%;
             border: 1px solid #ccc;
-            padding: 8px 10px;
+            padding: 8px 14px 8px 10px;
             border-radius: 6px;
             font-size: 14px;
+            box-sizing: border-box;
         }
     </style>
 </head>
-<body th:attr="data-movie-id=${movie.id}, data-user-id=${userId}">
+<body th:attr="data-movie-id=${movie.id}, data-user-id=${userId},data-user-rating=${userRating} ">
 <th:block th:replace="fragments :: frg_header"></th:block>
 <div class="overlay">
     <div class="main-section">
@@ -539,8 +539,11 @@
                                 <button onclick="setInterest('NOT_INTERESTED')">
                                     <i class="fa fa-eye-slash"></i> UnInterest
                                 </button>
-                                <button onclick="handleWatchedDateClick()">
-                                    <i class="fa fa-calendar-day"></i> <span id="watched-date-label">본 날짜 추가</span>
+                                <button id="watched-date-button"
+                                        th:attr="data-has-watched=${hasWatchedDate}"
+                                        onclick="handleWatchedDateClick(event)">
+                                    <i class="fa fa-calendar-day"></i>
+                                    <span id="watched-date-label" th:text="${hasWatchedDate} ? 'Edit/delete WatchedDate' : 'ADD WatchedDate'">본 날짜 추가</span>
                                 </button>
                             </div>
                         </div>
@@ -610,13 +613,25 @@
     <div id="watchedDateModal" class="watched-modal" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
-                <button class="modal-cancel" onclick="closeWatchedModal()">취소</button>
-                <div class="modal-title">본 날짜 추가</div>
-                <button class="modal-confirm" onclick="saveWatchedDate()">확인</button>
+                <button class="modal-cancel" onclick="closeWatchedModal()">Cancel</button>
+                <div class="modal-title">WatchedDate</div>
+                <button class="modal-confirm" onclick="saveWatchedDate()">Check</button>
             </div>
             <div class="modal-body">
-                <label for="watchedDateInput">본 날짜 추가하기</label>
+                <label for="watchedDateInput">Add watchedDate</label>
                 <input type="date" id="watchedDateInput">
+            </div>
+        </div>
+    </div>
+    <!-- 본 날짜 수정/삭제 모달 -->
+    <div id="watchedActionModal" class="watched-modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" style="text-align:center; width:100%;">Update or Remove the date.</div>
+            </div>
+            <div class="modal-body" style="text-align:center;">
+                <button class="modal-cancel" onclick="deleteWatchedDate()">delete</button>
+                <button class="modal-confirm" onclick="openEditWatchedDate()">update</button>
             </div>
         </div>
     </div>
@@ -701,6 +716,7 @@
                 }
             });
             alert("Your rating has been successfully registered.");
+            document.body.setAttribute("data-user-rating", score);
             setTimeout(() => {
                 loadAverageScore();
                 loadRatingBars();
@@ -726,6 +742,10 @@
                 s.classList.remove("selected", "fa-solid");
                 s.classList.add("fa-regular");
             });
+
+            // ⭐ 별점 취소 후 user-rating 값도 초기화
+            document.body.setAttribute("data-user-rating", "0");
+
             await loadAverageScore();
             await loadRatingBars();
         } else {
@@ -798,6 +818,69 @@
     }
 
 
+    async function deleteTag(tagName) {
+        if (!confirm(`'${tagName}' Should I delete this tag?`)) return;
+
+        const res = await fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            alert("It has been deleted.");
+            loadMyTags();   // 내 태그 다시 불러오기
+            loadTopTags();  // Top 태그도 다시 반영
+        } else {
+            const error = await res.json();
+            alert(error.message || "Deletion failed.");
+        }
+    }
+
+    async function saveWatchedDate() {
+        const date = document.getElementById("watchedDateInput").value;
+        if (!date) {
+            alert("Please select a date.");
+            return;
+        }
+        const res = await fetch(`/movies/${movieId}/watched`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                movieId: movieId,
+                userId: userId,
+                watchedDate: date
+            })
+        });
+
+        if (res.ok) {
+            alert("Your watched date has been saved.");
+
+            document.getElementById("watched-date-label").textContent = "Edit/delete WatchedDate";
+            document.getElementById("watched-date-button").setAttribute("data-has-watched", "true");
+            closeWatchedModal();
+
+        } else {
+            const error = await res.json();
+            alert(error.message || "fail to save");
+        }
+    }
+
+    // 삭제 처리
+    async function deleteWatchedDate() {
+        const res = await fetch(`/movies/${movieId}/watched/delete`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            alert("Success delete");
+            document.getElementById("watched-date-label").textContent = "ADD WatchedDate";
+            document.getElementById("watched-date-button").setAttribute("data-has-watched", "false");
+            // ✅ 모달 닫기 추가
+            document.getElementById("watchedActionModal").style.display = "none";
+        } else {
+            const error = await res.json();
+            alert(error.message || "fail to delete");
+        }
+    }
+
     function createTagListItem(tag) {
         const li = document.createElement("li");
         li.textContent = `# ${tag} `;
@@ -815,22 +898,6 @@
         return li;
     }
 
-    async function deleteTag(tagName) {
-        if (!confirm(`'${tagName}' Should I delete this tag?`)) return;
-
-        const res = await fetch(`/movies/${movieId}/tags/delete?tagName=${encodeURIComponent(tagName)}`, {
-            method: 'DELETE'
-        });
-        if (res.ok) {
-            alert("It has been deleted.");
-            loadMyTags();   // 내 태그 다시 불러오기
-            loadTopTags();  // Top 태그도 다시 반영
-        } else {
-            const error = await res.json();
-            alert(error.message || "Deletion failed.");
-        }
-    }
-
     function scrollToLeft(button) {
         const list = button.parentElement.querySelector(".recommend-list");
         list.scrollBy({left: -300, behavior: 'smooth'});
@@ -842,7 +909,6 @@
         list.scrollBy({left: 300, behavior: 'smooth'});
         button.blur();
     }
-
     function toggleDropdown(button) {
         const dropdown = button.closest(".dropdown");
         const menu = dropdown.querySelector(".dropdown-menu");
@@ -854,50 +920,32 @@
         // 현재만 토글
         menu.style.display = isOpen ? "none" : "block";
     }
-    async function handleWatchedDateClick() {
-        const res = await fetch(`/movies/${movieId}/ratings/user`);
-        if (!res.ok) {
-            const error = await res.json();
-            alert(error.message || "별점 확인 실패");
+
+    function handleWatchedDateClick() {
+        event.stopPropagation();
+        const userRating = document.body.getAttribute("data-user-rating");
+        if (!userRating || parseInt(userRating) === 0) {
+            alert("Please leave a rating first!");
             return;
         }
-
-        const json = await res.json();
-        const rating = json.data;
-
-        if (!rating) {
-            alert("별점을 먼저 남겨주세요!");
-            return;
+        const button = document.getElementById("watched-date-button");
+        const hasWatched = button.getAttribute("data-has-watched") === "true";
+        if (hasWatched) {
+            document.getElementById("watchedActionModal").style.display = "block";
+        } else {
+            document.getElementById("watchedDateModal").style.display = "block";
         }
-
-        // 별점 존재 시 → 모달 열기
-        document.getElementById("watchedDateModal").style.display = "block";
     }
 
     function closeWatchedModal() {
         document.getElementById("watchedDateModal").style.display = "none";
     }
 
-    async function saveWatchedDate() {
-        const date = document.getElementById("watchedDateInput").value;
-        if (!date) {
-            alert("날짜를 선택해주세요.");
-            return;
-        }
-
-        const res = await fetch(`/movies/${movieId}/watched-date`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({date})
-        });
-
-        if (res.ok) {
-            alert("본 날짜가 저장되었습니다.");
-            closeWatchedModal();
-        } else {
-            const error = await res.json();
-            alert(error.message || "저장 실패");
-        }
+    // 수정 클릭 시 기존 모달 열기
+    function openEditWatchedDate() {
+        event.stopPropagation(); // ✅ 외부 클릭으로 판단되어 닫히는 걸 막음
+        document.getElementById("watchedActionModal").style.display = "none";
+        document.getElementById("watchedDateModal").style.display = "block";
     }
 
     const tagInput = document.getElementById("tagInput");
@@ -1003,6 +1051,41 @@
             });
         });
     });
+
+    document.addEventListener("click", function (event) {
+        const modal = document.getElementById("watchedDateModal");
+        const isModalOpen = modal.style.display === "block";
+        if (isModalOpen && !modal.contains(event.target) && !event.target.closest(".dropdown-menu")) {
+            closeWatchedModal();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        const modal = document.getElementById("watchedDateModal");
+        if (event.key === "Escape" && modal.style.display === "block") {
+            closeWatchedModal();
+        }
+    });
+
+    document.addEventListener("click", function (event) {
+        const modals = [document.getElementById("watchedDateModal"), document.getElementById("watchedActionModal")];
+        modals.forEach(modal => {
+            if (modal.style.display === "block" && !modal.contains(event.target)) {
+                modal.style.display = "none";
+            }
+        });
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            document.getElementById("watchedDateModal").style.display = "none";
+            document.getElementById("watchedActionModal").style.display = "none";
+        }
+    });
+
+    // 오늘 날짜 이후 선택 못하도록 제한
+    const today = new Date().toISOString().split("T")[0];
+    document.getElementById("watchedDateInput").setAttribute("max", today);
 
     // 초기 로딩 시 사용자 태그/Top 태그 불러오기
     loadMyTags();

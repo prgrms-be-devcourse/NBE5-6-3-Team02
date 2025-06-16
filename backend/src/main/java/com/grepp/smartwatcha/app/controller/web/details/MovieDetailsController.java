@@ -9,6 +9,7 @@ import com.grepp.smartwatcha.app.model.details.service.GenreRecommendService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.InterestJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.MovieJpaService;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.RatingJpaService;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.WatchedJpaService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.MovieNeo4jService;
 import com.grepp.smartwatcha.app.model.details.service.neo4jservice.TagNeo4jService;
 import com.grepp.smartwatcha.infra.error.exceptions.CommonException;
@@ -38,7 +39,7 @@ public class MovieDetailsController {
     private final TagNeo4jService tagNeo4jService;
     private final InterestJpaService interestJpaService;
     private final GenreRecommendService genreRecommendService;
-
+    private final WatchedJpaService watchedJpaService;
 
     @GetMapping("/{id}")
     public String getMovieDetail(
@@ -57,7 +58,6 @@ public class MovieDetailsController {
         Map<Integer, Integer> ratingDistribution = ratingJpaService.getRatingDistribution(id);
         MovieNode neo4jMovie = movieNeo4jService.getMovieWithAllRelations(id);
         List<TagCountRequestDto> topTags = tagNeo4jService.getTop6Tags(id);
-
         List<SimilarMovieDto> similarMovies = genreRecommendService.getGenreSimilarMovies(id);
 
 
@@ -85,12 +85,16 @@ public class MovieDetailsController {
         }
 
         Long userId = userEntity.getId();
+
+
+        boolean hasWatchedDate = watchedJpaService.hasWatchedDate(userId,id);
         Integer userRating = ratingJpaService.getUserRating(userId, id);
         Status interestStatus = interestJpaService.getInterestStatus(userId, id);
         model.addAttribute("userRating", userRating);
         model.addAttribute("interestStatus", interestStatus);
         model.addAttribute("userId", userId);
         model.addAttribute("user", userDetails);
+        model.addAttribute("hasWatchedDate", hasWatchedDate);
         return "movie/member-details";  // 로그인한 사용자용 페이지
     }
 }

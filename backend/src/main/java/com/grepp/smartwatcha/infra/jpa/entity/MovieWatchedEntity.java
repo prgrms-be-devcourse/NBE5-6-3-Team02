@@ -3,8 +3,10 @@ package com.grepp.smartwatcha.infra.jpa.entity;
 import com.grepp.smartwatcha.infra.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
