@@ -2,6 +2,7 @@ package com.grepp.smartwatcha.app.controller.web;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendPersonalResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendUserBasedResponse;
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.index.IndexService;
@@ -46,10 +47,10 @@ public class IndexController {
         List<MovieRecommendHighestRatedResponse> top10Movies = recommendService.getTop10HighestRatedMovies();
 
         if (userDetails != null) {
-            List<MovieRecommendPersonalResponse> personalTol10Movies = personalMovieService.getTop10PersonalMovies(
+            List<MovieRecommendResponse> personalTol10Movies = personalMovieService.getTop10PersonalMovies(
                     userDetails.getId());
             List<IndexMovieDto> interestedMovie = indexService.findByInterest(userDetails.getId());
-            List<MovieRecommendUserBasedResponse> userMovies = userBasedMovieService.getTop10UserBasedMovies(
+            List<MovieRecommendResponse> userMovies = userBasedMovieService.getTop10UserBasedMovies(
                     userDetails.getId());
 
             Long unreadCount = notificationService.countUnread(userDetails.getId());

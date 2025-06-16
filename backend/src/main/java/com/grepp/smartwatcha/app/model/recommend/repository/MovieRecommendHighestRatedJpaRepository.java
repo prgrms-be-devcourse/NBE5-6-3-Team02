@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface RecommendHighestRatedMovieJpaRepository extends JpaRepository<RatingEntity, Long> {
+public interface MovieRecommendHighestRatedJpaRepository extends JpaRepository<RatingEntity, Long> {
 
     //각 영화별로 평균 점수 계산 후 높은 순으로 정렬
     @Query("SELECT r.movie.id, AVG(r.score) as avgScore " +
