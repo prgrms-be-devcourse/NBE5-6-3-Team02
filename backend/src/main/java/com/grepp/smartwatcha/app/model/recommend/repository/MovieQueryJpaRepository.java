@@ -22,10 +22,12 @@ public interface MovieQueryJpaRepository extends JpaRepository<MovieEntity, Long
     @Query("SELECT AVG(r.score) FROM RatingEntity r WHERE r.movie.id = :movieId")
     Double findAverageScoreByMovieId(@Param("movieId") Long movieId);
 
+    // 별점 주지 않은 영화 조회
     @Query("SELECT m FROM MovieEntity m WHERE m.id NOT IN " +
             "(SELECT r.movie.id FROM RatingEntity r WHERE r.user.id = :userId)")
     List<MovieEntity> findMoviesNotRatedByUser(@Param("userId") Long userId);
 
+    // 영화에 대해 각 평균 평점 조회
     @Query("SELECT r.movie.id, AVG(r.score) FROM RatingEntity r " +
             "WHERE r.movie.id IN :movieIds GROUP BY r.movie.id")
     List<Object[]> findAverageScoresByMovieIds(@Param("movieIds") List<Long> movieIds);

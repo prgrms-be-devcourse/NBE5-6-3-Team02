@@ -28,5 +28,6 @@ public interface RatingRecommendJpaRepository extends JpaRepository<RatingEntity
     // 사용자들이 남긴 별점 조회
     List<RatingEntity> findByUserIdIn(List<Long> userIdList);
 
+    // 사용자가 남긴 가장 최근 별점 조회
     Optional<RatingEntity> findTopByUserIdOrderByCreatedAtDesc(Long userId);
 }

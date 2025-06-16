@@ -4,7 +4,6 @@ import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieTagRespon
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Repository;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +13,7 @@ public class MovieTagCustomNeo4jRepositoryImpl implements MovieTagCustomNeo4jRep
 
     private final Neo4jClient neo4jClient;
 
+    // 영화에 연결된 태그 조회
     @Override
     public List<MovieTagResponse> findTagsByMovieIdList(List<Long> movieIdList) {
         return new ArrayList<>(

@@ -80,7 +80,7 @@ public class RecommendTagBasedMovieService {
                     movie.getCountry(),
                     movie.getPoster(),
                     score,
-                    Collections.emptyList(), // 장르는 생략
+                    Collections.emptyList(),
                     tags
             ));
         }

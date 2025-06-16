@@ -3,7 +3,6 @@ package com.grepp.smartwatcha.app.model.recommend.repository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository

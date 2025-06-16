@@ -49,7 +49,7 @@ public class RecommendGenreBasedMovieJpaService {
         return result;
     }
 
-    // 영화 id에 대당하는 엔티티 조회
+    // 영화 id에 해당하는 엔티티 조회
     public List<MovieEntity> findMoviesByIds(List<Long> ids) {
         return movieRepository.findByIdIn(ids);
     }
