@@ -1,9 +1,9 @@
-package com.grepp.smartwatcha.auth.service
+package com.grepp.smartwatcha.app.api.model.EmailVerification.service
 
-import com.grepp.smartwatcha.auth.dto.SendVerificationRequest
-import com.grepp.smartwatcha.auth.dto.VerifyCodeRequest
-import com.grepp.smartwatcha.auth.entity.EmailVerification
-import com.grepp.smartwatcha.auth.repository.EmailVerificationRepository
+import com.grepp.smartwatcha.app.api.model.EmailVerification.dto.SendVerificationRequest
+import com.grepp.smartwatcha.app.api.model.EmailVerification.dto.VerifyCodeRequest
+import com.grepp.smartwatcha.infra.entity.EmailVerification
+import com.grepp.smartwatcha.app.api.model.EmailVerification.repository.EmailVerificationRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage
 import org.springframework.mail.javamail.JavaMailSender

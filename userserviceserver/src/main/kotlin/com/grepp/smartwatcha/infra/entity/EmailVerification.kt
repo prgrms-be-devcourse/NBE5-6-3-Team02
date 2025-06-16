@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.auth.entity
+package com.grepp.smartwatcha.infra.entity
 
 import jakarta.persistence.*
 import java.time.LocalDateTime

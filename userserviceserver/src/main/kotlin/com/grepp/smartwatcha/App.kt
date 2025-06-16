@@ -1,11 +1,11 @@
-package com.grepp.smartwatcha.auth
+package com.grepp.smartwatcha
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class EmailAuthApplication
+class App
 
 fun main(args: Array<String>) {
-    runApplication<EmailAuthApplication>(*args)
+    runApplication<App>(*args)
 } 

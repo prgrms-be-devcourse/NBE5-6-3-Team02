@@ -1,4 +1,4 @@
-package com.grepp.smartwatcha.auth.dto
+package com.grepp.smartwatcha.app.api.model.EmailVerification.dto
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
