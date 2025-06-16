@@ -1,6 +1,6 @@
-package com.grepp.smartwatcha.auth.repository
+package com.grepp.smartwatcha.app.api.model.EmailVerification.repository
 
-import com.grepp.smartwatcha.auth.entity.EmailVerification
+import com.grepp.smartwatcha.infra.entity.EmailVerification
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
