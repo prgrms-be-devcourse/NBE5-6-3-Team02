@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 /*
  * 공개 예정작 영화 정보 조회 서비스
  * TMDB API 를 통해 영화 정보를 조회하고, 병렬로 상세 정보를 가져와 DTO 를 구성
- * 
+ *
  * 주요 기능:
  * - 영화 기본 정보 조회
  * - 병렬로 크레딧, 개봉일, 상세 정보 조회
@@ -84,7 +84,7 @@ public class UpcomingMovieFetchService { // "영화 1편"의 정보를 한 DTO �
     List<UpcomingMovieDto> allMovies = new java.util.ArrayList<>(response.getMovies());
     for (page = 2; page <= totalPages; page++) {
       UpcomingMovieApiResponse nextPage = upcomingMovieApi.getUpcomingMovies(apiKey, "en-US", page, "US");
-        allMovies.addAll(nextPage.getMovies());
+      allMovies.addAll(nextPage.getMovies());
     }
     return allMovies;
   }

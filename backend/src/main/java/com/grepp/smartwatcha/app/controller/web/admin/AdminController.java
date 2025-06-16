@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.controller.web.admin;
 
 import com.grepp.smartwatcha.app.model.admin.AdminDashboardJpaService;
-import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.jpa.UpcomingMovieSyncTimeJpaRepository;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.UpcomingMovieSyncTimeJpaRepository;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.jpa.UpcomingMovieSyncTimeJpaService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.SyncTimeEntity;

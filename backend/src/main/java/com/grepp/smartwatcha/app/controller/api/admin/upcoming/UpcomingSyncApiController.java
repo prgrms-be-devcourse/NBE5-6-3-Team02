@@ -1,8 +1,10 @@
 package com.grepp.smartwatcha.app.controller.api.admin.upcoming;
 
 import com.grepp.smartwatcha.app.controller.web.admin.movie.upcoming.UpcomingMovieSync;
+import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieSyncDto;
 import com.grepp.smartwatcha.infra.response.ApiResponse;
 import com.grepp.smartwatcha.infra.response.ResponseCode;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,20 +25,31 @@ public class UpcomingSyncApiController {
   private final UpcomingMovieSync scheduler;
 
   @PostMapping("/sync")
-  public ResponseEntity<ApiResponse<String>> syncUpcomingManually() {
+  public ResponseEntity<ApiResponse<UpcomingMovieSyncDto>> syncUpcomingManually() {
     try {
       log.info("Starting manual upcoming movies sync...");
-      scheduler.syncAllUpcomingMovies();
+      UpcomingMovieSyncDto result = scheduler.syncAllUpcomingMovies();
       log.info("Manual upcoming movies sync completed successfully");
 
-      return ResponseEntity.ok(ApiResponse.success("✅ Manual synchronization completed successfully"));
+      return ResponseEntity.ok(ApiResponse.success(result));
 
     } catch (Exception e) {
       log.error("Failed to sync upcoming movies: {}", e.getMessage(), e);
 
+      UpcomingMovieSyncDto errorDto = UpcomingMovieSyncDto.builder()
+          .total(0)
+          .success(0)
+          .failed(1)
+          .skipped(0)
+          .enrichFailed(0)
+          .skippedIds(List.of())
+          .skippedReasons(List.of("예외: " + e.getMessage()))
+          .failedIds(List.of())
+          .build();
+
       return ResponseEntity
           .status(ResponseCode.INTERNAL_SERVER_ERROR.status())
-          .body(ApiResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, "❌ Synchronization failed: " + e.getMessage()));
+          .body(ApiResponse.error(ResponseCode.INTERNAL_SERVER_ERROR, errorDto));
     }
   }
 }
