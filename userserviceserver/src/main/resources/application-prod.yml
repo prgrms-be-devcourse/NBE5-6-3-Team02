@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://34.64.255.0:3306/smartWatcha
+    url: jdbc:mysql://34.47.74.27:3306/smartWatcha
     username: smartwatcha
     password: 123qwe!@#
     driver-class-name: com.mysql.cj.jdbc.Driver
