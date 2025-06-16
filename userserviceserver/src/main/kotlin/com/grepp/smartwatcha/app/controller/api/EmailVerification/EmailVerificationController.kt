@@ -1,7 +1,7 @@
-package com.grepp.smartwatcha.app.api.controller.EmailVerification
+package com.grepp.smartwatcha.app.controller.api.EmailVerification
 
-import com.grepp.smartwatcha.app.api.model.EmailVerification.dto.*
-import com.grepp.smartwatcha.app.api.model.EmailVerification.service.EmailVerificationService
+import com.grepp.smartwatcha.app.model.EmailVerification.dto.*
+import com.grepp.smartwatcha.app.model.EmailVerification.service.EmailVerificationService
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
