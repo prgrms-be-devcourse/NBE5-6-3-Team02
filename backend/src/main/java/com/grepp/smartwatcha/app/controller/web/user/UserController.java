@@ -185,15 +185,8 @@ public class UserController {
         List<WishlistMovieDto> wishlistMovies = userJpaService.findWishlistMoviesByUserId(userId);
         List<WatchedResponseDto> calendarMovies = watchedJpaService.getWatchedMoviesForCalendar(userId);
 
-        // ⭐ JSON으로 변환해서 넘김
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule()); // LocalDate 변환용
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // "2025-06-16" 문자열 유지
-        String calendarMoviesJson = mapper.writeValueAsString(calendarMovies);
-
-        model.addAttribute("calendarMoviesJson", calendarMoviesJson); // 여기만 넘김
+        model.addAttribute("calendarMovies", calendarMovies); // 여기만 넘김
         System.out.println(calendarMovies);
-        System.out.println(">>> calendarMoviesJson = " + calendarMoviesJson);
         model.addAttribute("ratedMovies", ratedMovies);
         model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";

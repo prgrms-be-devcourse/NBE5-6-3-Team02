@@ -5,16 +5,84 @@
     <meta charset="UTF-8">
     <title>Activity</title>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+    <!-- ✅ calendarMovies JSON 주입 -->
+    <script th:inline="javascript">
+        const calendarMovies = /*[[${calendarMovies}]]*/ [];
+        console.log(calendarMovies);  // 여기서 배열로 출력되면 성공!
+    </script>
     <script>
-
         document.addEventListener('DOMContentLoaded', function() {
             var calendarEl = document.getElementById('calendar');
+
+            const grouped = {};
+            calendarMovies.forEach(movie => {
+                const date = movie.watchedDate;
+                if (!grouped[date]) grouped[date] = [];
+                grouped[date].push(movie);
+            });
+
+            // ✅ calendarMovies를 FullCalendar 이벤트로 변환
+            const events = Object.entries(grouped).map(([date, movies]) => {
+                const lastMovie = movies[movies.length - 1];
+                return {
+                    title: '',
+                    start: date,
+                    extendedProps: {
+                        movieId: lastMovie.movieId,
+                        poster: lastMovie.poster,
+                        count: movies.length // ✅ 이 날짜의 영화 개수
+                    }
+                };
+            });
+
             var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth'
+                initialView: 'dayGridMonth',
+                height: 'auto',
+                events: events,
+                eventContent: function (arg) {
+                    const poster = arg.event.extendedProps.poster;
+                    const count = arg.event.extendedProps.count;
+                    const imgUrl = `https://image.tmdb.org/t/p/w200${poster}`;
+
+                    const container = document.createElement('div');
+                    container.style.position = 'relative';
+                    container.style.height = '200px'; // 셀 높이 고정
+                    container.style.overflow = 'hidden';
+                    container.style.borderRadius = '8px';
+                    container.style.display = 'flex';
+                    container.style.alignItems = 'center';
+                    container.style.justifyContent = 'center';
+
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain'; // ✅ 셀에 꽉 채우기
+                    img.style.borderRadius = '8px';
+
+                    container.appendChild(img);
+
+                    if (count > 1) {
+                        const badge = document.createElement('div');
+                        badge.textContent = count;
+                        badge.style.position = 'absolute';
+                        badge.style.top = '4px';
+                        badge.style.right = '4px';
+                        badge.style.backgroundColor = 'red';
+                        badge.style.color = 'white';
+                        badge.style.fontSize = '12px';
+                        badge.style.fontWeight = 'bold';
+                        badge.style.padding = '2px 6px';
+                        badge.style.borderRadius = '50%';
+                        badge.style.lineHeight = '1';
+                        container.appendChild(badge);
+                    }
+
+                    return { domNodes: [container] };
+                }
             });
             calendar.render();
         });
-
     </script>
     <style>
         .scroll-container {
@@ -75,6 +143,19 @@
         .card-content {
             padding: 0.5rem;
         }
+        .fc-event {
+            border: none !important;         /* 파란 테두리 제거 */
+            background: none !important;     /* 파란 배경 제거 */
+            padding: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .fc-daygrid-event-harness {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
     </style>
 </head>
 <body>
@@ -134,7 +215,6 @@
         <div class="section" style="margin-top: 50px;">
             <h5 class="highlight" style="margin-bottom: 20px;">📅 Calendar</h5>
             <div id='calendar'></div>
-            <div>뭐라도 좀 나와라</div>
         </div>
     </div>
 </main>
