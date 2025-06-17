@@ -56,6 +56,9 @@ public class UserJpaService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
+        // 회원가입 시에도 이메일 인증 코드 발송
+        sendPasswordResetCode(requestDto.getEmail());
+
         // 이메일 인증 검증 (Kotlin 서버 REST API 호출)
         if (!verifyEmailWithKotlinApi(requestDto.getEmail())) {
             throw new IllegalArgumentException("이메일 인증이 필요합니다.");
