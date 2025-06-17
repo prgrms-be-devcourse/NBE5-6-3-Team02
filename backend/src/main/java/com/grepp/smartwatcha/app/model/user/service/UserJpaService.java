@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.Period;
 import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -107,17 +108,48 @@ public class UserJpaService {
         UserEntity user = userJpaRepository.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 이메일입니다."));
 
-        // Kotlin 서버로 인증 코드 전송 요청
-        String url = emailAuthApiBaseUrl + "/send";
-        Map<String, String> body = new HashMap<>();
-        body.put("email", email);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
-        try {
-            restTemplate.postForEntity(url, request, Map.class);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("이메일 인증 코드 전송에 실패했습니다.");
+        // 이메일 인증 코드 발송 (최대 3회 재시도)
+        int maxRetries = 3;
+        int retryCount = 0;
+        boolean success = false;
+        Exception lastException = null;
+
+        while (retryCount < maxRetries && !success) {
+            try {
+                if (retryCount > 0) {
+                    log.info("[이메일인증] 재시도 {}회차: email={}", retryCount, email);
+                    TimeUnit.SECONDS.sleep(1); // 재시도 간 1초 대기
+                }
+
+                // Kotlin 서버로 인증 코드 전송 요청
+                String url = emailAuthApiBaseUrl + "/send";
+                Map<String, String> body = new HashMap<>();
+                body.put("email", email);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+                
+                ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+                
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    success = true;
+                    log.info("[이메일인증] 발송 성공: email={}, 시도횟수={}", email, retryCount + 1);
+                } else {
+                    log.warn("[이메일인증] HTTP 오류: email={}, status={}, 시도횟수={}", 
+                        email, response.getStatusCode(), retryCount + 1);
+                }
+            } catch (Exception e) {
+                lastException = e;
+                retryCount++;
+                log.warn("[이메일인증] 발송 실패: email={}, 시도횟수={}, 오류={}", 
+                    email, retryCount, e.getMessage());
+            }
+        }
+
+        if (!success) {
+            log.error("[이메일인증] 최종 발송 실패: email={}, 총시도횟수={}, 마지막오류={}", 
+                email, retryCount, lastException != null ? lastException.getMessage() : "알 수 없는 오류");
+            throw new IllegalArgumentException("이메일 인증 코드 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
         }
     }
 
