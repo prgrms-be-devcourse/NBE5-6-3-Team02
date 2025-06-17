@@ -4,8 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Activity</title>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js'></script>
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth'
+            });
+            calendar.render();
+        });
+
+    </script>
     <style>
         .scroll-container {
             position: relative;
@@ -123,7 +133,8 @@
         </div>
         <div class="section" style="margin-top: 50px;">
             <h5 class="highlight" style="margin-bottom: 20px;">📅 Calendar</h5>
-            <div id="calendar"></div>
+            <div id='calendar'></div>
+            <div>뭐라도 좀 나와라</div>
         </div>
     </div>
 </main>
@@ -155,25 +166,6 @@
             }
         });
     }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        var calendarEl = document.getElementById('calendar');
-
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',  // 기본 월간 뷰
-            locale: 'ko',                 // 한글
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: ''
-            },
-            height: 'auto'                // 높이 자동 조절
-        });
-
-        calendar.render();
-    });
-
-    console.log("캘린더 스크립트 실행됨");
 </script>
 </body>
 </html>
