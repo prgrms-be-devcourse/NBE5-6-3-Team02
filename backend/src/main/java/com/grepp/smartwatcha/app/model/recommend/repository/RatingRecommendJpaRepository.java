@@ -1,6 +1,7 @@
 package com.grepp.smartwatcha.app.model.recommend.repository;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieCreatedAtResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRatingScoreDto;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -41,4 +42,12 @@ public interface RatingRecommendJpaRepository extends JpaRepository<RatingEntity
     """)
     List<MovieCreatedAtResponse> findRatingProjectionsByUserIdIn(@Param("userIds") List<Long> userIds);
 
+    @Query("""
+        SELECT new com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRatingScoreDto(
+            r.user.id, r.movie.id, r.score
+        )
+        FROM RatingEntity r
+        WHERE r.user.id IN :userIds
+    """)
+    List<MovieRatingScoreDto> findRatingScoresByUserIdIn(@Param("userIds") List<Long> userIds);
 }

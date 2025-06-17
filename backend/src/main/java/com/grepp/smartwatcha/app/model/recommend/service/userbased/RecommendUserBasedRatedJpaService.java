@@ -1,19 +1,19 @@
 package com.grepp.smartwatcha.app.model.recommend.service.userbased;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieCreatedAtResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRatingScoreDto;
 import com.grepp.smartwatcha.app.model.recommend.repository.RatingRecommendJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional("jpaTransactionManager")
+@Transactional(value = "jpaTransactionManager", readOnly = true)
 public class RecommendUserBasedRatedJpaService {
 
     private final RatingRecommendJpaRepository ratingRepository;
@@ -31,15 +31,18 @@ public class RecommendUserBasedRatedJpaService {
         if (candidateUserIds.isEmpty()) return Map.of();
 
         List<Long> userIdList = new ArrayList<>(candidateUserIds);
-        userIdList.add(userId); // 내 평점도 포함해서 조회
+        userIdList.add(userId);
 
-        List<MovieCreatedAtResponse> ratingDtos = ratingRepository.findRatingProjectionsByUserIdIn(userIdList);
-        Map<Long, List<MovieCreatedAtResponse>> userRatingsMap = groupByUser(ratingDtos);
+        List<MovieRatingScoreDto> ratingScores = ratingRepository.findRatingScoresByUserIdIn(userIdList);
+        Map<Long, Map<Long, Double>> userRatingScoreMap = groupScoresByUser(ratingScores);
 
-        Map<Long, Double> similarityMap = calculateSimilarities(candidateUserIds, targetRatingMap, userRatingsMap);
+        Map<Long, Double> similarityMap = calculateSimilarities(candidateUserIds, targetRatingMap, userRatingScoreMap);
         List<Long> topKUserIds = getTopKSimilarUsers(similarityMap);
 
-        return predictScores(topKUserIds, targetRatingMap, userRatingsMap, similarityMap);
+        List<MovieCreatedAtResponse> topKRatingDtos = ratingRepository.findRatingProjectionsByUserIdIn(topKUserIds);
+        Map<Long, List<MovieCreatedAtResponse>> topKUserRatingsMap = groupByUser(topKRatingDtos);
+
+        return predictScores(topKUserIds, targetRatingMap, topKUserRatingsMap, similarityMap);
     }
 
     // 평가한 영화 평점을 map으로 변환
@@ -60,6 +63,15 @@ public class RecommendUserBasedRatedJpaService {
         return ids;
     }
 
+    private Map<Long, Map<Long, Double>> groupScoresByUser(List<MovieRatingScoreDto> list) {
+        Map<Long, Map<Long, Double>> map = new HashMap<>();
+        for (MovieRatingScoreDto dto : list) {
+            map.computeIfAbsent(dto.getUserId(), k -> new HashMap<>())
+                    .put(dto.getMovieId(), dto.getScore());
+        }
+        return map;
+    }
+
     // 평점 리스트를 id 기준으로 그룹핑
     private Map<Long, List<MovieCreatedAtResponse>> groupByUser(List<MovieCreatedAtResponse> list) {
         Map<Long, List<MovieCreatedAtResponse>> map = new HashMap<>();
@@ -73,18 +85,13 @@ public class RecommendUserBasedRatedJpaService {
     private Map<Long, Double> calculateSimilarities(
             List<Long> candidateUserIds,
             Map<Long, Double> targetRatingMap,
-            Map<Long, List<MovieCreatedAtResponse>> userRatingsMap) {
+            Map<Long, Map<Long, Double>> userRatingScoreMap) {
 
         Map<Long, Double> similarityMap = new HashMap<>();
 
         for (Long otherUserId : candidateUserIds) {
-            List<MovieCreatedAtResponse> others = userRatingsMap.get(otherUserId);
-            if (others == null) continue;
-
-            Map<Long, Double> otherRatingMap = new HashMap<>();
-            for (MovieCreatedAtResponse dto : others) {
-                otherRatingMap.put(dto.getMovieId(), dto.getScore());
-            }
+            Map<Long, Double> otherRatingMap = userRatingScoreMap.get(otherUserId);
+            if (otherRatingMap == null) continue;
 
             double similarity = cosineSimilarity(targetRatingMap, otherRatingMap);
             if (similarity > 0) {

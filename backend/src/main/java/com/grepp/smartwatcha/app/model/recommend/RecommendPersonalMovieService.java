@@ -28,8 +28,13 @@ public class RecommendPersonalMovieService {
         }
 
         List<Long> movieIds = extractMovieIds(allReleasedMovies);
-        Map<Long, List<String>> genreMap = buildGenreMap(movieIds);
-        Map<Long, List<String>> tagMap = buildTagMap(movieIds);
+        List<MovieGenreTagResponse> genreTagResponses = graphService.getGenreTagInfoByMovieIdList(movieIds);
+        Map<Long, List<String>> genreMap = new HashMap<>();
+        Map<Long, List<String>> tagMap = new HashMap<>();
+        for (MovieGenreTagResponse response : genreTagResponses) {
+            genreMap.put(response.getMovieId(), response.getGenres());
+            tagMap.put(response.getMovieId(), response.getTags());
+        }
 
         Map<String, Double> genreScores = ratingService.calculateGenrePreferences(userId, genreMap);
         Map<String, Double> tagScores = ratingService.calculateTagPreferences(userId, tagMap);
@@ -82,15 +87,22 @@ public class RecommendPersonalMovieService {
         List<AbstractMap.SimpleEntry<MovieEntity, Double>> result = new ArrayList<>();
 
         for (MovieEntity movie : movies) {
-            if (ratedIds.contains(movie.getId())) continue;
+            Long movieId = movie.getId();
+            if (ratedIds.contains(movieId)) continue;
 
-            List<String> genres = genreMap.getOrDefault(movie.getId(), List.of());
-            List<String> tags = tagMap.getOrDefault(movie.getId(), List.of());
+            List<String> genres = genreMap.getOrDefault(movieId, List.of());
+            List<String> tags = tagMap.getOrDefault(movieId, List.of());
+
+            // 유저가 선호하는 장르/태그와 겹치지 않으면 skip
+            if (Collections.disjoint(genres, genreScores.keySet()) &&
+                    Collections.disjoint(tags, tagScores.keySet())) {
+                continue;
+            }
 
             double genreAvg = calculateAverage(genres, genreScores);
             double tagAvg = calculateAverage(tags, tagScores);
-
             double score = (genreAvg + tagAvg) * 100;
+
             result.add(new AbstractMap.SimpleEntry<>(movie, score));
         }
 

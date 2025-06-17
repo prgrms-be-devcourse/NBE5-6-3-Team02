@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
-@Transactional("neo4jTransactionManager")
+@Transactional(value = "neo4jTransactionManager", readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class RecommendTagBasedMovieNeo4jService {

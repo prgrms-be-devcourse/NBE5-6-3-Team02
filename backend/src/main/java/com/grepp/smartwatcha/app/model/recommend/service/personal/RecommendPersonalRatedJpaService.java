@@ -13,7 +13,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-@Transactional("jpaTransactionManager")
+@Transactional(value = "jpaTransactionManager", readOnly = true)
 public class RecommendPersonalRatedJpaService {
 
     private final RatingRecommendJpaRepository ratingRepository;

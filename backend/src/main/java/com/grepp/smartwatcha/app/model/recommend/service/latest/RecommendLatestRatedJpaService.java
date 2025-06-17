@@ -10,13 +10,13 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(value = "jpaTransactionManager", readOnly = true)
 public class RecommendLatestRatedJpaService {
 
     private final MovieRecommendLatestJpaRepository movieRepo;
     private final MovieQueryJpaRepository ratingRepo;
 
     // 최신 영화 10개 조회
-    @Transactional("jpaTransactionManager")
     public List<MovieEntity> getTop10LatestMovies() {
         return movieRepo.findTop10ByOrderByCreatedAtDesc();
     }
