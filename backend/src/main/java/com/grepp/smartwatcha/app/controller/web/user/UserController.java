@@ -186,7 +186,6 @@ public class UserController {
         List<WatchedResponseDto> calendarMovies = watchedJpaService.getWatchedMoviesForCalendar(userId);
 
         model.addAttribute("calendarMovies", calendarMovies); // 여기만 넘김
-        System.out.println(calendarMovies);
         model.addAttribute("ratedMovies", ratedMovies);
         model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";

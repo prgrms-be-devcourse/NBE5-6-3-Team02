@@ -8,7 +8,6 @@
     <!-- ✅ calendarMovies JSON 주입 -->
     <script th:inline="javascript">
         const calendarMovies = /*[[${calendarMovies}]]*/ [];
-        console.log(calendarMovies);  // 여기서 배열로 출력되면 성공!
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
