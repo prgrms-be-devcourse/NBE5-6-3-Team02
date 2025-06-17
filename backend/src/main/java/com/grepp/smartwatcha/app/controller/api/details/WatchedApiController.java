@@ -2,9 +2,7 @@ package com.grepp.smartwatcha.app.controller.api.details;
 
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.WatchedRequestDto;
-import com.grepp.smartwatcha.app.model.details.repository.jparepository.WatchedJpaRepository;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.WatchedJpaService;
-import com.grepp.smartwatcha.infra.jpa.entity.MovieWatchedEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
 import com.grepp.smartwatcha.infra.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,16 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/movies/{id}/watched")
 public class WatchedApiController {
 
     private final WatchedJpaService watchedJpaService;
-    private final WatchedJpaRepository watchedJpaRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<String>> saveWatchedDate(

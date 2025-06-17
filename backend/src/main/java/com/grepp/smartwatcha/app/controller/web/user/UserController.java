@@ -1,7 +1,13 @@
 package com.grepp.smartwatcha.app.controller.web.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.grepp.smartwatcha.app.controller.web.user.annotation.NonAdmin;
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.WatchedResponseDto;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.WatchedJpaService;
 import com.grepp.smartwatcha.app.model.user.dto.*;
 import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +30,8 @@ import java.util.Map;
 public class UserController {
 
     private final UserJpaService userJpaService;
+    // 시청정보 반환하는 service 주입
+    private final WatchedJpaService watchedJpaService;
 
     @GetMapping("/login")
     public String login() {
@@ -141,10 +149,13 @@ public class UserController {
 
     @NonAdmin
     @GetMapping("/activity")
-    public String userActivity(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+    public String userActivity(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) throws JsonProcessingException {
         Long userId = userDetails.getUser().getId();
         List<RatedMovieDto> ratedMovies = userJpaService.findRatedMoviesByUserId(userId);
         List<WishlistMovieDto> wishlistMovies = userJpaService.findWishlistMoviesByUserId(userId);
+        List<WatchedResponseDto> calendarMovies = watchedJpaService.getWatchedMoviesForCalendar(userId);
+
+        model.addAttribute("calendarMovies", calendarMovies); // 여기만 넘김
         model.addAttribute("ratedMovies", ratedMovies);
         model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";
