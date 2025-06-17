@@ -18,25 +18,19 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UpcomingMovieSyncTimeJpaService {
-  private final UpcomingMovieSyncTimeJpaRepository upcomingMovieSyncTimeJpaRepository;
 
   // 동기화 작업 결과를 저장하고 마지막 동기화 시간을 업데이트
-  public void update(String type, int newlyAddedCount, int failedCount, int enrichFailed) {
-    SyncTimeEntity entity = upcomingMovieSyncTimeJpaRepository.findById(type)
-        .orElse(SyncTimeEntity.builder().type(type).build());
+  private final UpcomingMovieSyncTimeJpaRepository syncTimeJpaRepository;
 
-    entity.setSyncTime(LocalDateTime.now());
-    entity.setNewlyAddedCount(newlyAddedCount);
-    entity.setFailedCount(failedCount);
-    entity.setEnrichFailedCount(enrichFailed);
-
-    upcomingMovieSyncTimeJpaRepository.save(entity);
-  }
-
-  // 특정 동기화 유형의 마지막 실행 시간을 조회
-  public LocalDateTime getLastSyncTime(String type) {
-    return upcomingMovieSyncTimeJpaRepository.findById(type)
-        .map(SyncTimeEntity::getSyncTime)
-        .orElse(null);
+  // 새로운 방식 - 통계 기반
+  public void update(String type, int successCount, int failedCount, int enrichFailedCount) {
+    SyncTimeEntity entity = SyncTimeEntity.builder()
+        .type(type)
+        .syncTime(LocalDateTime.now())
+        .newlyAddedCount(successCount)
+        .failedCount(failedCount)
+        .enrichFailedCount(enrichFailedCount)
+        .build();
+    syncTimeJpaRepository.save(entity);
   }
 }
