@@ -5,7 +5,6 @@ import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagR
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Repository;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,7 @@ import java.util.List;
 public class MovieGenreCustomNeo4jRepositoryImpl implements MovieGenreCustomNeo4jRepository {
 
     private final Neo4jClient neo4jClient;
-
+    // 영화 id로 장르와 태그 조회
     @Override
     public List<MovieGenreTagResponse> findGenresAndTagsByMovieIdList(List<Long> movieIdList) {
         return new ArrayList<>(
@@ -40,15 +39,16 @@ public class MovieGenreCustomNeo4jRepositoryImpl implements MovieGenreCustomNeo4
         );
     }
 
+    // 영화의 장르 이름 목록 조회하여 DTO로 반환
+    @Override
     public List<MovieGenreResponse> findOnlyGenresByMovieIdList(List<Long> movieIdList) {
         return new ArrayList<>(
                 neo4jClient.query("""
-                UNWIND $movieIdList AS movieId
-                MATCH (m:MOVIE {id: movieId})
-                OPTIONAL MATCH (m)-[:HAS_GENRE]->(g:GENRE)
+                MATCH (m:MOVIE)-[:HAS_GENRE]->(g:GENRE)
+                WHERE m.id IN $movieIdList
                 RETURN m.id AS movieId,
-                       collect(DISTINCT g.name) AS genres
-            """)
+                   collect(DISTINCT g.name) AS genres
+        """)
                         .bind(movieIdList).to("movieIdList")
                         .fetchAs(MovieGenreResponse.class)
                         .mappedBy((typeSystem, record) ->

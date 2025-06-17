@@ -4,7 +4,6 @@ import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryNeo4jRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Transactional("neo4jTransactionManager")

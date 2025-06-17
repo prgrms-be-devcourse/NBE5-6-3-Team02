@@ -3,14 +3,11 @@ package com.grepp.smartwatcha.app.model.recommend.service.recenttag;
 import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
 import com.grepp.smartwatcha.app.model.recommend.repository.RatingRecommendJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
+import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @Transactional("jpaTransactionManager")
 @Service
@@ -21,30 +18,32 @@ public class RecommendTagBasedMovieJpaService {
     private final MovieQueryJpaRepository movieRepository;
 
     public Long findMostRecentRatedMovieId(Long userId) {
-        return ratingRepository.findTopByUserIdOrderByCreatedAtDesc(userId)
-                .map(r -> r.getMovie().getId())
-                .orElse(null);
+        Optional<RatingEntity> recentRating = ratingRepository.findTopByUserIdOrderByCreatedAtDesc(userId);
+        return recentRating.map(r -> r.getMovie().getId()).orElse(null);
     }
 
-    public List<MovieEntity> findMoviesNotRatedByUser(Long userId) {
-        return movieRepository.findMoviesNotRatedByUser(userId);
-    }
-
-    public Map<Long, Double> calculateAverageScores(List<MovieEntity> movies) {
-        List<Long> movieIds = movies.stream().map(MovieEntity::getId).toList();
-        List<Object[]> results = movieRepository.findAverageScoresByMovieIds(movieIds);
-
-        Map<Long, Double> scoreMap = new HashMap<>();
-        for (Object[] row : results) {
-            Long movieId = (Long) row[0];
-            Double avg = (Double) row[1];
-            scoreMap.put(movieId, avg);
+    public List<Long> findUnratedMovieIdsByUser(Long userId) {
+        List<MovieEntity> movies = movieRepository.findMoviesNotRatedByUser(userId);
+        List<Long> ids = new ArrayList<>();
+        for (MovieEntity movie : movies) {
+            ids.add(movie.getId());
         }
-        return scoreMap;
+        return ids;
     }
 
-    public MovieEntity findById(Long id) {
-        return movieRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Movie not found with id: " + id));
+    public Map<Long, Double> findTopRatedMovieScoresByIds(List<Long> movieIds) {
+        List<Object[]> rows = movieRepository.findAverageScoresByMovieIds(movieIds);
+        rows.sort((a, b) -> Double.compare((Double) b[1], (Double) a[1]));
+        List<Object[]> top10 = rows.subList(0, Math.min(10, rows.size()));
+
+        Map<Long, Double> result = new LinkedHashMap<>();
+        for (Object[] row : top10) {
+            result.put((Long) row[0], (Double) row[1]);
+        }
+        return result;
+    }
+
+    public List<MovieEntity> findMoviesByIds(List<Long> ids) {
+        return movieRepository.findByIdIn(ids);
     }
 }

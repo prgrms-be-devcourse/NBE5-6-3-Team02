@@ -2,12 +2,13 @@ package com.grepp.smartwatcha.app.controller.api.recommend.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class MovieGenreResponse {
-
+public class MovieCreatedAtResponse {
+    private Long userId;
     private Long movieId;
-    private List<String> genres;
+    private double score;
+    private LocalDateTime createdAt;
 }

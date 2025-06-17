@@ -10,6 +10,6 @@ public class RecommendController {
 
     @GetMapping
     public String recommendPage() {
-        return "recommend/recommend"; // Thymeleaf 템플릿 위치
+        return "recommend/recommend";
     }
 }
