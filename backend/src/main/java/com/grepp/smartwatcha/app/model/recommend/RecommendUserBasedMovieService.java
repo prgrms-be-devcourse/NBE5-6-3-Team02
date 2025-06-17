@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.model.recommend;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendUserBasedResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendResponse;
 import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
 import com.grepp.smartwatcha.app.model.recommend.service.userbased.RecommendUserBasedRatedJpaService;
 import com.grepp.smartwatcha.app.model.recommend.service.userbased.RecommendUserBasedRatedNeo4jService;
@@ -19,7 +19,7 @@ public class RecommendUserBasedMovieService {
     private final MovieQueryJpaRepository movieQueryRepository;
 
     // 협업 필터링 기반 10개 영화 추천
-    public List<MovieRecommendUserBasedResponse> getTop10UserBasedMovies(Long userId) {
+    public List<MovieRecommendResponse> getTop10UserBasedMovies(Long userId) {
         Map<Long, Double> finalScores = ratingService.calculateUserBasedScores(userId);
         List<Long> topMovieIds = getTop10MovieIds(finalScores);
 
@@ -68,21 +68,21 @@ public class RecommendUserBasedMovieService {
     }
 
     // 영화별로 점수,장르태그 조합하여 DTO로 변환
-    private List<MovieRecommendUserBasedResponse> buildResponseList(
+    private List<MovieRecommendResponse> buildResponseList(
             List<Long> movieIds,
             Map<Long, Double> scoreMap,
             Map<Long, MovieEntity> movieMap,
             Map<Long, List<String>> genreMap,
             Map<Long, List<String>> tagMap
     ) {
-        List<MovieRecommendUserBasedResponse> responses = new ArrayList<>();
+        List<MovieRecommendResponse> responses = new ArrayList<>();
         for (Long movieId : movieIds) {
             MovieEntity movie = movieMap.get(movieId);
             double score = scoreMap.getOrDefault(movieId, 0.0);
             List<String> genres = genreMap.getOrDefault(movieId, List.of());
             List<String> tags = tagMap.getOrDefault(movieId, List.of());
 
-            MovieRecommendUserBasedResponse response = MovieRecommendUserBasedResponse.from(movie, score, genres, tags);
+            MovieRecommendResponse response = MovieRecommendResponse.from(movie, score, genres, tags);
             responses.add(response);
         }
         return responses;

@@ -35,4 +35,12 @@ public class IndexService {
     public List<IndexMovieDto> findByInterest(Long id) {
         return indexJpaService.findByInterest(id);
     }
+
+    public List<IndexMovieDto> findByReleaseDateByAge(boolean isAdult) {
+        return indexJpaService.findByReleaseDateByAge(isAdult);
+    }
+
+    public List<IndexMovieDto> findByRandomByAge(boolean isAdult) {
+        return indexJpaService.findByRandomByAge(isAdult);
+    }
 }

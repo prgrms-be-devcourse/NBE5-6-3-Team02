@@ -9,10 +9,10 @@ import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.WatchedResponseDto;
 import com.grepp.smartwatcha.app.model.details.service.jpaservice.WatchedJpaService;
 import com.grepp.smartwatcha.app.model.user.dto.*;
-import com.grepp.smartwatcha.app.model.user.service.EmailVerificationJpaService;
 import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -27,7 +29,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final EmailVerificationJpaService emailVerificationJpaService;
     private final UserJpaService userJpaService;
     // 시청정보 반환하는 service 주입
     private final WatchedJpaService watchedJpaService;
@@ -58,46 +59,15 @@ public class UserController {
         return "signup";
     }
 
-    @PostMapping("/signup/send-code")
-    public String sendCode(@ModelAttribute SignupRequestDto signupRequestDto, Model model) {
-        try {
-            emailVerificationJpaService.sendVerificationCode(
-                new EmailVerificationRequestDto(signupRequestDto.getEmail())
-            );
-            model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true);
-            long remaining = emailVerificationJpaService.getRemainingCooldownTime(signupRequestDto.getEmail());
-            log.debug("Remaining cooldown time: {}", remaining);
-            model.addAttribute("remainingTime", remaining);
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true);
-            long remaining = emailVerificationJpaService.getRemainingCooldownTime(signupRequestDto.getEmail());
-            model.addAttribute("remainingTime", remaining);
-        }
-        return "signup";
-    }
-
-    @PostMapping("/signup/verify")
-    public String verifyAndSignup(@ModelAttribute SignupRequestDto signupRequestDto,
-                                @RequestParam String verificationCode,
-                                Model model, RedirectAttributes redirectAttributes) {
-        boolean verified = emailVerificationJpaService.verifyCode(
-            new EmailCodeVerifyRequestDto(signupRequestDto.getEmail(), verificationCode)
-        );
-        if (!verified) {
-            model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true);
-            model.addAttribute("error", "Invalid or expired verification code.");
-            return "signup";
-        }
+    @PostMapping("/signup")
+    public String signup(@ModelAttribute SignupRequestDto signupRequestDto,
+                        Model model, RedirectAttributes redirectAttributes) {
         try {
             userJpaService.signup(signupRequestDto);
             redirectAttributes.addFlashAttribute("message", "Registration completed. Please log in.");
             return "redirect:/user/login";
         } catch (IllegalArgumentException e) {
             model.addAttribute("signupRequestDto", signupRequestDto);
-            model.addAttribute("codeSent", true);
             model.addAttribute("error", e.getMessage());
             return "signup";
         }
@@ -189,5 +159,46 @@ public class UserController {
         model.addAttribute("ratedMovies", ratedMovies);
         model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";
+    }
+
+    // --- JSON 요청 지원: 회원가입 인증 코드 발송 ---
+    @PostMapping(value = "/signup/send-code", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> sendSignupVerificationCodeJson(@RequestBody Map<String, String> body) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String email = body.get("email");
+            userJpaService.sendPasswordResetCode(email); // 기존 로직 재사용
+            result.put("message", "Verification code has been sent to your email.");
+            result.put("success", true);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            result.put("error", e.getMessage());
+            result.put("success", false);
+            return ResponseEntity.badRequest().body(result);
+        }
+    }
+
+    // --- JSON 요청 지원: 회원가입 인증 코드 검증 ---
+    @PostMapping(value = "/signup/verify", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> verifySignupCodeJson(@RequestBody Map<String, String> body) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String email = body.get("email");
+            String code = body.get("code");
+            boolean verified = userJpaService.verifyEmailCodeWithKotlinApi(email, code);
+            result.put("verified", verified);
+            if (verified) {
+                result.put("message", "Email verification successful.");
+            } else {
+                result.put("message", "Verification code is invalid or expired.");
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            result.put("verified", false);
+            result.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 }

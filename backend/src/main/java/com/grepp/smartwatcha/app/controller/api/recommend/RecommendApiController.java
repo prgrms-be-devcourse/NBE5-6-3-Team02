@@ -1,57 +1,53 @@
 package com.grepp.smartwatcha.app.controller.api.recommend;
 
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendLatestResponse;
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendPersonalResponse;
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendUserBasedResponse;
-import com.grepp.smartwatcha.app.model.recommend.RecommendHighestRatedMovieService;
-import com.grepp.smartwatcha.app.model.recommend.RecommendLatestMovieService;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendResponse;
+import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
+import com.grepp.smartwatcha.app.model.recommend.RecommendGenreBasedMovieService;
 import com.grepp.smartwatcha.app.model.recommend.RecommendPersonalMovieService;
+import com.grepp.smartwatcha.app.model.recommend.RecommendTagBasedMovieService;
 import com.grepp.smartwatcha.app.model.recommend.RecommendUserBasedMovieService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/recommend")
+@RequestMapping("/api/recommend")
 public class RecommendApiController {
 
-    private final RecommendPersonalMovieService personalService;
-    private final RecommendHighestRatedMovieService ratedService;
-    private final RecommendLatestMovieService LatestService;
-    private final RecommendUserBasedMovieService UserBasedService;
+    private final RecommendPersonalMovieService recommendPersonalMovieService;
+    private final RecommendUserBasedMovieService recommendUserBasedMovieService;
+    private final RecommendGenreBasedMovieService recommendGenreBasedMovieService;
+    private final RecommendTagBasedMovieService recommendTagBasedMovieService;
 
-    // 별점 상위 10개 영화 반환
-    @GetMapping("/highest-rated")
-    public List<MovieRecommendHighestRatedResponse> getTopRated() {
-        return ratedService.getTop10HighestRatedMovies();
+    // 개인화 추천
+    @GetMapping("/personal")
+    public List<MovieRecommendResponse> getPersonalMovies(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        return recommendPersonalMovieService.getTop10PersonalMovies(userId);
     }
 
-    @GetMapping("/latest-movies")
-    public List<MovieRecommendLatestResponse> getLatestMovies() {
-        return LatestService.getTop10LatestMovies();
+    // 유저 기반 추천
+    @GetMapping("/user-based")
+    public List<MovieRecommendResponse> getUserBasedMovies(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
     }
 
-//    @GetMapping("/personal")
-//    public List<MovieRecommendPersonalResponse> getPersonalRecommendations(@AuthenticationPrincipal UserDetails userDetails) {
-//        Long userId = Long.parseLong(userDetails.getUsername());
-//        return recommendService.getTop10PersonalMovies(userId);
-//    }
-
-    @GetMapping("/content/{userId}")
-    public List<MovieRecommendPersonalResponse> getPersonalRecommendations(@PathVariable Long userId) {
-        return personalService.getTop10PersonalMovies(userId);
+    // 장르 기반 추천
+    @GetMapping("/genre")
+    public List<MovieRecommendResponse> getGenreBasedMovies(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        return recommendGenreBasedMovieService.recommendMoviesByGenre(userId);
     }
 
-//    @GetMapping("/collaboration")
-//    public List<MovieRecommendUserBasedResponse> getUserBasedRecommendations(@AuthenticationPrincipal UserDetails userDetails) {
-//        Long userId = Long.parseLong(userDetails.getUsername());
-//        return recommendUserBasedMovieService.getTop10UserBasedMovies(userId);
-//    }
-
-    @GetMapping("/collaboration/{userId}")
-    public List<MovieRecommendUserBasedResponse> getUserBasedRecommendationsForTest(@PathVariable Long userId) {
-        return UserBasedService.getTop10UserBasedMovies(userId);
+    // 태그 기반 추천
+    @GetMapping("/tag")
+    public List<MovieRecommendResponse> getTagBasedMovies(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        Long userId = userDetails.getUser().getId();
+        return recommendTagBasedMovieService.recommendMoviesByTag(userId);
     }
 }

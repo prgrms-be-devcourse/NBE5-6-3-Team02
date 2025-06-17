@@ -1,10 +1,10 @@
 package com.grepp.smartwatcha.app.model.recommend.repository;
 
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreResponse;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Repository;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
 public class MovieGenreCustomNeo4jRepositoryImpl implements MovieGenreCustomNeo4jRepository {
 
     private final Neo4jClient neo4jClient;
-
+    // 영화 id로 장르와 태그 조회
     @Override
     public List<MovieGenreTagResponse> findGenresAndTagsByMovieIdList(List<Long> movieIdList) {
         return new ArrayList<>(
@@ -33,6 +33,28 @@ public class MovieGenreCustomNeo4jRepositoryImpl implements MovieGenreCustomNeo4
                                         record.get("movieId").asLong(),
                                         new ArrayList<>(record.get("genres").asList(org.neo4j.driver.Value::asString)),
                                         new ArrayList<>(record.get("tags").asList(org.neo4j.driver.Value::asString))
+                                )
+                        )
+                        .all()
+        );
+    }
+
+    // 영화의 장르 이름 목록 조회하여 DTO로 반환
+    @Override
+    public List<MovieGenreResponse> findOnlyGenresByMovieIdList(List<Long> movieIdList) {
+        return new ArrayList<>(
+                neo4jClient.query("""
+                MATCH (m:MOVIE)-[:HAS_GENRE]->(g:GENRE)
+                WHERE m.id IN $movieIdList
+                RETURN m.id AS movieId,
+                   collect(DISTINCT g.name) AS genres
+        """)
+                        .bind(movieIdList).to("movieIdList")
+                        .fetchAs(MovieGenreResponse.class)
+                        .mappedBy((typeSystem, record) ->
+                                new MovieGenreResponse(
+                                        record.get("movieId").asLong(),
+                                        new ArrayList<>(record.get("genres").asList(org.neo4j.driver.Value::asString))
                                 )
                         )
                         .all()

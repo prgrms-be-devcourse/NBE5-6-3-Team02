@@ -46,6 +46,13 @@ public class MovieDetailsController {
             @PathVariable Long id, Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         MovieDetailsDto movie = movieJpaService.getMovieDetail(id);
+        // 성인 인증 체크
+        if (movie.getCertification() != null && movie.getCertification().contains("청소년관람불가")) {
+            if (userDetails != null && userDetails.getUser() != null && Boolean.FALSE.equals(userDetails.getUser().getIsAdult())) {
+                model.addAttribute("ageRestricted", true);
+                return "movie/age-restricted";
+            }
+        }
         Double averageScore = movieJpaService.getAverageScore(id);
         List<RatingBarDto> ratingList = ratingJpaService.getRatingDistributionList(id);
         Map<Integer, Integer> ratingDistribution = ratingJpaService.getRatingDistribution(id);

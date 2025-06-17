@@ -1,8 +1,7 @@
 package com.grepp.smartwatcha.app.controller.web;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendHighestRatedResponse;
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendPersonalResponse;
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendUserBasedResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendResponse;
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
 import com.grepp.smartwatcha.app.model.index.IndexService;
 import com.grepp.smartwatcha.app.model.index.dto.IndexMovieDto;
@@ -36,16 +35,20 @@ public class IndexController {
 
     @GetMapping("/")
     public String index(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
-        List<IndexMovieDto> newMovies = indexService.findByReleaseDate();
-        List<IndexMovieDto> randomMovies = indexService.findByRandom();
+        boolean isAdult = true;
+        if (userDetails != null && userDetails.getUser() != null) {
+            isAdult = Boolean.TRUE.equals(userDetails.getUser().getIsAdult());
+        }
+        List<IndexMovieDto> newMovies = indexService.findByReleaseDateByAge(isAdult);
+        List<IndexMovieDto> randomMovies = indexService.findByRandomByAge(isAdult);
         List<IndexMovieDto> lightMovies = indexService.findLightMovies();
         List<MovieRecommendHighestRatedResponse> top10Movies = recommendService.getTop10HighestRatedMovies();
 
         if (userDetails != null) {
-            List<MovieRecommendPersonalResponse> personalTol10Movies = personalMovieService.getTop10PersonalMovies(
+            List<MovieRecommendResponse> personalTol10Movies = personalMovieService.getTop10PersonalMovies(
                     userDetails.getId());
             List<IndexMovieDto> interestedMovie = indexService.findByInterest(userDetails.getId());
-            List<MovieRecommendUserBasedResponse> userMovies = userBasedMovieService.getTop10UserBasedMovies(
+            List<MovieRecommendResponse> userMovies = userBasedMovieService.getTop10UserBasedMovies(
                     userDetails.getId());
 
             Long unreadCount = notificationService.countUnread(userDetails.getId());
@@ -59,6 +62,7 @@ public class IndexController {
         model.addAttribute("randomMovies", randomMovies);
         model.addAttribute("lightMovies", lightMovies);
         model.addAttribute("top10Movies", top10Movies);
+        model.addAttribute("isAdult", isAdult);
 
         return "index";
     }

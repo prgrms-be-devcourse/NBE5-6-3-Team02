@@ -1,7 +1,7 @@
 package com.grepp.smartwatcha.app.model.recommend;
 
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendPersonalResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendResponse;
 import com.grepp.smartwatcha.app.model.recommend.service.personal.RecommendPersonalRatedJpaService;
 import com.grepp.smartwatcha.app.model.recommend.service.personal.RecommendPersonalRatedNeo4jService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
@@ -19,11 +19,15 @@ public class RecommendPersonalMovieService {
     private final RecommendPersonalRatedNeo4jService graphService;
 
     // 콘텐츠 기반으로 영화 추천 10개 반환
-    public List<MovieRecommendPersonalResponse> getTop10PersonalMovies(Long userId) {
+    public List<MovieRecommendResponse> getTop10PersonalMovies(Long userId) {
         List<MovieEntity> allReleasedMovies = ratingService.findAllReleasedMovies();
         List<Long> ratedMovieIds = ratingService.getRatedMovieIdsByUser(userId);
-        List<Long> movieIds = extractMovieIds(allReleasedMovies);
 
+        if (ratedMovieIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> movieIds = extractMovieIds(allReleasedMovies);
         Map<Long, List<String>> genreMap = buildGenreMap(movieIds);
         Map<Long, List<String>> tagMap = buildTagMap(movieIds);
 
@@ -106,12 +110,12 @@ public class RecommendPersonalMovieService {
     }
 
     // 영화 리스트를 DTO로 변환
-    private List<MovieRecommendPersonalResponse> convertToResponse(
+    private List<MovieRecommendResponse> convertToResponse(
             List<AbstractMap.SimpleEntry<MovieEntity, Double>> scored,
             Map<Long, List<String>> genreMap,
             Map<Long, List<String>> tagMap
     ) {
-        List<MovieRecommendPersonalResponse> result = new ArrayList<>();
+        List<MovieRecommendResponse> result = new ArrayList<>();
         int count = Math.min(10, scored.size());
 
         for (int i = 0; i < count; i++) {
@@ -121,7 +125,7 @@ public class RecommendPersonalMovieService {
             List<String> genres = genreMap.getOrDefault(movie.getId(), List.of());
             List<String> tags = tagMap.getOrDefault(movie.getId(), List.of());
 
-            result.add(MovieRecommendPersonalResponse.from(movie, score, genres, tags));
+            result.add(MovieRecommendResponse.from(movie, score, genres, tags));
         }
 
         return result;

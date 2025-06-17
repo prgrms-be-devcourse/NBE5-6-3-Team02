@@ -4,17 +4,13 @@ import com.grepp.smartwatcha.app.model.user.dto.RatedMovieDto;
 import com.grepp.smartwatcha.app.model.user.dto.SignupRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.FindIdRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.ResetPasswordRequestDto;
-import com.grepp.smartwatcha.app.model.user.dto.EmailVerificationRequestDto;
-import com.grepp.smartwatcha.app.model.user.dto.EmailCodeVerifyRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.UserInfoDto;
 import com.grepp.smartwatcha.app.model.user.dto.UserUpdateRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
-import com.grepp.smartwatcha.app.model.user.repository.EmailVerificationJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.RatingJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.InterestJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
-import com.grepp.smartwatcha.infra.jpa.entity.EmailVerificationEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.InterestEntity;
 import com.grepp.smartwatcha.infra.jpa.enums.Role;
@@ -23,19 +19,29 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.Period;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(transactionManager = "jpaTransactionManager")
 public class UserJpaService {
     private final UserJpaRepository userJpaRepository;
-    private final EmailVerificationJpaRepository emailVerificationJpaRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailVerificationJpaService emailVerificationJpaService;
     private final RatingJpaRepository ratingJpaRepository;
     private final InterestJpaRepository interestJpaRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String emailAuthApiBaseUrl = "http://localhost:8081/api/v1/email-verification";
 
     public Long signup(SignupRequestDto requestDto) {
         // 활성화된 계정 중에서만 이메일 중복 검사
@@ -47,9 +53,8 @@ public class UserJpaService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        EmailVerificationEntity verification = emailVerificationJpaRepository.findByEmail(requestDto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("이메일 인증이 필요합니다."));
-        if (!verification.isVerified()) {
+        // 이메일 인증 검증 (Kotlin 서버 REST API 호출)
+        if (!verifyEmailWithKotlinApi(requestDto.getEmail())) {
             throw new IllegalArgumentException("이메일 인증이 필요합니다.");
         }
 
@@ -58,12 +63,19 @@ public class UserJpaService {
                 .filter(user -> !user.getActivated())
                 .orElse(null);
 
+        LocalDate birth = LocalDate.parse(requestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        int age = Period.between(birth, LocalDate.now()).getYears();
+        boolean isAdult = age >= 19;
+
         UserEntity user;
         if (inactiveUser != null) {
             // 기존 비활성화 계정 재사용
             inactiveUser.setPassword(passwordEncoder.encode(requestDto.getPassword()));
             inactiveUser.setName(requestDto.getName());
             inactiveUser.setPhoneNumber(requestDto.getPhoneNumber());
+            inactiveUser.setBirth(birth);
+            inactiveUser.setAge(age);
+            inactiveUser.setIsAdult(isAdult);
             inactiveUser.setActivated(true);
             user = inactiveUser;
         } else {
@@ -73,6 +85,9 @@ public class UserJpaService {
                     .password(passwordEncoder.encode(requestDto.getPassword()))
                     .name(requestDto.getName())
                     .phoneNumber(requestDto.getPhoneNumber())
+                    .birth(birth)
+                    .age(age)
+                    .isAdult(isAdult)
                     .role(Role.USER)
                     .build();
         }
@@ -89,10 +104,19 @@ public class UserJpaService {
     public void sendPasswordResetCode(String email) {
         UserEntity user = userJpaRepository.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 이메일입니다."));
-        
-        emailVerificationJpaService.sendVerificationCode(
-            new EmailVerificationRequestDto(email)
-        );
+
+        // Kotlin 서버로 인증 코드 전송 요청
+        String url = emailAuthApiBaseUrl + "/send";
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            restTemplate.postForEntity(url, request, Map.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("이메일 인증 코드 전송에 실패했습니다.");
+        }
     }
 
     public void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
@@ -101,15 +125,8 @@ public class UserJpaService {
             throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
         }
 
-        // 인증 코드 확인
-        boolean verified = emailVerificationJpaService.verifyCode(
-            new EmailCodeVerifyRequestDto(
-                resetPasswordRequestDto.getEmail(),
-                resetPasswordRequestDto.getVerificationCode()
-            )
-        );
-
-        if (!verified) {
+        // 인증 코드 확인 (Kotlin 서버 REST API 호출)
+        if (!verifyEmailCodeWithKotlinApi(resetPasswordRequestDto.getEmail(), resetPasswordRequestDto.getVerificationCode())) {
             throw new IllegalArgumentException("인증 코드가 올바르지 않거나 만료되었습니다.");
         }
 
@@ -182,5 +199,37 @@ public class UserJpaService {
         return interestJpaRepository.findByUserAndStatus(user, Status.WATCH_LATER).stream()
             .map(WishlistMovieDto::from)
             .toList();
+    }
+
+    protected boolean verifyEmailWithKotlinApi(String email) {
+        String url = emailAuthApiBaseUrl + "/verify";
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+        body.put("code", ""); // 빈 코드로 인증 상태만 확인
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            return Boolean.TRUE.equals(response.getBody().get("verified"));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean verifyEmailCodeWithKotlinApi(String email, String code) {
+        String url = emailAuthApiBaseUrl + "/verify";
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+        body.put("code", code);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+            return Boolean.TRUE.equals(response.getBody().get("verified"));
+        } catch (Exception e) {
+            return false;
+        }
     }
 } 
