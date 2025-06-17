@@ -56,14 +56,6 @@ public class UserJpaService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        // 회원가입 시에도 이메일 인증 코드 발송
-        sendPasswordResetCode(requestDto.getEmail());
-
-        // 이메일 인증 검증 (Kotlin 서버 REST API 호출)
-        if (!verifyEmailWithKotlinApi(requestDto.getEmail())) {
-            throw new IllegalArgumentException("이메일 인증이 필요합니다.");
-        }
-
         // 비활성화된 계정이 있는 경우 재사용
         UserEntity inactiveUser = userJpaRepository.findByEmail(requestDto.getEmail())
                 .filter(user -> !user.getActivated())
@@ -111,6 +103,20 @@ public class UserJpaService {
         UserEntity user = userJpaRepository.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 이메일입니다."));
 
+        sendEmailVerificationCode(email);
+    }
+
+    /**
+     * 회원가입용 이메일 인증 코드 발송 (기존 사용자 검증 없음)
+     */
+    public void sendSignupVerificationCode(String email) {
+        sendEmailVerificationCode(email);
+    }
+
+    /**
+     * 공통 이메일 인증 코드 발송 로직
+     */
+    private void sendEmailVerificationCode(String email) {
         // 이메일 인증 코드 발송 (최대 3회 재시도)
         int maxRetries = 3;
         int retryCount = 0;

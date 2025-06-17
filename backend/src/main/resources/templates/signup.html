@@ -189,58 +189,6 @@ function formatBirth(input) {
     input.value = value;
 }
 </script>
-<!-- 인증 코드 전송/검증을 위한 JS -->
-<script>
-function sendVerificationCode(email) {
-    // 스프링 백엔드로 요청
-    return fetch('/user/signup/send-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-    }).then(res => res.json());
-}
-function verifyCode(email, code) {
-    // 스프링 백엔드로 요청
-    return fetch('/user/signup/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code })
-    }).then(res => res.json());
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // 인증 코드 전송 버튼
-    const sendCodeBtn = document.getElementById('sendCodeBtn');
-    if (sendCodeBtn) {
-        sendCodeBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            sendVerificationCode(email).then(result => {
-                alert(result.message || '인증 코드가 전송되었습니다.');
-            });
-        });
-    }
-    // 인증 코드 검증 및 회원가입
-    const verifyForm = document.getElementById('verifyForm');
-    if (verifyForm) {
-        verifyForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = document.getElementsByName('email')[0].value;
-            const code = document.getElementById('verificationCode').value;
-            verifyCode(email, code).then(result => {
-                if (result.verified) {
-                    // 인증 성공 시 회원가입 폼 submit
-                    verifyForm.action = '/user/signup';
-                    verifyForm.method = 'post';
-                    verifyForm.submit();
-                } else {
-                    alert(result.message || '인증 코드가 올바르지 않거나 만료되었습니다.');
-                }
-            });
-        });
-    }
-});
-</script>
 </div>
 </body>
 </html> 
