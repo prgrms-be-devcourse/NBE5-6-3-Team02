@@ -217,7 +217,7 @@ public class UserJpaService {
         }
     }
 
-    protected boolean verifyEmailCodeWithKotlinApi(String email, String code) {
+    public boolean verifyEmailCodeWithKotlinApi(String email, String code) {
         String url = emailAuthApiBaseUrl + "/verify";
         Map<String, String> body = new HashMap<>();
         body.put("email", email);
