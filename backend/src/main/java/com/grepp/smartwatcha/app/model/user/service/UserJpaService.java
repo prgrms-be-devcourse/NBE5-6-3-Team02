@@ -31,7 +31,9 @@ import java.util.List;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.Period;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(transactionManager = "jpaTransactionManager")
@@ -145,35 +147,45 @@ public class UserJpaService {
     }
 
     public void updateUser(Long userId, UserUpdateRequestDto requestDto) {
+        log.info("[회원정보수정] 호출: userId={}, name={}, phoneNumber={}, newPassword={}, currentPassword={}",
+            userId, requestDto.getName(), requestDto.getPhoneNumber(), requestDto.getNewPassword(), requestDto.getCurrentPassword());
         UserEntity user = findById(userId);
 
         // 비밀번호 변경이 요청된 경우
         if (requestDto.getNewPassword() != null && !requestDto.getNewPassword().isEmpty()) {
             // 현재 비밀번호 확인
             if (requestDto.getCurrentPassword() == null || requestDto.getCurrentPassword().isEmpty()) {
+                log.warn("[회원정보수정] 현재 비밀번호 미입력");
                 throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
             }
             if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {
+                log.warn("[회원정보수정] 현재 비밀번호 불일치");
                 throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
             }
             // 새 비밀번호 확인
             if (!requestDto.getNewPassword().equals(requestDto.getConfirmPassword())) {
+                log.warn("[회원정보수정] 새 비밀번호 불일치");
                 throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
             }
             user.setPassword(passwordEncoder.encode(requestDto.getNewPassword()));
+            log.info("[회원정보수정] 비밀번호 변경 완료");
         }
 
         // 이름과 전화번호 업데이트
         user.setName(requestDto.getName());
         user.setPhoneNumber(requestDto.getPhoneNumber());
+        log.info("[회원정보수정] 이름/전화번호 변경: name={}, phoneNumber={}", requestDto.getName(), requestDto.getPhoneNumber());
 
         userJpaRepository.save(user);
+        log.info("[회원정보수정] 저장 완료: userId={}", userId);
     }
 
     public void deleteUser(Long userId) {
+        log.info("[회원탈퇴] 호출: userId={}", userId);
         UserEntity user = findById(userId);
         user.unActivated();
         userJpaRepository.save(user);
+        log.info("[회원탈퇴] 비활성화 및 저장 완료: userId={}", userId);
     }
 
     @Transactional(readOnly = true, transactionManager = "jpaTransactionManager")

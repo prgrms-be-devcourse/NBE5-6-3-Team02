@@ -60,8 +60,8 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return true;
-  } // 계정 활성화 여부
+    return user.getActivated(); // 계정 활성화 여부에 따라 로그인 가능 여부 결정
+  }
 
   public String getName() {
     return user.getName();
