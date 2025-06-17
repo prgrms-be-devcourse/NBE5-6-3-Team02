@@ -1,70 +1,75 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <meta charset="UTF-8">
     <title>Activity</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+    <style>
+        .scroll-container {
+            position: relative;
+        }
+
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.6);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 1;
+            display: none; /* 기본적으로 숨김 */
+            border-radius: 50%;
+        }
+
+        .scroll-btn.left {
+            left: 10px;
+        }
+
+        .scroll-btn.right {
+            right: 10px;
+        }
+
+        .scroll-container:hover .scroll-btn {
+            display: block;
+        }
+
+        .horizontal-scroll {
+            display: flex;
+            overflow-x: auto;
+            padding: 1rem 0;
+            gap: 1rem;
+            scroll-behavior: smooth;
+        }
+
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none; /* 스크롤바 숨기기 (선택) */
+        }
+
+        .movie-card {
+            flex: 0 0 auto;
+            width: 180px; /* 카드 너비 조절 */
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            height: 270px; /* 포스터 비율 유지 */
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 0.5rem;
+        }
+    </style>
 </head>
-<style>
-    .scroll-container {
-        position: relative;
-    }
-
-    .scroll-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0, 0, 0, 0.6);
-        border: none;
-        color: white;
-        font-size: 24px;
-        cursor: pointer;
-        padding: 8px;
-        z-index: 1;
-        display: none; /* 기본적으로 숨김 */
-        border-radius: 50%;
-    }
-
-    .scroll-btn.left {
-        left: 10px;
-    }
-
-    .scroll-btn.right {
-        right: 10px;
-    }
-
-    .scroll-container:hover .scroll-btn {
-        display: block;
-    }
-
-    .horizontal-scroll {
-        display: flex;
-        overflow-x: auto;
-        padding: 1rem 0;
-        gap: 1rem;
-        scroll-behavior: smooth;
-    }
-
-    .horizontal-scroll::-webkit-scrollbar {
-        display: none; /* 스크롤바 숨기기 (선택) */
-    }
-
-    .movie-card {
-        flex: 0 0 auto;
-        width: 180px;     /* 카드 너비 조절 */
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    .card-image img {
-        height: 270px;     /* 포스터 비율 유지 */
-        object-fit: cover;
-    }
-    .card-content {
-        padding: 0.5rem;
-    }
-</style>
 <body>
 <main layout:fragment="content" style="min-height: 80vh; padding: 80px 0;">
-    <div class="card-content white-text">
+    <div class="card-content">
         <h4 class="center-align highlight" style="margin-bottom: 40px;">🎯 Activity Management</h4>
 
         <!-- 별점 준 영화 -->
@@ -74,18 +79,24 @@
                 <div th:each="movie : ${ratedMovies}" class="movie-card"
                      style="min-width: 160px; max-width: 160px; background: #2a2a2a; padding: 10px; border-radius: 10px;">
                     <a th:href="@{/movies/{id}(id=${movie.movieId})}">
-                    <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Movie Poster" />
-                    <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Default Poster" />
-                    <div th:text="${movie.title}" class="white-text truncate" style="margin-top:10px;"></div>
-                    <div style="margin-top:5px;">
+                        <img th:if="${not #strings.isEmpty(movie.poster)}"
+                             th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|"
+                             style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Movie Poster"/>
+                        <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}"
+                             style="width:100%; height:240px; object-fit:cover; border-radius:6px;"
+                             alt="Default Poster"/>
+                        <div th:text="${movie.title}" class="white-text truncate" style="margin-top:10px;"></div>
+                        <div style="margin-top:5px;">
     <span th:each="i : ${#numbers.sequence(1,5)}"
           th:classappend="${i <= movie.score} ? 'highlight' : 'grey-text text-darken-1'"
           th:data-value="${i}"
           style="font-size:1.2rem; cursor:pointer;">★</span>
-                    </div>
+                        </div>
                     </a>
                 </div>
-                <div th:if="${#lists.isEmpty(ratedMovies)}" style="color:#aaa; margin-top:10px;">You haven't seen any movies that gave me a star rating yet.</div>
+                <div th:if="${#lists.isEmpty(ratedMovies)}" style="color:#aaa; margin-top:10px;">You haven't seen any
+                    movies that gave me a star rating yet.
+                </div>
             </div>
         </div>
 
@@ -96,15 +107,24 @@
                 <div th:each="movie : ${wishlistMovies}" class="movie-card"
                      style="min-width: 160px; max-width: 160px; background: #2a2a2a; padding: 10px; border-radius: 10px;">
                     <a th:href="@{/movies/{id}(id=${movie.movieId})}">
-                    <img th:if="${not #strings.isEmpty(movie.poster)}" th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|" style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Movie Poster" />
-                    <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}" style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Default Poster" />
-                    <div th:text="${movie.title}" class="white-text truncate" style="margin-top:10px;"></div>
+                        <img th:if="${not #strings.isEmpty(movie.poster)}"
+                             th:src="|https://image.tmdb.org/t/p/w500${movie.poster}|"
+                             style="width:100%; height:240px; object-fit:cover; border-radius:6px;" alt="Movie Poster"/>
+                        <img th:if="${#strings.isEmpty(movie.poster)}" th:src="@{/images/default.jpg}"
+                             style="width:100%; height:240px; object-fit:cover; border-radius:6px;"
+                             alt="Default Poster"/>
+                        <div th:text="${movie.title}" class="white-text truncate" style="margin-top:10px;"></div>
                     </a>
                 </div>
-                <div th:if="${#lists.isEmpty(wishlistMovies)}" style="color:#aaa; margin-top:10px;">There are no movies marked as 'want to watch' yet.</div>
+                <div th:if="${#lists.isEmpty(wishlistMovies)}" style="color:#aaa; margin-top:10px;">There are no movies
+                    marked as 'want to watch' yet.
+                </div>
             </div>
         </div>
-
+        <div class="section" style="margin-top: 50px;">
+            <h5 class="highlight" style="margin-bottom: 20px;">📅 Calendar</h5>
+            <div id="calendar"></div>
+        </div>
     </div>
 </main>
 <script>
@@ -122,6 +142,7 @@
             }
         });
     }
+
     // 보고싶어요 해제
     function removeWishlist(movieId) {
         fetch(`/movies/` + movieId + `/interest?status=NONE`, {
@@ -134,6 +155,25 @@
             }
         });
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',  // 기본 월간 뷰
+            locale: 'ko',                 // 한글
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: ''
+            },
+            height: 'auto'                // 높이 자동 조절
+        });
+
+        calendar.render();
+    });
+
+    console.log("캘린더 스크립트 실행됨");
 </script>
 </body>
 </html>

@@ -2,6 +2,7 @@ package com.grepp.smartwatcha.app.model.details.service.jpaservice;
 
 
 import com.grepp.smartwatcha.app.model.details.dto.jpadto.WatchedRequestDto;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.WatchedResponseDto;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.MovieDetailsJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.RatingJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.WatchedJpaRepository;
@@ -17,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +29,6 @@ public class WatchedJpaService {
 
     private final WatchedJpaRepository watchedJpaRepository;
     private final RatingJpaRepository ratingJpaRepository;
-    private final UserJpaRepository userJpaRepository;
     private final MovieDetailsJpaRepository movieDetailsJpaRepository;
 
     // 사용자가 남긴 시청 날짜 저장 함수
@@ -69,6 +71,17 @@ public class WatchedJpaService {
     // WatchedEntity에 해당 movieId 에대해 userId 존재 여부 확인
     public boolean hasWatchedDate(Long userId, Long movieId) {
         return watchedJpaRepository.findByUserIdAndMovieId(userId, movieId).isPresent();
+    }
+
+    // userId에 해당하는 시청기록 Dto에 매핑
+    public List<WatchedResponseDto> getWatchedMoviesForCalendar(Long userId) {
+        return watchedJpaRepository.findByUserId(userId).stream()
+                .map(entity -> WatchedResponseDto.builder()
+                        .movieId(entity.getMovie().getId())
+                        .poster(entity.getMovie().getPoster()) // entity에 poster 필드 있어야 함
+                        .watchedDate(entity.getWatchedDate())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     // 저장한 날짜를 삭제

@@ -1,10 +1,16 @@
 package com.grepp.smartwatcha.app.controller.web.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.grepp.smartwatcha.app.controller.web.user.annotation.NonAdmin;
 import com.grepp.smartwatcha.app.model.auth.CustomUserDetails;
+import com.grepp.smartwatcha.app.model.details.dto.jpadto.WatchedResponseDto;
+import com.grepp.smartwatcha.app.model.details.service.jpaservice.WatchedJpaService;
 import com.grepp.smartwatcha.app.model.user.dto.*;
-import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import com.grepp.smartwatcha.app.model.user.service.EmailVerificationJpaService;
+import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +29,8 @@ public class UserController {
 
     private final EmailVerificationJpaService emailVerificationJpaService;
     private final UserJpaService userJpaService;
+    // 시청정보 반환하는 service 주입
+    private final WatchedJpaService watchedJpaService;
 
     @GetMapping("/login")
     public String login() {
@@ -171,10 +179,21 @@ public class UserController {
 
     @NonAdmin
     @GetMapping("/activity")
-    public String userActivity(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+    public String userActivity(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) throws JsonProcessingException {
         Long userId = userDetails.getUser().getId();
         List<RatedMovieDto> ratedMovies = userJpaService.findRatedMoviesByUserId(userId);
         List<WishlistMovieDto> wishlistMovies = userJpaService.findWishlistMoviesByUserId(userId);
+        List<WatchedResponseDto> calendarMovies = watchedJpaService.getWatchedMoviesForCalendar(userId);
+
+        // ⭐ JSON으로 변환해서 넘김
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule()); // LocalDate 변환용
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // "2025-06-16" 문자열 유지
+        String calendarMoviesJson = mapper.writeValueAsString(calendarMovies);
+
+        model.addAttribute("calendarMoviesJson", calendarMoviesJson); // 여기만 넘김
+        System.out.println(calendarMovies);
+        System.out.println(">>> calendarMoviesJson = " + calendarMoviesJson);
         model.addAttribute("ratedMovies", ratedMovies);
         model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";
