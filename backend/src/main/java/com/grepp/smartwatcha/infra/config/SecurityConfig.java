@@ -51,6 +51,8 @@ public class SecurityConfig {
         http
             // CSRF 보호 비활성화 (필요 시 활성화 가능)
             .csrf(csrf -> csrf.disable())
+            // 특정 요청("/admin/movies/upcoming/sync")에 대해서만 CSRF 보호 예외 처리 (↑ 전체 disable 대신 부분 예외 방식)
+            //.csrf(csrf -> csrf.ignoringRequestMatchers("/admin/movies/upcoming/sync"))
 
             // 로그인 설정
             .formLogin(form -> form
@@ -86,6 +88,10 @@ public class SecurityConfig {
 
             // 요청 URL 별 접근 권한 설정
             .authorizeHttpRequests(auth -> auth
+                // Kotlin → Spring 서버 간 내부 호출을 허용 (x-internal-token 방식 인증)
+                .requestMatchers("/admin/movies/upcoming/sync").permitAll()
+                // 관리자 권한이 있어야 접근 가능한 관리자 수동 동기화 엔드포인트
+                .requestMatchers("/admin/movies/upcoming/proxy-sync").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")  // 관리자만 접근 가능
                 .requestMatchers(
                     "/",

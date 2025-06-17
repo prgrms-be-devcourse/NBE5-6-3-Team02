@@ -1,7 +1,8 @@
 package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.neo4j;
 
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
-import com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper.UpcomingMovieMapper;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpcomingMovieSaveNeo4jService {
 
   private final Neo4jClient neo4jClient;     // Neo4j 클라이언트
-  private final UpcomingMovieMapper neo4jMapper;      // DTO → 파라미터 변환기
 
+  // UpcomingMovieDto 정보를 기반으로 Neo4j 저장을 위한 파라미터 구성
+  // - 이후 Cypher 쿼리 또는 Custom Repository에 전달하여 노드 및 관계 저장에 활용됨
   public void saveToNeo4j(UpcomingMovieDto dto) {
-
-    // 1. DTO → Cypher 파라미터 맵
-    Map<String, Object> params = neo4jMapper.toParameters(dto);
+    Map<String, Object> params = new HashMap<>();
+    params.put("id", dto.getId());
+    params.put("title", dto.getTitle());
+    params.put("actorNames", dto.getActorNames());
+    params.put("directorNames", dto.getDirectorNames());
+    params.put("writerNames", dto.getWriterNames());
+    params.put("genreIds", dto.getGenreIds());
 
     // 2. Cypher 쿼리: 영화 노드 MERGE, 기존 관계 삭제, 관계 재생성
     String cypher = """
@@ -61,5 +67,13 @@ public class UpcomingMovieSaveNeo4jService {
         .run();
 
     log.info("✅ [saveToNeo4j] 저장 완료: {} (ID={})", dto.getTitle(), dto.getId());
+  }
+
+  // enrich된 공개 예정작 DTO 리스트를 기반으로
+  // Neo4j에 각 영화 및 관련 노드/관계를 저장하는 메서드
+  public void saveFromDtos(List<UpcomingMovieDto> dtoList) {
+    for (UpcomingMovieDto dto : dtoList) {
+      saveToNeo4j(dto);
+    }
   }
 }
