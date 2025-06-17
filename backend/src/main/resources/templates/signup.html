@@ -192,14 +192,16 @@ function formatBirth(input) {
 <!-- 인증 코드 전송/검증을 위한 JS -->
 <script>
 function sendVerificationCode(email) {
-    return fetch('http://localhost:8081/api/v1/email-verification/send', {
+    // 스프링 백엔드로 요청
+    return fetch('/user/signup/send-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
     }).then(res => res.json());
 }
 function verifyCode(email, code) {
-    return fetch('http://localhost:8081/api/v1/email-verification/verify', {
+    // 스프링 백엔드로 요청
+    return fetch('/user/signup/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code })

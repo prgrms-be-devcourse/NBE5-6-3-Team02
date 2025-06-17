@@ -4,17 +4,13 @@ import com.grepp.smartwatcha.app.model.user.dto.RatedMovieDto;
 import com.grepp.smartwatcha.app.model.user.dto.SignupRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.FindIdRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.ResetPasswordRequestDto;
-import com.grepp.smartwatcha.app.model.user.dto.EmailVerificationRequestDto;
-import com.grepp.smartwatcha.app.model.user.dto.EmailCodeVerifyRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.UserInfoDto;
 import com.grepp.smartwatcha.app.model.user.dto.UserUpdateRequestDto;
 import com.grepp.smartwatcha.app.model.user.dto.WishlistMovieDto;
 import com.grepp.smartwatcha.app.model.user.repository.UserJpaRepository;
-import com.grepp.smartwatcha.app.model.user.repository.EmailVerificationJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.RatingJpaRepository;
 import com.grepp.smartwatcha.app.model.details.repository.jparepository.InterestJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.UserEntity;
-import com.grepp.smartwatcha.infra.jpa.entity.EmailVerificationEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.InterestEntity;
 import com.grepp.smartwatcha.infra.jpa.enums.Role;
@@ -41,9 +37,7 @@ import java.time.Period;
 @Transactional(transactionManager = "jpaTransactionManager")
 public class UserJpaService {
     private final UserJpaRepository userJpaRepository;
-    private final EmailVerificationJpaRepository emailVerificationJpaRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailVerificationJpaService emailVerificationJpaService;
     private final RatingJpaRepository ratingJpaRepository;
     private final InterestJpaRepository interestJpaRepository;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -110,10 +104,19 @@ public class UserJpaService {
     public void sendPasswordResetCode(String email) {
         UserEntity user = userJpaRepository.findByEmail(email)
             .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 이메일입니다."));
-        
-        emailVerificationJpaService.sendVerificationCode(
-            new EmailVerificationRequestDto(email)
-        );
+
+        // Kotlin 서버로 인증 코드 전송 요청
+        String url = emailAuthApiBaseUrl + "/send";
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        try {
+            restTemplate.postForEntity(url, request, Map.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("이메일 인증 코드 전송에 실패했습니다.");
+        }
     }
 
     public void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
@@ -198,12 +201,11 @@ public class UserJpaService {
             .toList();
     }
 
-    private boolean verifyEmailWithKotlinApi(String email) {
-        // 이메일 인증 여부 확인 (verified=true)
+    protected boolean verifyEmailWithKotlinApi(String email) {
         String url = emailAuthApiBaseUrl + "/verify";
         Map<String, String> body = new HashMap<>();
         body.put("email", email);
-        body.put("code", ""); // code는 빈 값, 실제로는 인증 완료 여부만 확인
+        body.put("code", ""); // 빈 코드로 인증 상태만 확인
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
@@ -215,7 +217,7 @@ public class UserJpaService {
         }
     }
 
-    private boolean verifyEmailCodeWithKotlinApi(String email, String code) {
+    public boolean verifyEmailCodeWithKotlinApi(String email, String code) {
         String url = emailAuthApiBaseUrl + "/verify";
         Map<String, String> body = new HashMap<>();
         body.put("email", email);

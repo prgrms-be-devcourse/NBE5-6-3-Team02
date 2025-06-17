@@ -6,6 +6,7 @@ import com.grepp.smartwatcha.app.model.user.dto.*;
 import com.grepp.smartwatcha.app.model.user.service.UserJpaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -145,5 +148,46 @@ public class UserController {
         model.addAttribute("ratedMovies", ratedMovies);
         model.addAttribute("wishlistMovies", wishlistMovies);
         return "user/mypage-activity";
+    }
+
+    // --- JSON 요청 지원: 회원가입 인증 코드 발송 ---
+    @PostMapping(value = "/signup/send-code", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> sendSignupVerificationCodeJson(@RequestBody Map<String, String> body) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String email = body.get("email");
+            userJpaService.sendPasswordResetCode(email); // 기존 로직 재사용
+            result.put("message", "Verification code has been sent to your email.");
+            result.put("success", true);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            result.put("error", e.getMessage());
+            result.put("success", false);
+            return ResponseEntity.badRequest().body(result);
+        }
+    }
+
+    // --- JSON 요청 지원: 회원가입 인증 코드 검증 ---
+    @PostMapping(value = "/signup/verify", consumes = "application/json", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> verifySignupCodeJson(@RequestBody Map<String, String> body) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            String email = body.get("email");
+            String code = body.get("code");
+            boolean verified = userJpaService.verifyEmailCodeWithKotlinApi(email, code);
+            result.put("verified", verified);
+            if (verified) {
+                result.put("message", "Email verification successful.");
+            } else {
+                result.put("message", "Verification code is invalid or expired.");
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            result.put("verified", false);
+            result.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(result);
+        }
     }
 }
