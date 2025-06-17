@@ -168,7 +168,7 @@ public class UserController {
         Map<String, Object> result = new HashMap<>();
         try {
             String email = body.get("email");
-            userJpaService.sendPasswordResetCode(email); // 기존 로직 재사용
+            userJpaService.sendSignupVerificationCode(email); // 회원가입용 메서드 사용
             result.put("message", "Verification code has been sent to your email.");
             result.put("success", true);
             return ResponseEntity.ok(result);
@@ -199,6 +199,53 @@ public class UserController {
             result.put("verified", false);
             result.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(result);
+        }
+    }
+
+    @PostMapping("/signup/send-code")
+    public String sendSignupVerificationCode(@ModelAttribute SignupRequestDto signupRequestDto, Model model) {
+        try {
+            userJpaService.sendSignupVerificationCode(signupRequestDto.getEmail());
+            model.addAttribute("codeSent", true);
+            model.addAttribute("signupRequestDto", signupRequestDto);
+            model.addAttribute("message", "Verification code has been sent to your email.");
+        } catch (IllegalArgumentException e) {
+            // 쿨타임 에러 메시지라면 codeSent=true로!
+            if (e.getMessage() != null && e.getMessage().contains("초 후에 다시 전송할 수 있습니다")) {
+                model.addAttribute("codeSent", true);
+                model.addAttribute("signupRequestDto", signupRequestDto);
+                model.addAttribute("message", e.getMessage());
+            } else {
+                model.addAttribute("codeSent", false);
+                model.addAttribute("signupRequestDto", signupRequestDto);
+                model.addAttribute("error", e.getMessage());
+            }
+        }
+        return "signup";
+    }
+
+    @PostMapping("/signup/verify")
+    public String verifySignupCode(@ModelAttribute SignupRequestDto signupRequestDto, 
+                                 @RequestParam String verificationCode,
+                                 Model model, RedirectAttributes redirectAttributes) {
+        try {
+            boolean verified = userJpaService.verifyEmailCodeWithKotlinApi(signupRequestDto.getEmail(), verificationCode);
+            if (verified) {
+                // 인증 성공 시 회원가입 진행
+                userJpaService.signup(signupRequestDto);
+                redirectAttributes.addFlashAttribute("message", "Registration completed. Please log in.");
+                return "redirect:/user/login";
+            } else {
+                model.addAttribute("codeSent", true);
+                model.addAttribute("signupRequestDto", signupRequestDto);
+                model.addAttribute("error", "Verification code is invalid or expired.");
+                return "signup";
+            }
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("codeSent", true);
+            model.addAttribute("signupRequestDto", signupRequestDto);
+            model.addAttribute("error", e.getMessage());
+            return "signup";
         }
     }
 }
