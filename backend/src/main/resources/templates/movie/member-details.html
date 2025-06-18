@@ -473,12 +473,7 @@
         <div class="poster">
             <img th:src="${movie.poster != null ? 'https://image.tmdb.org/t/p/w500' + movie.poster : '/images/default.jpg'}"
                  alt="포스터">
-            <div class="graph">
-                <div th:each="bar : ${ratingBars}" class="bar-group">
-                    <div class="bar-vertical" th:style="'height:' + (${bar.percent} * 10) + 'px'"></div>
-                    <div class="bar-label" th:text="${bar.score} + 'point'"></div>
-                </div>
-            </div>
+            <div class="graph" id="ratingGraph"></div>
         </div>
 
         <div class="info-section">
@@ -675,10 +670,11 @@
         if (!res.ok) return;
         const json = await res.json();
         const bars = json.data;
-        const graph = document.querySelector(".graph");
+        const graph = document.getElementById("ratingGraph");
         graph.innerHTML = "";  // 기존 그래프 초기화
 
-        const maxHeight = 100;
+        const maxHeight = 120;
+        const maxPercent = Math.max(...bars.map(b => b.percent));
 
         bars.forEach(bar => {
             const group = document.createElement("div");
@@ -686,7 +682,7 @@
 
             const barDiv = document.createElement("div");
             barDiv.className = "bar-vertical";
-            barDiv.style.height = (bar.percent * 10) + "px";
+            barDiv.style.height =((bar.percent / maxPercent) * maxHeight) + "px";
 
             const label = document.createElement("div");
             label.className = "bar-label";
@@ -1081,6 +1077,9 @@
             document.getElementById("watchedDateModal").style.display = "none";
             document.getElementById("watchedActionModal").style.display = "none";
         }
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+        loadRatingBars(); // 페이지 처음 들어왔을 때도 렌더링
     });
 
     // 오늘 날짜 이후 선택 못하도록 제한
