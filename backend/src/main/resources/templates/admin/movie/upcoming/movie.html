@@ -146,7 +146,7 @@
         <tbody>
         <tr th:each="movie : ${movies}">
           <td th:text="${movie.id}" style="width: 7%">ID</td>
-          <td th:text="${movie.title}"style="width: 15%">Title</td>
+          <td th:text="${movie.title}" style="width: 15%">Title</td>
           <td>
             <img th:src="'https://image.tmdb.org/t/p/w500' + ${movie.poster}"
                  alt="Poster"
@@ -154,7 +154,9 @@
                  onerror="this.onerror=null;this.src='/images/default.jpg';">
           </td>
           <td th:text="${movie.overview}" style="width: 50%;">Overview</td>
-          <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 12%">Release Date</td>
+          <td th:text="${#temporals.format(movie.releaseDate, 'yyyy-MM-dd')}" style="width: 12%">
+            Release Date
+          </td>
           <td th:text="${movie.country}" style="width: 8%">Country</td>
           <td th:text="${movie.certification}" style="width: 20%">Certification</td>
         </tr>
@@ -189,35 +191,27 @@
 
   <script>
     function syncUpcomingMovies() {
-      const progressBar = document.getElementById('syncProgress');
-      progressBar.style.display = 'block'; // ⬅️ 시작 시 보이기
-
-      fetch('/admin/movies/upcoming/sync', {
+      fetch('/admin/movies/upcoming/proxy-sync', {
         method: 'POST'
       })
       .then(res => {
         console.log("Response status:", res.status);
-        return res.text().then(text => ({ status: res.status, text }));
+        return res.text().then(text => ({status: res.status, text}));
       })
-      .then(({ status, text }) => {
+      .then(({status, text}) => {
         if (status === 200) {
-          alert("✅ Sync completed successfully!");
-          window.location.href = '/admin/movies/upcoming';
+          alert("⏳ Sync request sent.\nThe process will continue in the background.");
         } else {
           alert(text || `❌ Sync failed! (${status})`);
         }
       })
       .catch(err => {
-        progressBar.style.display = 'none'; // 오류시 숨기기
         console.error('Sync failed:', err);
-        alert("⚠️ An error occurred during synchronization. Please check the server logs for details.");
+        alert(
+            "⚠️ An error occurred during synchronization. Please check the server logs for details.");
       })
-    .finally(() => {
-        progressBar.style.display = 'none'; // ⬅️ 완료 후 숨기기
-      });
     }
   </script>
-
 </section>
 </body>
 </html>

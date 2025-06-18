@@ -65,6 +65,7 @@ public class UpcomingMoviePageController {
         model.addAttribute("lastSyncTime", upcomingMovieSyncTimeJpaRepository.findByType("upcoming")
             .map(SyncTimeEntity::getSyncTime)
             .orElse(null));
+        model.addAttribute("syncSuccess", true); // 동기화 요청 후 성공 플래그를 View에 전달
 
         return "/admin/movie/upcoming/movie";
     }

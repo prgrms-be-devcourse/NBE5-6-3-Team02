@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.4.5"
+    id("org.springframework.boot") version "3.2.5"
     id("io.spring.dependency-management") version "1.1.4"
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.spring") version "1.9.22"
@@ -34,6 +34,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.3")
 
     // mysql
     runtimeOnly("com.mysql:mysql-connector-j")
@@ -42,13 +43,13 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
-    testImplementation("org.neo4j.test:neo4j-harness")
+    testImplementation("org.neo4j.test:neo4j-harness:5.17.0")
 }
 
 // Feign
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.1")
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.1")
     }
 }
 

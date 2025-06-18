@@ -1,73 +1,54 @@
 package com.grepp.smartwatcha.app.model.recommend;
 
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreDto;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendResponse;
-import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
 import com.grepp.smartwatcha.app.model.recommend.service.userbased.RecommendUserBasedRatedJpaService;
 import com.grepp.smartwatcha.app.model.recommend.service.userbased.RecommendUserBasedRatedNeo4jService;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendUserBasedMovieService {
 
-    private final RecommendUserBasedRatedJpaService ratingService;
-    private final RecommendUserBasedRatedNeo4jService graphService;
-    private final MovieQueryJpaRepository movieQueryRepository;
+    private final RecommendUserBasedRatedJpaService jpaService;
+    private final RecommendUserBasedRatedNeo4jService neo4jService;
 
-    // 협업 필터링 기반 10개 영화 추천
+    // 유사한 사용자의 평가 기반으로 추천
     public List<MovieRecommendResponse> getTop10UserBasedMovies(Long userId) {
-        Map<Long, Double> finalScores = ratingService.calculateUserBasedScores(userId);
+        Map<Long, Double> finalScores = jpaService.calculateUserBasedScores(userId);
         List<Long> topMovieIds = getTop10MovieIds(finalScores);
 
         if (topMovieIds.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Map<Long, MovieEntity> movieMap = getMovieMap(topMovieIds);
-        Map<Long, List<String>> genreMap = new HashMap<>();
-        Map<Long, List<String>> tagMap = new HashMap<>();
-        buildGenreAndTagMaps(topMovieIds, genreMap, tagMap);
+        Map<Long, List<String>> genreMap = neo4jService.getGenresByMovieIdList(topMovieIds)
+                .stream()
+                .collect(Collectors.toMap(MovieGenreDto::getMovieId, MovieGenreDto::getGenres));
 
-        return buildResponseList(topMovieIds, finalScores, movieMap, genreMap, tagMap);
-    }
+        Map<Long, List<String>> tagMap = jpaService.getTagMapByMovieIds(topMovieIds);
 
-    // 예측 점수 내림차순 정렬
-    private List<Long> getTop10MovieIds(Map<Long, Double> scoreMap) {
-        List<Map.Entry<Long, Double>> sortedEntries = new ArrayList<>(scoreMap.entrySet());
-        sortedEntries.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
+        Map<Long, MovieEntity> movieMap = jpaService.getMoviesByIds(topMovieIds);
 
-        List<Long> result = new ArrayList<>();
-        int count = Math.min(10, sortedEntries.size());
-        for (int i = 0; i < count; i++) {
-            result.add(sortedEntries.get(i).getKey());
-        }
+        List<MovieRecommendResponse> result = buildResponseList(topMovieIds, finalScores, movieMap, genreMap, tagMap);
+
         return result;
     }
 
-    // movieEntity 조회하여 map으로 매핑
-    private Map<Long, MovieEntity> getMovieMap(List<Long> movieIds) {
-        List<MovieEntity> movies = movieQueryRepository.findByIdIn(movieIds);
-        Map<Long, MovieEntity> map = new HashMap<>();
-        for (MovieEntity movie : movies) {
-            map.put(movie.getId(), movie);
-        }
-        return map;
+    // 추천 점수 상위 10개 영화만 추출하여 반환
+    private List<Long> getTop10MovieIds(Map<Long, Double> scoreMap) {
+        return scoreMap.entrySet().stream()
+                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
+                .limit(10)
+                .map(Map.Entry::getKey)
+                .toList();
     }
 
-    // 장르와 태그 조회하여 map으로 저장
-    private void buildGenreAndTagMaps(List<Long> movieIds, Map<Long, List<String>> genreMap, Map<Long, List<String>> tagMap) {
-        List<MovieGenreTagResponse> responses = graphService.getGenreTagInfoByMovieIdList(movieIds);
-        for (MovieGenreTagResponse response : responses) {
-            genreMap.put(response.getMovieId(), response.getGenres());
-            tagMap.put(response.getMovieId(), response.getTags());
-        }
-    }
-
-    // 영화별로 점수,장르태그 조합하여 DTO로 변환
+    // Response형태로 구성
     private List<MovieRecommendResponse> buildResponseList(
             List<Long> movieIds,
             Map<Long, Double> scoreMap,
@@ -81,9 +62,7 @@ public class RecommendUserBasedMovieService {
             double score = scoreMap.getOrDefault(movieId, 0.0);
             List<String> genres = genreMap.getOrDefault(movieId, List.of());
             List<String> tags = tagMap.getOrDefault(movieId, List.of());
-
-            MovieRecommendResponse response = MovieRecommendResponse.from(movie, score, genres, tags);
-            responses.add(response);
+            responses.add(MovieRecommendResponse.from(movie, score, genres, tags));
         }
         return responses;
     }

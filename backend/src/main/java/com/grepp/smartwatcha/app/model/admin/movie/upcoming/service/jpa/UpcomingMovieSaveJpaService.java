@@ -1,10 +1,10 @@
 package com.grepp.smartwatcha.app.model.admin.movie.upcoming.service.jpa;
 
-import com.grepp.smartwatcha.app.model.admin.movie.upcoming.mapper.UpcomingMovieMapper;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.dto.UpcomingMovieDto;
 import com.grepp.smartwatcha.app.model.admin.movie.upcoming.repository.UpcomingMovieJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UpcomingMovieSaveJpaService {
 
   private final UpcomingMovieJpaRepository upcomingMovieJpaRepository;
-  private final UpcomingMovieMapper upcomingMovieMapper;
 
   // 영화 정보를 JPA 엔티티로 변환하여 저장
   // 이미 존재하는 경우 업데이트 수행
@@ -44,7 +43,7 @@ public class UpcomingMovieSaveJpaService {
       boolean exists = upcomingMovieJpaRepository.existsById(dto.getId());
 
       if (!exists) {
-        MovieEntity entity = upcomingMovieMapper.toJpaEntity(dto);
+        MovieEntity entity = toJpaEntity(dto);
         upcomingMovieJpaRepository.save(entity);
         log.info("✅ [saveToJpa] 저장 완료: {} (id: {})", dto.getTitle(), dto.getId());
       } else {
@@ -62,14 +61,12 @@ public class UpcomingMovieSaveJpaService {
   public void updateToJpa(UpcomingMovieDto dto) {
     upcomingMovieJpaRepository.findById(dto.getId()).ifPresentOrElse(entity -> {
       entity.setTitle(dto.getTitle());
-      LocalDateTime releaseDateTime = upcomingMovieMapper.parseDateWithDefaultTime(dto.getReleaseDate(), dto.getTitle());
-      entity.setReleaseDate(releaseDateTime);
+      entity.setReleaseDate(LocalDateTime.parse(dto.getReleaseDate() + "T00:00:00")); // Kotlin에서 날짜 보장
       entity.setOverview(dto.getOverview());
       entity.setCertification(dto.getCertification());
       entity.setPoster(dto.getPosterPath());
       entity.setCountry(dto.getCountry());
       entity.setIsReleased(false); // 동기화 대상은 항상 미공개 상태
-
       upcomingMovieJpaRepository.save(entity);
       log.info("✅ [saveToJpa] 업데이트 완료: {} (id: {})", dto.getTitle(), dto.getId());
     }, () -> {
@@ -90,5 +87,30 @@ public class UpcomingMovieSaveJpaService {
   // 현재 시점 이후 개봉 예정인 미공개 영화 목록을 페이지네이션하여 조회
   public Page<MovieEntity> getUpcomingMovies(Pageable pageable) {
     return upcomingMovieJpaRepository.findByIsReleasedFalseAndReleaseDateAfter(LocalDateTime.now(), pageable);
+  }
+
+  // Kotlin에서 enrich된 DTO 리스트를 받아 하나씩 JPA 엔티티로 변환 후 저장
+  // - 저장 대상: MovieEntity (MySQL)
+  // - 개봉일 등 필수 필드는 DTO 기준으로 파싱
+  public void saveFromDtos(List<UpcomingMovieDto> dtoList) {
+    for (UpcomingMovieDto dto : dtoList) {
+      saveToJpa(dto);  // 개별 DTO를 JPA 저장
+    }
+  }
+
+  // UpcomingMovieDto → JPA MovieEntity 변환
+  // - 개봉일은 문자열 형식("yyyy-MM-dd") 기준으로 LocalDateTime 생성
+  // - 기본적으로 isReleased = false 설정 (관리자가 별도로 릴리즈 여부 판단)
+  private MovieEntity toJpaEntity(UpcomingMovieDto dto) {
+    return MovieEntity.builder()
+        .id(dto.getId())
+        .title(dto.getTitle())
+        .poster(dto.getPosterPath())
+        .releaseDate(LocalDateTime.parse(dto.getReleaseDate() + "T00:00:00"))
+        .overview(dto.getOverview())
+        .certification(dto.getCertification())
+        .country(dto.getCountry())
+        .isReleased(false)
+        .build();
   }
 }

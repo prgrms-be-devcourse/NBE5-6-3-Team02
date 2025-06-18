@@ -207,11 +207,8 @@
 
     // "Manual Sync" 버튼 클릭 시 실행될 함수
     function syncUpcomingMovies() {
-      const spinner = document.getElementById("syncSpinner");
-      spinner.style.display = "inline-block"; // 표시
-
       // 비동기 GET 요청: 수동 동기화 API 호출
-      fetch('/admin/movies/upcoming/sync', {
+      fetch('/admin/movies/upcoming/proxy-sync', {
         method: 'POST'
       })
       .then(res => {
@@ -220,8 +217,7 @@
       })
       .then(({ status, text }) => {
         if (status === 200) {
-          alert("✅ Sync completed successfully!");
-          window.location.href = '/admin';
+          alert("⏳ Sync request sent.\nThe process will continue in the background.");
         } else {
           alert(text || `❌ Sync failed! (${status})`);
         }
@@ -232,9 +228,6 @@
         console.error('Sync failed:', err);
         alert("⚠️ An error occurred during synchronization. Please check the server logs for details.");
       })
-      .finally(() => {
-        spinner.style.display = 'none'; // ⬅️ 완료 후 숨기기
-      });
     }
   </script>
 </section>

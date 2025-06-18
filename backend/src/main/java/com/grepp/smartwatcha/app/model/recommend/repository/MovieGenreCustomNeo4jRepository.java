@@ -1,13 +1,15 @@
 package com.grepp.smartwatcha.app.model.recommend.repository;
 
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreResponse;
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreDto;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieTagDto;
+
 import java.util.List;
 
 public interface MovieGenreCustomNeo4jRepository {
-    // 영화 id로 장르와 태그 조회
-    List<MovieGenreTagResponse> findGenresAndTagsByMovieIdList(List<Long> movieIdList);
 
-    // 영화 id로 장르만 조회
-    List<MovieGenreResponse> findOnlyGenresByMovieIdList(List<Long> movieIdList);
+    // 영화 id로 장르 조회
+    List<MovieGenreDto> findOnlyGenresByMovieIdList(List<Long> movieIdList);
+
+    // 영화 id로 태그 조회
+    List<MovieTagDto> findTagsByMovieIdList(List<Long> movieIdList);
 }

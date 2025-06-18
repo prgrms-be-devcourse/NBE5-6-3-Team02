@@ -10,12 +10,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(value = "neo4jTransactionManager", readOnly = true)
 public class RecommendHighestRatedNeo4jService {
 
     private final MovieQueryNeo4jRepository genreRepo;
 
     //movieId로 영화 노드 찾아 장르 노드들의 이름을 리스트로 반환
-    @Transactional("neo4jTransactionManager")
     public List<String> getGenresByMovieId(Long movieId) {
         return genreRepo.findById(movieId)
                 .map(MovieNode::getGenres)
