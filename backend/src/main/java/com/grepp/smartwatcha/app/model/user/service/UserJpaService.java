@@ -61,7 +61,18 @@ public class UserJpaService {
                 .filter(user -> !user.getActivated())
                 .orElse(null);
 
-        LocalDate birth = LocalDate.parse(requestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        // birth 값 null 체크
+        if (requestDto.getBirth() == null || requestDto.getBirth().trim().isEmpty()) {
+            throw new IllegalArgumentException("생년월일을 입력해주세요.");
+        }
+
+        LocalDate birth;
+        try {
+            birth = LocalDate.parse(requestDto.getBirth(), DateTimeFormatter.ofPattern("yyyy.MM.dd"));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("생년월일 형식이 올바르지 않습니다. (예: 2000.04.20)");
+        }
+        
         int age = Period.between(birth, LocalDate.now()).getYears();
         boolean isAdult = age >= 19;
 
