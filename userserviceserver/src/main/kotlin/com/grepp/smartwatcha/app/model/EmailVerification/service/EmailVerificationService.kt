@@ -47,8 +47,10 @@ class EmailVerificationService(
         val now = LocalDateTime.now()
         val expiredAt = now.plusMinutes(expireMinutes.toLong())
 
+        // 기존 데이터 삭제 후 즉시 flush
         emailVerificationRepository.findByEmail(request.email)?.let {
             emailVerificationRepository.delete(it)
+            emailVerificationRepository.flush() // 즉시 DB에 반영
         }
 
         val entity = EmailVerification(
