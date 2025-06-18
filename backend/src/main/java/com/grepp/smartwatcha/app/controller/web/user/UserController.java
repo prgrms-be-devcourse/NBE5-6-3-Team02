@@ -204,6 +204,9 @@ public class UserController {
 
     @PostMapping("/signup/send-code")
     public String sendSignupVerificationCode(@ModelAttribute SignupRequestDto signupRequestDto, Model model) {
+        // 디버깅 로그 추가
+        log.info("sendSignupVerificationCode: name={}, email={}, phoneNumber={}, password={}", 
+            signupRequestDto.getName(), signupRequestDto.getEmail(), signupRequestDto.getPhoneNumber(), signupRequestDto.getPassword());
         try {
             userJpaService.sendSignupVerificationCode(signupRequestDto.getEmail());
             model.addAttribute("codeSent", true);
@@ -228,6 +231,20 @@ public class UserController {
     public String verifySignupCode(@ModelAttribute SignupRequestDto signupRequestDto, 
                                  @RequestParam String verificationCode,
                                  Model model, RedirectAttributes redirectAttributes) {
+        // 디버깅 로그
+        log.info("verifySignupCode: name={}, email={}, phoneNumber={}, password={}, birth={}", 
+            signupRequestDto.getName(), signupRequestDto.getEmail(), signupRequestDto.getPhoneNumber(), 
+            signupRequestDto.getPassword(), signupRequestDto.getBirth());
+
+        // 값이 하나라도 null이면 에러 안내
+        if (signupRequestDto.getName() == null || signupRequestDto.getEmail() == null || 
+            signupRequestDto.getPhoneNumber() == null || signupRequestDto.getPassword() == null ||
+            signupRequestDto.getBirth() == null) {
+            model.addAttribute("codeSent", true);
+            model.addAttribute("signupRequestDto", signupRequestDto);
+            model.addAttribute("error", "입력값이 누락되었습니다. 처음부터 다시 시도해 주세요.");
+            return "signup";
+        }
         try {
             boolean verified = userJpaService.verifyEmailCodeWithKotlinApi(signupRequestDto.getEmail(), verificationCode);
             if (verified) {

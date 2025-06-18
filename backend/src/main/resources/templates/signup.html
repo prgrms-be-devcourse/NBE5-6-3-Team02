@@ -116,6 +116,7 @@
                             <input type="hidden" name="name" th:value="${signupRequestDto.name}">
                             <input type="hidden" name="email" th:value="${signupRequestDto.email}">
                             <input type="hidden" name="phoneNumber" th:value="${signupRequestDto.phoneNumber}">
+                            <input type="hidden" name="birth" th:value="${signupRequestDto.birth}">
                             <input type="hidden" name="password" th:value="${signupRequestDto.password}">
                             <input type="hidden" name="confirmPassword" th:value="${signupRequestDto.confirmPassword}">
                             <div class="input-field" style="display: flex; align-items: center;">
@@ -169,7 +170,7 @@
             var form = document.createElement('form');
             form.method = 'POST';
             form.action = '/user/signup/send-code';
-            ['name','email','phoneNumber','password','confirmPassword'].forEach(function(field) {
+            ['name','email','phoneNumber','birth','password','confirmPassword'].forEach(function(field) {
                 var input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = field;
