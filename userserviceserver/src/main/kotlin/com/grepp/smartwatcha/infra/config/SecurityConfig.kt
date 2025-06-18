@@ -31,6 +31,9 @@ class SecurityConfig(
             // 요청별 인가 설정
             .authorizeHttpRequests { auth ->
                 auth
+                    // 이메일 인증 API 경로는 모든 요청 허용
+                    .requestMatchers("/api/v1/email-verification/**").permitAll()
+                    
                     // 관리자 동기화 API 경로에 대해 커스텀 인증 로직 적용
                     .requestMatchers("/admin/movies/upcoming/sync")
                     .access { _: Supplier<*>, context: RequestAuthorizationContext ->
@@ -42,7 +45,6 @@ class SecurityConfig(
                     // 그 외 모든 요청은 허용
                     .anyRequest().permitAll()
             }
-
             .build()
     }
 }
