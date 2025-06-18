@@ -1,6 +1,7 @@
 package com.grepp.smartwatcha.app.model.recommend.service.personal;
 
 import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
+import com.grepp.smartwatcha.app.model.recommend.repository.MovieTagRepository;
 import com.grepp.smartwatcha.app.model.recommend.repository.RatingRecommendJpaRepository;
 import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
@@ -18,86 +19,73 @@ public class RecommendPersonalRatedJpaService {
 
     private final RatingRecommendJpaRepository ratingRepository;
     private final MovieQueryJpaRepository movieQueryRepository;
+    private final MovieTagRepository movieTagRepository;
 
-    // 공개된 영화 조회
+    // 출시된 영화 목록 조회
     public List<MovieEntity> findAllReleasedMovies() {
         return movieQueryRepository.findAllReleased();
     }
 
-    // 장르별 선호 점수 계산 후 평균값을 맵으로 생성
+    // 사용자가 평가한 영화 반환
+    public List<Long> getRatedMovieIdsByUser(Long userId) {
+        return ratingRepository.findByUserId(userId).stream()
+                .map(r -> r.getMovie().getId())
+                .distinct()
+                .toList();
+    }
+
+    // 장르별 선호도를 별점과 시간 가중치 반영해서 계산
     public Map<String, Double> calculateGenrePreferences(Long userId, Map<Long, List<String>> genreMap) {
         List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
         Map<String, List<Double>> genreScores = new HashMap<>();
-
         for (RatingEntity rating : ratings) {
-            double weightedScore = getWeightedScore(rating);
-            List<String> genres = genreMap.getOrDefault(rating.getMovie().getId(), List.of());
-
-            for (String genre : genres) {
-                genreScores.computeIfAbsent(genre, key -> new ArrayList<>()).add(weightedScore);
+            double weighted = getWeightedScore(rating);
+            for (String genre : genreMap.getOrDefault(rating.getMovie().getId(), List.of())) {
+                genreScores.computeIfAbsent(genre, k -> new ArrayList<>()).add(weighted);
             }
         }
-        
-        Map<String, Double> result = new HashMap<>();
-        for (Map.Entry<String, List<Double>> entry : genreScores.entrySet()) {
-            double average = calculateAverage(entry.getValue());
-            result.put(entry.getKey(), average);
-        }
-
-        return result;
+        return averageMap(genreScores);
     }
 
-    // 태그별 선호 점수 계산 후 평균값을 맵으로 생성
-    public Map<String, Double> calculateTagPreferences(Long userId, Map<Long, List<String>> tagMap) {
+    // 태그별 선호도 계산
+    public Map<String, Double> calculateTagPreferencesByUserOnly(Long userId, List<Long> ratedMovieIds) {
+        List<Object[]> rows = movieTagRepository.findTagNamesByUserAndMovieIds(userId, ratedMovieIds);
+        Map<Long, List<String>> tagMap = new HashMap<>();
+        for (Object[] row : rows) {
+            Long movieId = (Long) row[0];
+            String tagName = (String) row[1];
+            tagMap.computeIfAbsent(movieId, k -> new ArrayList<>()).add(tagName);
+        }
+
         List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
         Map<String, List<Double>> tagScores = new HashMap<>();
-
         for (RatingEntity rating : ratings) {
-            double weightedScore = getWeightedScore(rating);
+            double weighted = getWeightedScore(rating);
             List<String> tags = tagMap.getOrDefault(rating.getMovie().getId(), List.of());
 
             for (String tag : tags) {
-                tagScores.computeIfAbsent(tag, key -> new ArrayList<>()).add(weightedScore);
+                tagScores.computeIfAbsent(tag, k -> new ArrayList<>()).add(weighted);
             }
         }
 
-        Map<String, Double> result = new HashMap<>();
-        for (Map.Entry<String, List<Double>> entry : tagScores.entrySet()) {
-            double average = calculateAverage(entry.getValue());
-            result.put(entry.getKey(), average);
-        }
-
+        Map<String, Double> result = averageMap(tagScores);
         return result;
     }
 
-    // 사용자가 평가한 id 목록 반환
-    public List<Long> getRatedMovieIdsByUser(Long userId) {
-        List<RatingEntity> ratings = ratingRepository.findByUserId(userId);
-        Set<Long> movieIds = new HashSet<>();
 
-        for (RatingEntity rating : ratings) {
-            movieIds.add(rating.getMovie().getId());
+    // 데이터 가공
+    private Map<String, Double> averageMap(Map<String, List<Double>> map) {
+        Map<String, Double> result = new HashMap<>();
+        for (var entry : map.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().stream().mapToDouble(Double::doubleValue).average().orElse(0.0));
         }
-
-        return new ArrayList<>(movieIds);
+        return result;
     }
 
-    // 시간에 따른 가중치 적용 후 점수 계산
+    // 별점 시간 기반 가중치를 곱해 계산
     private double getWeightedScore(RatingEntity rating) {
         long daysSince = Duration.between(rating.getCreatedAt(), LocalDateTime.now()).toDays();
         double weight = 1.0 / Math.sqrt(daysSince + 1);
         return rating.getScore() * weight;
-    }
-
-    // 리스트의 평균값 계산
-    private double calculateAverage(List<Double> values) {
-        if (values.isEmpty()) return 0.0;
-
-        double sum = 0.0;
-        for (Double v : values) {
-            sum += v;
-        }
-
-        return sum / values.size();
     }
 }

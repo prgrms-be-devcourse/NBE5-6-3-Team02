@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/recommend")
+@RequestMapping("/recommend")
 public class RecommendApiController {
 
     private final RecommendPersonalMovieService recommendPersonalMovieService;

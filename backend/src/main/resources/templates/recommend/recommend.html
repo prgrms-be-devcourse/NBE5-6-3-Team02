@@ -139,7 +139,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             sectionConfig.forEach(({ key, containerId, emptyMsg }) => {
-                fetch(`/api/recommend/${key}`)
+                fetch(`/recommend/${key}`)
                     .then(res => res.ok ? res.json() : [])
                     .then(data => {
                         const container = document.getElementById(containerId);

@@ -1,15 +1,18 @@
 package com.grepp.smartwatcha.app.model.recommend.service.userbased;
 
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieCreatedAtResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieCreatedAtDto;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRatingScoreDto;
-import com.grepp.smartwatcha.app.model.recommend.repository.RatingRecommendJpaRepository;
+import com.grepp.smartwatcha.infra.jpa.entity.MovieEntity;
 import com.grepp.smartwatcha.infra.jpa.entity.RatingEntity;
+import com.grepp.smartwatcha.app.model.recommend.repository.MovieQueryJpaRepository;
+import com.grepp.smartwatcha.app.model.recommend.repository.RatingRecommendJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,9 +20,10 @@ import java.util.*;
 public class RecommendUserBasedRatedJpaService {
 
     private final RatingRecommendJpaRepository ratingRepository;
+    private final MovieQueryJpaRepository movieQueryRepository;
     private static final int K = 10;
 
-    // 유사한 사용자들의 평점 기반으로 영화별 예측 평점 계산
+    // 평가하지 않은 영화들의 예측 점수 계산
     public Map<Long, Double> calculateUserBasedScores(Long userId) {
         List<RatingEntity> myRatings = ratingRepository.findByUserId(userId);
         if (myRatings.isEmpty()) return Map.of();
@@ -39,13 +43,33 @@ public class RecommendUserBasedRatedJpaService {
         Map<Long, Double> similarityMap = calculateSimilarities(candidateUserIds, targetRatingMap, userRatingScoreMap);
         List<Long> topKUserIds = getTopKSimilarUsers(similarityMap);
 
-        List<MovieCreatedAtResponse> topKRatingDtos = ratingRepository.findRatingProjectionsByUserIdIn(topKUserIds);
-        Map<Long, List<MovieCreatedAtResponse>> topKUserRatingsMap = groupByUser(topKRatingDtos);
+        List<MovieCreatedAtDto> topKRatingDtos = ratingRepository.findRatingProjectionsByUserIdIn(topKUserIds);
+        Map<Long, List<MovieCreatedAtDto>> topKUserRatingsMap = groupByUser(topKRatingDtos);
 
         return predictScores(topKUserIds, targetRatingMap, topKUserRatingsMap, similarityMap);
     }
 
-    // 평가한 영화 평점을 map으로 변환
+    // 영화 id에 대한 Entity 반환
+    public Map<Long, MovieEntity> getMoviesByIds(List<Long> movieIds) {
+        return movieQueryRepository.findByIdIn(movieIds).stream()
+                .collect(Collectors.toMap(MovieEntity::getId, m -> m));
+    }
+
+    // 영화에 연결된 태그 목록 반환
+    public Map<Long, List<String>> getTagMapByMovieIds(List<Long> movieIds) {
+        List<Object[]> results = ratingRepository.findTagNamesByMovieIds(movieIds);
+
+        Map<Long, List<String>> tagMap = new HashMap<>();
+
+        for (Object[] row : results) {
+            Long movieId = (Long) row[0];
+            String tag = (String) row[1];
+            tagMap.computeIfAbsent(movieId, k -> new ArrayList<>()).add(tag);
+        }
+        return tagMap;
+    }
+
+    // 사용자의 평점을 map형태로 정리
     private Map<Long, Double> buildRatingMap(List<RatingEntity> ratings) {
         Map<Long, Double> ratingMap = new HashMap<>();
         for (RatingEntity rating : ratings) {
@@ -54,15 +78,12 @@ public class RecommendUserBasedRatedJpaService {
         return ratingMap;
     }
 
-    // 평가한 영화의 id 추출
+    // 평점리스트에서 영화 id추출
     private List<Long> extractMovieIds(List<RatingEntity> ratings) {
-        List<Long> ids = new ArrayList<>();
-        for (RatingEntity rating : ratings) {
-            ids.add(rating.getMovie().getId());
-        }
-        return ids;
+        return ratings.stream().map(r -> r.getMovie().getId()).collect(Collectors.toList());
     }
 
+    // List를 map으로 그룹핑
     private Map<Long, Map<Long, Double>> groupScoresByUser(List<MovieRatingScoreDto> list) {
         Map<Long, Map<Long, Double>> map = new HashMap<>();
         for (MovieRatingScoreDto dto : list) {
@@ -72,16 +93,16 @@ public class RecommendUserBasedRatedJpaService {
         return map;
     }
 
-    // 평점 리스트를 id 기준으로 그룹핑
-    private Map<Long, List<MovieCreatedAtResponse>> groupByUser(List<MovieCreatedAtResponse> list) {
-        Map<Long, List<MovieCreatedAtResponse>> map = new HashMap<>();
-        for (MovieCreatedAtResponse dto : list) {
+    // List를 map으로 그룹핑
+    private Map<Long, List<MovieCreatedAtDto>> groupByUser(List<MovieCreatedAtDto> list) {
+        Map<Long, List<MovieCreatedAtDto>> map = new HashMap<>();
+        for (MovieCreatedAtDto dto : list) {
             map.computeIfAbsent(dto.getUserId(), k -> new ArrayList<>()).add(dto);
         }
         return map;
     }
 
-    // 유저와의 유사도 계산
+    // 사용자와 유사한 다른 사용자들의 유사도 계산
     private Map<Long, Double> calculateSimilarities(
             List<Long> candidateUserIds,
             Map<Long, Double> targetRatingMap,
@@ -101,7 +122,7 @@ public class RecommendUserBasedRatedJpaService {
         return similarityMap;
     }
 
-    // 유사도 기준 k명 추출
+    // 유사도 상위 k명의 사용자 id 반환
     private List<Long> getTopKSimilarUsers(Map<Long, Double> similarityMap) {
         return similarityMap.entrySet().stream()
                 .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
@@ -110,11 +131,11 @@ public class RecommendUserBasedRatedJpaService {
                 .toList();
     }
 
-    // 유사한 유저들의 영화별 예측 평점 계산
+    // 유사한 사용자들의 평가 기반으로 미평가 영화 예측 점수 계산
     private Map<Long, Double> predictScores(
             List<Long> topKUserIds,
             Map<Long, Double> targetRatingMap,
-            Map<Long, List<MovieCreatedAtResponse>> userRatingsMap,
+            Map<Long, List<MovieCreatedAtDto>> userRatingsMap,
             Map<Long, Double> similarityMap) {
 
         Map<Long, Double> predictedScores = new HashMap<>();
@@ -122,9 +143,9 @@ public class RecommendUserBasedRatedJpaService {
 
         for (Long similarUserId : topKUserIds) {
             double similarity = similarityMap.get(similarUserId);
-            List<MovieCreatedAtResponse> others = userRatingsMap.get(similarUserId);
+            List<MovieCreatedAtDto> others = userRatingsMap.get(similarUserId);
 
-            for (MovieCreatedAtResponse dto : others) {
+            for (MovieCreatedAtDto dto : others) {
                 Long movieId = dto.getMovieId();
                 if (targetRatingMap.containsKey(movieId)) continue;
 
@@ -146,7 +167,7 @@ public class RecommendUserBasedRatedJpaService {
         return finalScores;
     }
 
-    // 유저 평점을 바탕으로 코사인 유사도 계산
+    // 두 사용자 간의 평점 벡터의 코사인 유사도 계산
     private double cosineSimilarity(Map<Long, Double> a, Map<Long, Double> b) {
         Set<Long> common = new HashSet<>(a.keySet());
         common.retainAll(b.keySet());

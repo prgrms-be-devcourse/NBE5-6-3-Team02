@@ -6,7 +6,7 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class MovieGenreResponse {
+public class MovieGenreDto {
 
     private Long movieId;
     private List<String> genres;

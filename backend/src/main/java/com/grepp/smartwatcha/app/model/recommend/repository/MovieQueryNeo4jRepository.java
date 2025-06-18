@@ -17,8 +17,4 @@ public interface MovieQueryNeo4jRepository extends Neo4jRepository<MovieNode, Lo
     // 영화에 연결된 장르 조회
     @Query("MATCH (m:MOVIE)-[:HAS_GENRE]->(g:GENRE) WHERE m.id = $movieId RETURN g.name")
     List<String> findGenresByMovieId(@Param("movieId") Long movieId);
-
-    //영화에 연결된 태그 조회
-    @Query("MATCH (m:MOVIE)-[:HAS_TAG]->(t:TAG) WHERE m.id = $movieId RETURN t.name")
-    List<String> findTagsByMovieId(@Param("movieId") Long movieId);
 }
