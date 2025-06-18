@@ -448,6 +448,7 @@
 
         const maxHeight = 120;
         const maxPercent = Math.max(...bars.map(b => b.percent));
+        const useNormalization = maxPercent * 10 > maxHeight;
 
         bars.forEach(bar => {
             const group = document.createElement("div");
@@ -455,11 +456,16 @@
 
             const barDiv = document.createElement("div");
             barDiv.className = "bar-vertical";
-            barDiv.style.height = ((bar.percent / maxPercent) * maxHeight) + "px";
+
+            if (useNormalization) {
+                barDiv.style.height = ((bar.percent / maxPercent) * maxHeight) + "px";
+            } else {
+                barDiv.style.height = (bar.percent * 10) + "px";
+            }
 
             const label = document.createElement("div");
             label.className = "bar-label";
-            label.textContent = `${bar.score}점`;
+            label.textContent = `${bar.score}point`;
 
             group.appendChild(barDiv);
             group.appendChild(label);
