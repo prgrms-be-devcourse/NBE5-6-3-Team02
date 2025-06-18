@@ -107,12 +107,12 @@ public class UserJpaService {
     public String findIdByName(FindIdRequestDto findIdRequestDto) {
         return userJpaRepository.findByNameAndPhoneNumber(findIdRequestDto.getName(), findIdRequestDto.getPhoneNumber())
             .map(UserEntity::getEmail)
-            .orElseThrow(() -> new IllegalArgumentException("해당 정보로 등록된 사용자가 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("No user is registered with that information."));
     }
 
     public void sendPasswordResetCode(String email) {
         UserEntity user = userJpaRepository.findByEmail(email)
-            .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 이메일입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("This email is not registered."));
 
         sendEmailVerificationCode(email);
     }
@@ -169,24 +169,24 @@ public class UserJpaService {
         if (!success) {
             log.error("[이메일인증] 최종 발송 실패: email={}, 총시도횟수={}, 마지막오류={}", 
                 email, retryCount, lastException != null ? lastException.getMessage() : "알 수 없는 오류");
-            throw new IllegalArgumentException("이메일 인증 코드 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+            throw new IllegalArgumentException("Failed to send the verification code. Please try again in a moment.");
         }
     }
 
     public void resetPassword(ResetPasswordRequestDto resetPasswordRequestDto) {
         // 비밀번호 확인
         if (!resetPasswordRequestDto.getNewPassword().equals(resetPasswordRequestDto.getConfirmPassword())) {
-            throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException("The new passwords do not match.");
         }
 
         // 인증 코드 확인 (Kotlin 서버 REST API 호출)
         if (!verifyEmailCodeWithKotlinApi(resetPasswordRequestDto.getEmail(), resetPasswordRequestDto.getVerificationCode())) {
-            throw new IllegalArgumentException("인증 코드가 올바르지 않거나 만료되었습니다.");
+            throw new IllegalArgumentException("The verification code is incorrect or has expired.");
         }
 
         // 비밀번호 변경
         UserEntity user = userJpaRepository.findByEmail(resetPasswordRequestDto.getEmail())
-            .orElseThrow(() -> new IllegalArgumentException("등록되지 않은 이메일입니다."));
+            .orElseThrow(() -> new IllegalArgumentException("This email is not registered."));
 
         user.setPassword(passwordEncoder.encode(resetPasswordRequestDto.getNewPassword()));
         userJpaRepository.save(user);
@@ -195,7 +195,7 @@ public class UserJpaService {
     @Transactional(readOnly = true)
     public UserEntity findById(Long id) {
         return userJpaRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("User not found."));
     }
 
     public void updateUser(Long userId, UserUpdateRequestDto requestDto) {
@@ -208,16 +208,16 @@ public class UserJpaService {
             // 현재 비밀번호 확인
             if (requestDto.getCurrentPassword() == null || requestDto.getCurrentPassword().isEmpty()) {
                 log.warn("[회원정보수정] 현재 비밀번호 미입력");
-                throw new IllegalArgumentException("현재 비밀번호를 입력해주세요.");
+                throw new IllegalArgumentException("Please enter your current password.");
             }
             if (!passwordEncoder.matches(requestDto.getCurrentPassword(), user.getPassword())) {
                 log.warn("[회원정보수정] 현재 비밀번호 불일치");
-                throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+                throw new IllegalArgumentException("Your current password does not match.");
             }
             // 새 비밀번호 확인
             if (!requestDto.getNewPassword().equals(requestDto.getConfirmPassword())) {
                 log.warn("[회원정보수정] 새 비밀번호 불일치");
-                throw new IllegalArgumentException("새 비밀번호가 일치하지 않습니다.");
+                throw new IllegalArgumentException("New passwords do not match.");
             }
             user.setPassword(passwordEncoder.encode(requestDto.getNewPassword()));
             log.info("[회원정보수정] 비밀번호 변경 완료");
@@ -243,14 +243,14 @@ public class UserJpaService {
     @Transactional(readOnly = true, transactionManager = "jpaTransactionManager")
     public UserInfoDto findUserInfoById(Long id) {
         UserEntity user = userJpaRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("User not found."));
         return UserInfoDto.from(user);
     }
 
     @Transactional(readOnly = true, transactionManager = "jpaTransactionManager")
     public List<RatedMovieDto> findRatedMoviesByUserId(Long userId) {
         UserEntity user = userJpaRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("User not found."));
         return ratingJpaRepository.findByUser(user).stream()
             .map(RatedMovieDto::from)
             .toList();
@@ -259,7 +259,7 @@ public class UserJpaService {
     @Transactional(readOnly = true, transactionManager = "jpaTransactionManager")
     public List<WishlistMovieDto> findWishlistMoviesByUserId(Long userId) {
         UserEntity user = userJpaRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new IllegalArgumentException("User not found."));
         return interestJpaRepository.findByUserAndStatus(user, Status.WATCH_LATER).stream()
             .map(WishlistMovieDto::from)
             .toList();
