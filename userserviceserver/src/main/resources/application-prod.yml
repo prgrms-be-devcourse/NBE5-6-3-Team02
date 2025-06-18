@@ -6,9 +6,9 @@ spring:
   server:
     url: https://spring-app-608935067072.us-central1.run.app
   datasource:
-    url: jdbc:mysql://localhost:3306/smartWatcha?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://34.47.74.27:3306/smartWatcha?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
     # mysql username, password 설정해주세요
-    username: bm
+    username: smartwatcha
     password: 123qwe!@#
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
