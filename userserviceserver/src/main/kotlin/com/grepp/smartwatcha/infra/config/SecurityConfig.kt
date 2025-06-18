@@ -24,10 +24,7 @@ class SecurityConfig(
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
             // CSRF 설정: 특정 경로는 CSRF 검증 제외
-            .csrf { csrf ->
-                csrf.ignoringRequestMatchers(AntPathRequestMatcher("/admin/movies/upcoming/sync"),
-                    AntPathRequestMatcher("/api/v1/email-verification/**"))
-            }
+            .csrf { it.disable() }
 
             // 요청별 인가 설정
             .authorizeHttpRequests { auth ->
