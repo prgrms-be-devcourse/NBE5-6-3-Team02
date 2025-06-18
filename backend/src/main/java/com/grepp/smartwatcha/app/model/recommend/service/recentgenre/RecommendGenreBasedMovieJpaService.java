@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
-@Transactional("jpaTransactionManager")
+@Transactional(value = "jpaTransactionManager", readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class RecommendGenreBasedMovieJpaService {

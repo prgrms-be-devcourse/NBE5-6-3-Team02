@@ -10,24 +10,24 @@ import java.util.List;
 @Repository
 public interface MovieQueryJpaRepository extends JpaRepository<MovieEntity, Long> {
 
-    // 공개된 영화 목록을 조회함
+    // 출시된 모든 영화 조회
     @Query("SELECT m FROM MovieEntity m WHERE m.isReleased = true")
     List<MovieEntity> findAllReleased();
 
-    // 여러개의 id를 조회
+    // id에 해당하는 영화 조회
     @Query("SELECT m FROM MovieEntity m WHERE m.id IN :ids")
     List<MovieEntity> findByIdIn(@Param("ids") List<Long> ids);
 
-    // 영화 id 기준으로 별점에 대한 평균 계산
+    // 영화의 평균 별점 계산
     @Query("SELECT AVG(r.score) FROM RatingEntity r WHERE r.movie.id = :movieId")
     Double findAverageScoreByMovieId(@Param("movieId") Long movieId);
 
-    // 별점 주지 않은 영화 조회
+    // 사용자가 아직 평가하지 않은 영화 조회
     @Query("SELECT m FROM MovieEntity m WHERE m.id NOT IN " +
             "(SELECT r.movie.id FROM RatingEntity r WHERE r.user.id = :userId)")
     List<MovieEntity> findMoviesNotRatedByUser(@Param("userId") Long userId);
 
-    // 영화에 대해 각 평균 평점 조회
+    // 영화 id 목록에 각 영화의 평균 별점 반환
     @Query("SELECT r.movie.id, AVG(r.score) FROM RatingEntity r " +
             "WHERE r.movie.id IN :movieIds GROUP BY r.movie.id")
     List<Object[]> findAverageScoresByMovieIds(@Param("movieIds") List<Long> movieIds);

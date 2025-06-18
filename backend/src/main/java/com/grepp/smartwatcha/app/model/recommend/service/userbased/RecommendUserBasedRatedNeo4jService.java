@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.model.recommend.service.userbased;
 
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreTagResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreDto;
 import com.grepp.smartwatcha.app.model.recommend.repository.MovieGenreCustomNeo4jRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,8 +14,8 @@ public class RecommendUserBasedRatedNeo4jService {
 
     private final MovieGenreCustomNeo4jRepository movieGenreCustomRepository;
 
-    // 영화 ID 리스트에 대해 장르, 태그 정보 조회
-    public List<MovieGenreTagResponse> getGenreTagInfoByMovieIdList(List<Long> movieIdList) {
-        return movieGenreCustomRepository.findGenresAndTagsByMovieIdList(movieIdList);
+    // 각 영화의 장르 조회
+    public List<MovieGenreDto> getGenresByMovieIdList(List<Long> movieIdList) {
+        return movieGenreCustomRepository.findOnlyGenresByMovieIdList(movieIdList);
     }
 }

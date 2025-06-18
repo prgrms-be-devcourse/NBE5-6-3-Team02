@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class MovieCreatedAtResponse {
+public class MovieCreatedAtDto {
     private Long userId;
     private Long movieId;
     private double score;

@@ -2,12 +2,13 @@ package com.grepp.smartwatcha.app.controller.api.recommend.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-public class MovieTagResponse {
-
+@NoArgsConstructor
+public class MovieRatingScoreDto {
+    private Long userId;
     private Long movieId;
-    private List<String> tags;
+    private double score;
 }

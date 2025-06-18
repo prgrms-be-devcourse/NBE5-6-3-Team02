@@ -1,6 +1,6 @@
 package com.grepp.smartwatcha.app.model.recommend;
 
-import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreResponse;
+import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieGenreDto;
 import com.grepp.smartwatcha.app.controller.api.recommend.payload.MovieRecommendResponse;
 import com.grepp.smartwatcha.app.model.recommend.repository.MovieGenreCustomNeo4jRepository;
 import com.grepp.smartwatcha.app.model.recommend.service.recentgenre.RecommendGenreBasedMovieJpaService;
@@ -29,7 +29,7 @@ public class RecommendGenreBasedMovieService {
         List<Long> unratedMovieIds = jpaService.findUnratedMovieIdsByUser(userId);
         if (unratedMovieIds.isEmpty()) return Collections.emptyList();
 
-        List<MovieGenreResponse> genreInfos = movieGenreCustomNeo4jRepository.findOnlyGenresByMovieIdList(unratedMovieIds);
+        List<MovieGenreDto> genreInfos = movieGenreCustomNeo4jRepository.findOnlyGenresByMovieIdList(unratedMovieIds);
         List<Long> genreMatchedMovieIds = filterMoviesByGenreMatch(genreInfos, targetGenres);
         if (genreMatchedMovieIds.isEmpty()) return Collections.emptyList();
 
@@ -43,9 +43,9 @@ public class RecommendGenreBasedMovieService {
     }
 
     // 영화 리스트에서 최근 평가 영화와 장르가 겹치는 것만 필터링
-    private List<Long> filterMoviesByGenreMatch(List<MovieGenreResponse> infos, List<String> targetGenres) {
+    private List<Long> filterMoviesByGenreMatch(List<MovieGenreDto> infos, List<String> targetGenres) {
         List<Long> matchedIds = new ArrayList<>();
-        for (MovieGenreResponse info : infos) {
+        for (MovieGenreDto info : infos) {
             for (String genre : info.getGenres()) {
                 if (targetGenres.contains(genre)) {
                     matchedIds.add(info.getMovieId());
@@ -57,9 +57,9 @@ public class RecommendGenreBasedMovieService {
     }
 
     // 영화 id 기준으로 장르/태그 정보를 구성
-    private Map<Long, List<String>> mapGenresByMovieId(List<MovieGenreResponse> infos, Set<Long> targetIds) {
+    private Map<Long, List<String>> mapGenresByMovieId(List<MovieGenreDto> infos, Set<Long> targetIds) {
         Map<Long, List<String>> result = new HashMap<>();
-        for (MovieGenreResponse info : infos) {
+        for (MovieGenreDto info : infos) {
             if (targetIds.contains(info.getMovieId())) {
                 result.put(info.getMovieId(), info.getGenres());
             }
