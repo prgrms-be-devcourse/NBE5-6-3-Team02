@@ -1,34 +1,76 @@
 server:
-  port: 8080
+  port: 8081
 
+# Mysql
 spring:
+  server:
+    url: https://spring-app-608935067072.us-central1.run.app
   datasource:
-    url: jdbc:mysql://34.47.74.27:3306/smartWatcha
-    username: smartwatcha
+    url: jdbc:mysql://localhost:3306/smartWatcha?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
+    # mysql username, password 설정해주세요
+    username: bm
     password: 123qwe!@#
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
+    show-sql: false
+    open-in-view: false
     hibernate:
-      ddl-auto: validate
-    show-sql: true
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
+        use_sql_comments: false
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  sql:
+    init:
+      mode: never
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ethanahn00@gmail.com
+    password: lgir wufd vvjx spio
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+  # 공개예정작
+  neo4j:
+    # neo4j url이 다를 경우 변경해주세요
+    uri: neo4j+s://eb7fc857.databases.neo4j.io
+    authentication:
+      # username, password, database 설정해주세요
+      username: neo4j
+      password: Ok10kQ3c_6Pj-iICQatqjEFjSYZglJhs3OFm34KUqAM
+    database:
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            logger-level: full
 
 app:
   internal-token: 123qwe!@#
   email:
     verification:
       expire-minutes: 1
-      cooldown-seconds: 60 
+      cooldown-seconds: 60
+
+# 공개예정작 tmdb api - 설정헤주세요
+tmdb:
+  api:
+    key: 220ab4473b155c1e4c264de01ffd4085
+
+# 시큐리티 로그
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+# 공개예정작
+internal:
+  token: 123qwe!@#
+  user-service-url: https://kotlin-server-608935067072.us-central1.run.app
