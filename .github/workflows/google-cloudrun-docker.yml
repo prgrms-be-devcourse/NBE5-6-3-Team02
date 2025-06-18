@@ -90,6 +90,20 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars SPRING_PROFILES_ACTIVE=prod
 
+      - name: Build and Push backend Docker image
+        run: |
+          docker build -t asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/kotlin-server:${{ github.sha }} ./userserviceserver
+          docker push asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/kotlin-server:${{ github.sha }}
+
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy kotlin-server \
+            --image asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.BACKEND_REPO_NAME }}/kotlin-server:${{ github.sha }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --set-env-vars SPRING_PROFILES_ACTIVE=prod
+
       - name: Build and Push llm Docker image
         run: |
           docker build -t asia-northeast3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.LLM_REPO_NAME }}/llm-server:${{ github.sha }} ./llmserver
