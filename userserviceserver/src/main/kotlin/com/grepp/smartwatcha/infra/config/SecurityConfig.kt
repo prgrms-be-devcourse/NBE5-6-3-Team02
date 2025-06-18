@@ -25,14 +25,16 @@ class SecurityConfig(
         return http
             // CSRF 설정: 특정 경로는 CSRF 검증 제외
             .csrf { csrf ->
-                csrf.ignoringRequestMatchers(AntPathRequestMatcher("/admin/movies/upcoming/sync"))
+                csrf.ignoringRequestMatchers(AntPathRequestMatcher("/admin/movies/upcoming/sync"),
+                    AntPathRequestMatcher("/api/v1/email-verification/**"))
             }
 
             // 요청별 인가 설정
             .authorizeHttpRequests { auth ->
                 auth
                     // 이메일 인증 API 경로는 모든 요청 허용
-                    .requestMatchers("/api/v1/email-verification/**").permitAll()
+                    .requestMatchers("/api/v1/email-verification/**",
+                    ).permitAll()
                     
                     // 관리자 동기화 API 경로에 대해 커스텀 인증 로직 적용
                     .requestMatchers("/admin/movies/upcoming/sync")
